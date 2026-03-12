@@ -7,6 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <style>
 :root {
   --navy: #0a1628;
@@ -285,6 +287,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   </div>
   <div class="topbar-gem">Gemini AI</div>
   <button id="btnPrintTop" onclick="window.print()">🖨 พิมพ์ / PDF</button>
+  <button id="btnDocxTop" onclick="exportDocx()" style="display:none;margin-left:6px;background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sarabun',sans-serif;box-shadow:0 4px 12px rgba(37,99,235,.3);transition:all .2s">💾 บันทึก .docx</button>
 </div>
 
 <div class="tabs">
@@ -519,6 +522,8 @@ function switchTab(name, el) {
   document.getElementById('tab-' + name).classList.add('active');
   el.classList.add('active');
   document.getElementById('btnPrintTop').style.display =
+    (name === 'preview' && state.questions.length > 0) ? 'flex' : 'none';
+  document.getElementById('btnDocxTop').style.display =
     (name === 'preview' && state.questions.length > 0) ? 'flex' : 'none';
   if (name === 'preview') requestAnimationFrame(scalePaper);
 }
@@ -798,6 +803,7 @@ ${state.rawText}`;
     renderAll();
     switchTab('preview', document.getElementById('tabPreview'));
     document.getElementById('btnPrintTop').style.display = 'flex';
+    document.getElementById('btnDocxTop').style.display = 'flex';
   } catch (e) {
     showErr(e.name === 'AbortError' ? 'ยกเลิกการแปลงแล้ว' : 'แปลงไม่ได้: ' + e.message);
   } finally {
@@ -1090,6 +1096,90 @@ function buildWritingPage(meta) {
     <div class="w-topics-box">${topicsHtml}</div>
     <div class="w-lines-box">${linesHtml}</div>
   </div>`;
+}
+
+async function exportDocx() {
+  if (!state.questions.length) return;
+  const btn = document.getElementById('btnDocxTop');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '⏳ กำลังสร้าง...'; btn.disabled = true;
+
+  try {
+    const { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, Packer, TabStopPosition, TabStopType } = docx;
+
+    const v = id => document.getElementById(id).value;
+    const school  = v('f_school');
+    const type    = v('f_type');
+    const year    = v('f_year');
+    const grade   = v('f_grade');
+    const subject = v('f_subject');
+    const time    = v('f_time');
+    const inst    = v('f_inst');
+    const total   = state.questions.length;
+
+    const TH = 'TH Sarabun PSK';
+    const SZ = 32; // 16pt = 32 half-points
+    const SZ_SM = 28; // 14pt
+
+    const bold = (text, sz) => new TextRun({ text, bold: true, font: TH, size: sz || SZ });
+    const normal = (text, sz) => new TextRun({ text, font: TH, size: sz || SZ });
+
+    const children = [];
+
+    // ── หัวกระดาษ ──
+    children.push(new Paragraph({ alignment: AlignmentType.CENTER, children: [bold(school)] }));
+    children.push(new Paragraph({
+      alignment: AlignmentType.CENTER,
+      children: [bold(`ข้อสอบ${type}   ปีการศึกษา ${year}   ชั้น${grade}`)]
+    }));
+    children.push(new Paragraph({
+      alignment: AlignmentType.CENTER,
+      border: { bottom: { style: 'single', size: 12, color: '000000' } },
+      children: [bold(`วิชา ${subject}   จำนวน ${total} ข้อ   เวลา ${time} นาที`)]
+    }));
+    children.push(new Paragraph({ children: [normal(`คำชี้แจง : ${inst}`, SZ_SM)] }));
+    children.push(new Paragraph({ children: [normal('')] }));
+
+    // ── ข้อสอบ ──
+    state.questions.forEach(q => {
+      const labels = (q.labels && q.labels.length) ? q.labels : ['ก','ข','ค','ง'];
+
+      // คำถาม
+      children.push(new Paragraph({
+        children: [normal(`${q.no}.  ${q.question}`)]
+      }));
+
+      // ตัวเลือก
+      ['a','b','c','d'].forEach((k, i) => {
+        if (!q[k]) return;
+        children.push(new Paragraph({
+          indent: { left: 480 },
+          children: [normal(`${labels[i] !== undefined ? labels[i]+'.' : ''}  ${q[k]}`)]
+        }));
+      });
+
+      children.push(new Paragraph({ children: [normal('')] }));
+    });
+
+    const doc = new Document({
+      sections: [{
+        properties: {
+          page: {
+            size: { width: 12240, height: 20160 }, // 8.5" x 14" (Legal) in twips
+            margin: { top: 720, bottom: 720, left: 900, right: 900 }
+          }
+        },
+        children
+      }]
+    });
+
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, `ข้อสอบ_${subject}_${grade}.docx`);
+  } catch(e) {
+    alert('สร้าง .docx ไม่สำเร็จ: ' + e.message);
+  } finally {
+    btn.innerHTML = orig; btn.disabled = false;
+  }
 }
 
 function cancelConvert() { if (state.abortCtrl) state.abortCtrl.abort(); }
