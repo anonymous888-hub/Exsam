@@ -132,7 +132,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   font-size:16px;line-height:1.5;font-weight:normal;
   box-shadow:0 8px 40px rgba(0,0,0,.4);
   width:816px;
-  height:1248px;
+  /* เปลี่ยนความสูงสำหรับหน้าจอเป็นขนาด Legal 14 นิ้ว (14 * 96 = 1344) */
+  height:1344px;
   overflow:hidden;
   padding:54px 62px;
   margin:0 auto 20px auto;
@@ -163,8 +164,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 
 /* ══ PRINT STYLES ขั้นเด็ดขาด V3 ══ */
 @media print{
-  /* ตั้งค่ากระดาษ F4 */
-  @page { size: 8.5in 13in portrait; margin: 0; }
+  /* เปลี่ยนกระดาษเป็น Legal (14 นิ้ว) */
+  @page { size: 8.5in 14in portrait; margin: 0; }
   
   html, body { 
     background: #fff !important; 
@@ -209,9 +210,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
     color: #000 !important; 
     width: 8.5in !important; 
     
-    /* 🔴 THE FIX: ลดความสูงลงมาเป็น 12.8 นิ้ว เพื่อไม่ให้ชนขอบกระดาษ 13 นิ้ว */
-    height: 12.8in !important; 
-    max-height: 12.8in !important;
+    /* ปรับความสูงสำหรับ Legal (14 นิ้ว) หักเผื่อขอบเล็กน้อยเป็น 13.8in */
+    height: 13.8in !important; 
+    max-height: 13.8in !important;
     
     padding: 54px 62px !important; 
     margin: 0 !important; 
@@ -906,10 +907,11 @@ function renderPaper() {
     grade: v('f_grade'), subject: v('f_subject'), time: v('f_time'),
     inst: v('f_inst'), total: state.questions.length };
 
-  const PAPER_H  = 1248;
+  /* เปลี่ยนความสูงสำหรับทำงานกับไซส์ 14 นิ้ว (Legal) */
+  const PAPER_H  = 1344;
   const PAD_V    = 54;
   const PAD_H    = 62;
-  const CONTENT_H = PAPER_H - PAD_V * 2; // 1140
+  const CONTENT_H = PAPER_H - PAD_V * 2; // เพิ่มพื้นที่ให้พอดีกับกระดาษยาวขึ้น
   const CONTENT_W = 816 - PAD_H * 2;
   const COL_GAP   = 24;
   const COL_INNER = 12;
