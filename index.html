@@ -6,6 +6,7 @@
 <title>ระบบแปลงข้อสอบ — โรงเรียนพระมารดานิจจานุเคราะห์</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <style>
 :root {
   --navy: #0a1628;
@@ -23,7 +24,6 @@
 body{font-family:'Sarabun',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 0%,rgba(30,58,95,.6),transparent 60%),radial-gradient(ellipse 60% 50% at 80% 100%,rgba(232,184,75,.07),transparent 50%);pointer-events:none}
 
-/* ขยาย UI ส่วน Topbar */
 .topbar{position:relative;z-index:10;display:flex;align-items:center;gap:16px;padding:16px 28px;background:rgba(10,22,40,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .logo{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Sarabun',sans-serif;font-size:20px;color:var(--navy);font-weight:700;flex-shrink:0;box-shadow:0 4px 14px rgba(232,184,75,.3)}
 .topbar-title{font-size:18px;font-weight:700}
@@ -34,14 +34,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 #btnPrintTop{display:none;margin-left:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--navy);border:none;border-radius:10px;padding:10px 20px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Sarabun',sans-serif;box-shadow:0 4px 12px rgba(232,184,75,.3);transition:all .2s}
 #btnPrintTop:hover{transform:translateY(-1px)}
 
-/* ขยาย UI ส่วน Tabs */
 .tabs{position:relative;z-index:10;display:flex;gap:6px;padding:16px 28px 0;background:rgba(10,22,40,.5)}
 .tab{padding:14px 24px;border:none;border-radius:12px 12px 0 0;background:transparent;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:500;color:var(--text2);transition:all .2s;display:flex;align-items:center;gap:8px}
 .tab:hover{color:var(--text);background:var(--glass)}
 .tab.active{color:var(--text);background:rgba(255,255,255,.07);border-bottom:3px solid var(--accent)}
 .badge{background:var(--accent);color:var(--navy);border-radius:12px;padding:2px 8px;font-size:12px;font-weight:700;display:none}
 
-/* เผื่อความกว้างของ Main Content */
 .main{position:relative;z-index:5;max-width:1400px;margin:0 auto;padding:30px}
 .tab-panel{display:none}
 .tab-panel.active{display:block;animation:fadeUp .3s ease}
@@ -49,12 +47,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 @media(max-width:900px){.grid2{grid-template-columns:1fr}.main{padding:16px}}
 
-/* ขยาย UI ส่วน Cards */
 .card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:28px;backdrop-filter:blur(10px)}
 .card-title{font-size:15px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:22px;display:flex;align-items:center;gap:10px}
 .card-icon{width:32px;height:32px;background:rgba(232,184,75,.14);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
 
-/* ขยาย UI ส่วน Upload Zone */
 .upload-zone{
   position:relative;
   border:3px dashed rgba(232,184,75,.5);
@@ -92,7 +88,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .text-toggle:hover{color:var(--text)}
 .text-box{display:none;max-height:140px;overflow-y:auto;background:rgba(0,0,0,.3);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;color:var(--text2);white-space:pre-wrap;margin-bottom:16px}
 
-/* ขยายปุ่มแปลงข้อสอบ */
 .btn-convert{width:100%;padding:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--navy);border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 5px 18px rgba(232,184,75,.25)}
 .btn-convert:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 24px rgba(232,184,75,.35)}
 .btn-convert:disabled{background:rgba(255,255,255,.08);color:var(--text2);cursor:not-allowed;box-shadow:none;transform:none}
@@ -100,7 +95,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 @keyframes spin{to{transform:rotate(360deg)}}
 .err-msg{display:none;margin-top:12px;padding:12px 16px;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:10px;color:var(--red);font-size:15px}
 
-/* ขยายฟอร์ม Input */
 .form-fields{display:flex;flex-direction:column;gap:14px}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .field{display:flex;flex-direction:column;gap:6px}
@@ -109,11 +103,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .field input:focus{border-color:var(--accent)}
 .field textarea{font-size:16px; padding:12px 16px;}
 
-.steps{margin-top:24px;display:flex;flex-direction:column;gap:10px}
-.step{display:flex;align-items:center;gap:14px;padding:12px 16px;background:rgba(0,0,0,.2);border-radius:12px;font-size:15px;color:var(--text2);border:1px solid var(--border)}
-.step-num{width:28px;height:28px;background:rgba(232,184,75,.14);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0}
-
-/* ขยาย Layout Preview / Editor */
 .preview-layout{display:grid;grid-template-columns:350px 1fr;gap:24px;align-items:start}
 @media(max-width:900px){.preview-layout{grid-template-columns:1fr}}
 .editor-panel{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;max-height:calc(100vh - 180px);display:flex;flex-direction:column}
@@ -144,7 +133,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   -webkit-overflow-scrolling:touch;
 }
 
-/* ล็อกความสูงหน้ากระดาษ F4 แบบเด็ดขาด */
 .paper{
   background:#fff;
   border-radius:6px;
@@ -155,7 +143,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   font-weight:normal;
   box-shadow:0 8px 40px rgba(0,0,0,.4);
   width:816px;       
-  height:1248px; /* บังคับให้สูงเท่า F4 */
+  height:1248px;
   padding:54px 62px; 
   margin:0 auto 24px auto;
   box-sizing:border-box;
@@ -165,15 +153,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   overflow:hidden;
 }
 
-/* --- ปรับแต่งฟอนต์หัวกระดาษเป็น 16pt (ขนาดเดียวกับเนื้อหา) TH Sarabun PSK ตัวหนา --- */
 .p-school{font-size:16pt;font-weight:bold;font-family:'TH Sarabun PSK', 'Sarabun', sans-serif;text-align:center;margin-bottom:2px}
 .p-row{font-size:16pt;font-weight:bold;font-family:'TH Sarabun PSK', 'Sarabun', sans-serif;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:2px}
 .p-row.bdr{border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:8px}
 .p-subhead{font-size:16pt;font-weight:bold;font-family:'TH Sarabun PSK', 'Sarabun', sans-serif;display:flex;justify-content:space-between;margin-bottom:4px}
 .p-subhead-line{border-bottom:2px solid #000;margin-bottom:10px}
-
-/* --- ปรับแต่งคำชี้แจงเป็น 16pt TH Sarabun PSK ตัวธรรมดา (ไม่หนา) --- */
-.p-inst{font-size:16pt;font-weight:normal;text-decoration:none;font-family:'TH Sarabun PSK', 'Sarabun', sans-serif;margin-bottom:12px}
+..p-inst{font-size:14pt;font-weight:normal;text-decoration:none;font-family:'TH Sarabun PSK', 'Sarabun', sans-serif;margin-bottom:12px}
 
 .exam-cols{column-count:2;column-gap:24px;column-rule:1px solid #ccc}
 .exam-single{column-count:1}
@@ -182,7 +167,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .q-choices{padding-left:1em}
 .q-choice{margin:2px 0;padding-left:1.8em;text-indent:-1.8em;display:block;}
 
-/* ═══ PRINT STYLES ═══ */
+/* ═══ PRINT STYLES ═══ 
+   แก้ปัญหาหน้าเปล่า โดยให้ความสูงไหลตามเนื้อหา (height: auto)
+   แล้วใช้คำสั่ง break-after แทนการล็อกความสูงตายตัว
+*/
 @media print{
   @page { size: 8.5in 13in portrait; margin: 0; }
   html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: auto !important; }
@@ -204,14 +192,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
     box-shadow: none !important; 
     overflow: visible !important; 
     max-height: none !important; 
-    height: auto !important;
+    height: auto !important; 
   }
   
   .paper { 
     background: #fff !important; 
     color: #000 !important; 
-    width: 100% !important; /* ให้กว้างเต็มหน้ากระดาษ */
-    height: auto !important; /* ปล่อยความสูงไหลตามจริง ป้องกันหน้ากระดาษล้น */
+    width: 100% !important; 
+    height: auto !important; /* ป้องกันเนื้อหาปลิ้นจนเกิดหน้าว่าง */
     max-height: 100vh !important;
     padding: 54px 62px !important; 
     margin: 0 !important; 
@@ -219,7 +207,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
     border-radius: 0 !important; 
     transform: none !important; 
     page-break-inside: avoid !important;
-    page-break-after: always !important; /* สั่งขึ้นหน้าใหม่ทุกจบแผ่น */
+    page-break-after: always !important; 
     break-after: page !important; 
     position: relative !important; 
     overflow: hidden !important; 
@@ -227,10 +215,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   }
   
   .paper:last-child { 
-    page-break-after: auto !important; /* แผ่นสุดท้ายไม่ต้องสั่งขึ้นหน้าใหม่ (กันหน้าเปล่าปิดท้าย) */
+    page-break-after: auto !important; /* หน้าสุดท้ายไม่ต้องขึ้นหน้าใหม่ ป้องกันหน้าเปล่าปิดท้าย */
     break-after: auto !important; 
   }
-  
+
   .exam-cols { column-count: 2 !important; column-gap: 24px !important; column-rule: 1px solid #999 !important; }
   .exam-single { column-count: 1 !important; }
   .q-block { break-inside: avoid !important; page-break-inside: avoid !important; }
@@ -298,10 +286,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
         </div>
         <div class="upload-zone" id="uploadZone"
           ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDrop(event)">
-          <input type="file" id="fileIn" accept=".docx,.doc,.txt" onchange="onFileChange(this)">
+          <input type="file" id="fileIn" accept=".docx,.doc,.txt,.pdf" onchange="onFileChange(this)">
           <div class="upload-zone-icon">📂</div>
           <div class="upload-zone-title">คลิกที่นี่เพื่อเลือกไฟล์</div>
-          <div class="upload-zone-sub">รองรับ .docx · .doc · .txt</div>
+          <div class="upload-zone-sub">รองรับ .pdf · .docx · .txt</div>
           <div class="upload-zone-pill">📁 เปิดไฟล์</div>
         </div>
         <div class="file-status" id="fileStatus">
@@ -433,7 +421,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 
 <script>
 const AppState = {
-  /////apiKey: 'AIzaSyC14dSWs-tXgUNnRUBtrcixprEA97_rlSw',    <<<-------kae
   apiKey: 'AIzaSyABeDa8PFVnXcl2e076kj9JT6E3fOSjdq4',
   apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
   rawText: '',
@@ -479,18 +466,52 @@ function onDrop(e) {
 }
 function onFileChange(inp) { if (inp.files[0]) readFile(inp.files[0]); }
 
-/* ─── File reading ───────────────────────────────────── */
+/* ─── File reading (รองรับ PDF) ─────────────────────── */
 function readFile(file) {
   showStatus(file.name, 'กำลังอ่านไฟล์...');
   showErr('');
   const reader = new FileReader();
-  if (file.name.toLowerCase().endsWith('.txt')) {
+  const name = file.name.toLowerCase();
+
+  // จัดการไฟล์ Text
+  if (name.endsWith('.txt')) {
     reader.onload = e => { AppState.rawText = e.target.result; onReady(file); };
     reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
     reader.readAsText(file, 'utf-8');
-  } else {
+  } 
+  // จัดการไฟล์ PDF
+  else if (name.endsWith('.pdf')) {
+    reader.onload = async e => {
+      try {
+        if (typeof pdfjsLib === 'undefined') throw new Error('โหลด PDF.js ไม่ได้');
+        
+        // กำหนด Worker สำหรับสกัดข้อความ
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        
+        const typedarray = new Uint8Array(e.target.result);
+        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+        let text = '';
+        
+        // ลูปอ่านทีละหน้า
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          text += content.items.map(item => item.str).join(' ') + '\n';
+        }
+        
+        AppState.rawText = text;
+        onReady(file);
+      } catch (err) {
+        showErr('อ่าน PDF ไม่ได้: ' + err.message);
+      }
+    };
+    reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
+    reader.readAsArrayBuffer(file);
+  } 
+  // จัดการไฟล์ Word (Docx)
+  else {
     reader.onload = e => {
-      if (typeof mammoth === 'undefined') return showErr('โหลด mammoth.js ไม่ได้ กรุณาใช้ .txt แทน');
+      if (typeof mammoth === 'undefined') return showErr('โหลด mammoth.js ไม่ได้ กรุณาใช้ .txt หรือ .pdf แทน');
       mammoth.extractRawText({ arrayBuffer: e.target.result })
         .then(res => { AppState.rawText = res.value; onReady(file); })
         .catch(err => showErr('อ่าน .docx ไม่ได้: ' + err.message));
@@ -503,7 +524,7 @@ function readFile(file) {
 function onReady(file) {
   if (!AppState.rawText || !AppState.rawText.trim()) return showErr('ไม่พบข้อความในไฟล์');
   const lines = AppState.rawText.split('\n').filter(l => l.trim()).length;
-  showStatus(file.name, (file.size / 1024).toFixed(1) + ' KB · ' + lines + ' บรรทัด · พร้อมแปลง ✓');
+  showStatus(file.name, (file.size / 1024).toFixed(1) + ' KB · พร้อมแปลง ✓');
   DOMHelper.get('textBox').textContent = AppState.rawText.slice(0, 800) + (AppState.rawText.length > 800 ? '…' : '');
   DOMHelper.get('textToggle').style.display = 'flex';
   DOMHelper.get('btnConvert').disabled = false;
@@ -731,65 +752,4 @@ function renderPaper() {
   if (AppState.showWriting) {
     const wPaper = DOMHelper.create('div', 'paper');
     wPaper.innerHTML = `<div class="p-subhead"><span>วิชา ${esc(meta.subject)}</span><span>ชั้น${esc(meta.grade)}</span><span>หน้าเขียนตอบ</span></div><div class="p-subhead-line"></div>
-      <div class="w-name-row"><span>Name: <span class="w-blank" style="width:220px"></span></span><span>No: <span class="w-blank" style="width:60px"></span></span><span>Class: <span class="w-blank" style="width:80px"></span></span></div>
-      <div class="w-part-head">Part II: Writing <span class="w-pts">(${AppState.writingPoints} points)</span></div>
-      <div class="w-directions">Directions: Choose <strong>ONE</strong> topic. Write at least <strong>${AppState.writingWords} words</strong>.</div>
-      <div class="w-topics-box">${AppState.writingTopics.length ? AppState.writingTopics.map((t,i) => `<div class="w-topic">${i+1}. ${esc(t)}</div>`).join('') : '<div class="w-topic" style="opacity:.4">(ยังไม่มีหัวข้อ)</div>'}</div>
-      <div class="w-lines-box">${'<div class="w-line"></div>'.repeat(AppState.writingLines)}</div>`;
-    rootFrag.appendChild(wPaper);
-  }
-
-  wrap.appendChild(rootFrag);
-  requestAnimationFrame(scalePaper);
-}
-
-function scalePaper() {
-  const wrap = DOMHelper.get('paperWrap');
-  if (!wrap) return;
-  const wrapW = wrap.clientWidth - 48; /* ปรับลดพื้นที่ padding เล็กน้อยเพื่อให้สมมาตร */
-  if (wrapW <= 0) return;
-  wrap.querySelectorAll('.paper').forEach(p => {
-    p.style.transform = ''; p.style.marginBottom = '24px';
-    if (p.offsetWidth > 0 && p.offsetWidth > wrapW) {
-      const scale = wrapW / p.offsetWidth;
-      p.style.transform = `scale(${scale})`;
-      p.style.transformOrigin = 'top center';
-      p.style.marginBottom = `${24 - (p.offsetHeight - p.offsetHeight * scale)}px`;
-    }
-  });
-}
-
-let _resizeTimer = null;
-window.addEventListener('resize', () => {
-  if (_resizeTimer) clearTimeout(_resizeTimer);
-  _resizeTimer = setTimeout(scalePaper, 100);
-});
-
-/* ─── Helpers ────────────────────────────────────────── */
-function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-function toggleQ(i) { AppState.openIdx = AppState.openIdx === i ? null : i; renderEditor(); }
-let _updateTimer = null;
-function updateQ(i, f, v) {
-  AppState.questions[i][f] = v;
-  if (f === 'question') {
-    const snips = document.querySelectorAll('.q-snip');
-    if (snips[i]) snips[i].textContent = v || '(ว่าง)';
-  }
-  if (_updateTimer) clearTimeout(_updateTimer);
-  _updateTimer = setTimeout(() => { schedulePaperRender(); _updateTimer = null; }, 300);
-}
-function addQ() { AppState.questions.push({ no: AppState.questions.length + 1, question: '', a: '', b: '', c: '', d: '', answer: '' }); AppState.openIdx = AppState.questions.length - 1; renderAll(); DOMHelper.get('qBadge').textContent = AppState.questions.length; }
-function delQ(i) { AppState.questions.splice(i, 1); AppState.questions.forEach((q, idx) => q.no = idx + 1); if (AppState.openIdx !== null && AppState.openIdx >= AppState.questions.length) AppState.openIdx = AppState.questions.length > 0 ? AppState.questions.length - 1 : null; renderAll(); DOMHelper.get('qBadge').textContent = AppState.questions.length; }
-function showErr(msg) { const el = DOMHelper.get('errMsg'); el.style.display = msg ? 'block' : 'none'; el.textContent = msg ? '⚠️ ' + msg : ''; }
-function onWritingToggle(chk) { AppState.showWriting = chk.checked; DOMHelper.get('writingOpts').style.display = chk.checked ? 'block' : 'none'; if (AppState.questions.length > 0) schedulePaperRender(); }
-function cancelConvert() { if (AppState.abortCtrl) AppState.abortCtrl.abort(); }
-function onLayoutChange(radio) {
-  AppState.twoCol = radio.value === '2';
-  document.querySelectorAll('.col-opt').forEach(l => l.classList.remove('active'));
-  radio.closest('.col-opt').classList.add('active');
-  if (AppState.questions.length > 0) schedulePaperRender();
-}
-document.querySelectorAll('input[id^="f_"]').forEach(el => el.addEventListener('input', () => { if (AppState.questions.length > 0) schedulePaperRender(); }));
-</script>
-</body>
-</html>
+      <div class="w-name-row"><span>Name: <span class="w-blank" style="width:22
