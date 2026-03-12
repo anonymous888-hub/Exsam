@@ -657,18 +657,20 @@ function buildQHtml(q) {
   </div>`;
 }
 
-function buildPageHtml(isFirst, pageNo, questions, meta, heights) {
+function buildPageHtml(isFirst, pageNo, questions, meta, heights, availH) {
   let contentHtml;
-  if (state.twoCol && questions.length > 0) {
-    // แบ่ง questions เป็น 2 คอลัมน์โดย JS ตาม height balance
-    let splitAt = Math.ceil(questions.length / 2); // default: ครึ่งละเท่า
-    if (heights && heights.length === questions.length && questions.length > 1) {
-      const total = heights.reduce((a,b) => a+b, 0);
-      let cum = 0;
-      for (let i = 0; i < heights.length - 1; i++) {
-        cum += heights[i];
-        if (cum * 2 >= total) { splitAt = i + 1; break; }
-      }
+  if (state.twoCol && questions.length > 1) {
+    // หา splitAt ที่ left column ไม่เกิน availH
+    // และพยายาม balance ซ้าย/ขวาให้ใกล้เคียงกัน
+    let splitAt = 1;
+    let leftH = 0;
+    for (let i = 0; i < heights.length - 1; i++) {
+      if (typeof availH === 'number' && leftH + heights[i] > availH) break;
+      leftH += heights[i];
+      splitAt = i + 1;
+      // หยุดเมื่อ left >= ครึ่งหนึ่งของ total (balance)
+      const total = heights.reduce((a,b)=>a+b,0);
+      if (leftH * 2 >= total) break;
     }
     const leftHtml  = questions.slice(0, splitAt).map(buildQHtml).join('');
     const rightHtml = questions.slice(splitAt).map(buildQHtml).join('');
@@ -773,7 +775,7 @@ function renderPaper() {
   });
   if (pageQs.length > 0) pages.push({ pageNo, isFirst, questions: pageQs, heights: pageHts });
 
-  let html = pages.map(p => buildPageHtml(p.isFirst, p.pageNo, p.questions, meta, p.heights)).join('');
+  let html = pages.map(p => buildPageHtml(p.isFirst, p.pageNo, p.questions, meta, p.heights, p.isFirst ? avail1 : availN)).join('');
   if (state.showWriting) html += buildWritingPage(meta);
   document.getElementById('paperWrap').innerHTML = html;
   requestAnimationFrame(scalePaper);
