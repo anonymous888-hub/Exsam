@@ -140,7 +140,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   padding:54px 62px;
   margin:0 auto 20px auto;
   box-sizing:border-box;position:relative;
-  transform-origin:top center;transition:none;
+  transform-origin:top left;transition:none;
 }
 
 .p-school{font-family:'TH Sarabun PSK','Sarabun',sans-serif;font-size:16px;font-weight:bold;text-align:center;margin-bottom:2px;}
@@ -223,7 +223,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
     
     /* บังคับล้างค่าจากการย่อ/ขยายด้วย JS 100% */
     zoom: 1 !important; 
-    transform: none !important; 
+    transform: none !important;
+    transform-origin: top left !important; 
     
     /* สั่งตัดหน้ากระดาษ */
     page-break-inside: avoid !important; 
@@ -999,15 +1000,23 @@ function renderPaper() {
   const frag = document.createDocumentFragment();
 
   pages.forEach(p => {
+    const wrap2 = document.createElement('div');
+    wrap2.className = 'paper-scale-wrap';
+    wrap2.style.cssText = 'position:relative;overflow:hidden;';
     const temp = document.createElement('div');
     temp.innerHTML = buildPageHtml(p.isFirst, p.pageNo, p.questions, meta, p.heights, p.isFirst ? avail1 : availN);
-    frag.appendChild(temp.firstElementChild);
+    wrap2.appendChild(temp.firstElementChild);
+    frag.appendChild(wrap2);
   });
 
   if (state.showWriting) {
+    const wrap2 = document.createElement('div');
+    wrap2.className = 'paper-scale-wrap';
+    wrap2.style.cssText = 'position:relative;overflow:hidden;';
     const temp = document.createElement('div');
     temp.innerHTML = buildWritingPage(meta);
-    frag.appendChild(temp.firstElementChild);
+    wrap2.appendChild(temp.firstElementChild);
+    frag.appendChild(wrap2);
   }
 
   wrap.appendChild(frag);
@@ -1017,14 +1026,22 @@ function renderPaper() {
 function scalePaper() {
   const wrap = document.getElementById('paperWrap');
   if (!wrap) return;
-  const papers = wrap.querySelectorAll('.paper');
+  const papers = wrap.querySelectorAll('.paper-scale-wrap');
   if (!papers.length) return;
   const wrapW = wrap.clientWidth - 36;
   if (wrapW <= 0) return;
-  papers.forEach(p => {
-    p.style.zoom = '1'; p.style.marginBottom = '20px';
-    const pw = p.offsetWidth;
-    if (pw > 0 && pw > wrapW) p.style.zoom = String(wrapW / pw);
+  papers.forEach(pw => {
+    const paper = pw.querySelector('.paper');
+    if (!paper) return;
+    const paperW = paper.offsetWidth;
+    if (paperW <= 0) return;
+    const scale = paperW > wrapW ? wrapW / paperW : 1;
+    paper.style.transform = `scale(${scale})`;
+    paper.style.transformOrigin = 'top left';
+    pw.style.width = (paperW * scale) + 'px';
+    pw.style.height = (paper.offsetHeight * scale) + 'px';
+    pw.style.marginBottom = '20px';
+    pw.style.overflow = 'hidden';
   });
 }
 
