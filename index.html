@@ -464,9 +464,15 @@ function onDrop(e) {
   DOMHelper.get('fileIn').value = '';
   if (e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]);
 }
-function onFileChange(inp) { if (inp.files[0]) readFile(inp.files[0]); }
+/* ─── อัปเดต: ให้เลือกไฟล์เดิมซ้ำได้ ───────────────────────── */
+function onFileChange(inp) { 
+  if (inp.files[0]) {
+    readFile(inp.files[0]);
+    inp.value = ''; // เคลียร์ค่าทิ้ง เพื่อให้เบราว์เซอร์ยอมรับการกดเลือกไฟล์เดิมในรอบถัดไป
+  }
+}
 
-/* ─── File reading (รองรับ PDF) ─────────────────────── */
+/* ─── อัปเดต: แก้ปัญหา PDF โดนเบราว์เซอร์บล็อก (CORS) ─────────── */
 function readFile(file) {
   showStatus(file.name, 'กำลังอ่านไฟล์...');
   showErr('');
@@ -485,8 +491,8 @@ function readFile(file) {
       try {
         if (typeof pdfjsLib === 'undefined') throw new Error('โหลด PDF.js ไม่ได้');
         
-        // กำหนด Worker สำหรับสกัดข้อความ
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        // บังคับไม่ให้ใช้ Worker แยก เพื่อเลี่ยงปัญหา Browser บล็อกไฟล์ข้ามโดเมน
+        pdfjsLib.GlobalWorkerOptions.disableWorker = true;
         
         const typedarray = new Uint8Array(e.target.result);
         const pdf = await pdfjsLib.getDocument(typedarray).promise;
