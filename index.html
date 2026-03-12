@@ -17,119 +17,129 @@
   --text2: #8892a4;
   --green: #4ade80;
   --red: #f87171;
-  --r: 14px;
+  --r: 16px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Sarabun',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 0%,rgba(30,58,95,.6),transparent 60%),radial-gradient(ellipse 60% 50% at 80% 100%,rgba(232,184,75,.07),transparent 50%);pointer-events:none}
 
-.topbar{position:relative;z-index:10;display:flex;align-items:center;gap:14px;padding:14px 24px;background:rgba(10,22,40,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.logo{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Sarabun',sans-serif;font-size:17px;color:var(--navy);font-weight:700;flex-shrink:0;box-shadow:0 4px 14px rgba(232,184,75,.3)}
-.topbar-title{font-size:15px;font-weight:700}
-.topbar-sub{font-size:12px;color:var(--text2);margin-top:1px}
-.topbar-gem{margin-left:auto;background:rgba(232,184,75,.12);border:1px solid rgba(232,184,75,.3);color:var(--accent);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:5px;white-space:nowrap}
-.topbar-gem::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+/* ขยาย UI ส่วน Topbar */
+.topbar{position:relative;z-index:10;display:flex;align-items:center;gap:16px;padding:16px 28px;background:rgba(10,22,40,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.logo{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Sarabun',sans-serif;font-size:20px;color:var(--navy);font-weight:700;flex-shrink:0;box-shadow:0 4px 14px rgba(232,184,75,.3)}
+.topbar-title{font-size:18px;font-weight:700}
+.topbar-sub{font-size:14px;color:var(--text2);margin-top:2px}
+.topbar-gem{margin-left:auto;background:rgba(232,184,75,.12);border:1px solid rgba(232,184,75,.3);color:var(--accent);font-size:13px;font-weight:600;padding:6px 14px;border-radius:20px;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.topbar-gem::before{content:'';width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
-#btnPrintTop{display:none;margin-left:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--navy);border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sarabun',sans-serif;box-shadow:0 4px 12px rgba(232,184,75,.3);transition:all .2s}
+#btnPrintTop{display:none;margin-left:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--navy);border:none;border-radius:10px;padding:10px 20px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Sarabun',sans-serif;box-shadow:0 4px 12px rgba(232,184,75,.3);transition:all .2s}
 #btnPrintTop:hover{transform:translateY(-1px)}
 
-.tabs{position:relative;z-index:10;display:flex;gap:4px;padding:12px 24px 0;background:rgba(10,22,40,.5)}
-.tab{padding:10px 20px;border:none;border-radius:10px 10px 0 0;background:transparent;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:500;color:var(--text2);transition:all .2s;display:flex;align-items:center;gap:7px}
+/* ขยาย UI ส่วน Tabs */
+.tabs{position:relative;z-index:10;display:flex;gap:6px;padding:16px 28px 0;background:rgba(10,22,40,.5)}
+.tab{padding:14px 24px;border:none;border-radius:12px 12px 0 0;background:transparent;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:500;color:var(--text2);transition:all .2s;display:flex;align-items:center;gap:8px}
 .tab:hover{color:var(--text);background:var(--glass)}
-.tab.active{color:var(--text);background:rgba(255,255,255,.07);border-bottom:2px solid var(--accent)}
-.badge{background:var(--accent);color:var(--navy);border-radius:12px;padding:1px 7px;font-size:11px;font-weight:700;display:none}
+.tab.active{color:var(--text);background:rgba(255,255,255,.07);border-bottom:3px solid var(--accent)}
+.badge{background:var(--accent);color:var(--navy);border-radius:12px;padding:2px 8px;font-size:12px;font-weight:700;display:none}
 
-.main{position:relative;z-index:5;max-width:1200px;margin:0 auto;padding:24px}
+/* เผื่อความกว้างของ Main Content */
+.main{position:relative;z-index:5;max-width:1400px;margin:0 auto;padding:30px}
 .tab-panel{display:none}
 .tab-panel.active{display:block;animation:fadeUp .3s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-@media(max-width:768px){.grid2{grid-template-columns:1fr}.main{padding:14px}}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}.main{padding:16px}}
 
-.card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:22px;backdrop-filter:blur(10px)}
-.card-title{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
-.card-icon{width:26px;height:26px;background:rgba(232,184,75,.14);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px}
+/* ขยาย UI ส่วน Cards */
+.card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:28px;backdrop-filter:blur(10px)}
+.card-title{font-size:15px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:22px;display:flex;align-items:center;gap:10px}
+.card-icon{width:32px;height:32px;background:rgba(232,184,75,.14);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
 
+/* ขยาย UI ส่วน Upload Zone */
 .upload-zone{
   position:relative;
-  border:2.5px dashed rgba(232,184,75,.5);
+  border:3px dashed rgba(232,184,75,.5);
   border-radius:var(--r);
   background:linear-gradient(135deg,rgba(232,184,75,.1),rgba(232,184,75,.04));
-  padding:36px 20px;
+  padding:48px 24px;
   text-align:center;
   cursor:pointer;
   transition:all .2s;
-  margin-bottom:14px;
+  margin-bottom:18px;
 }
 .upload-zone:hover,.upload-zone.over{
   border-color:var(--accent);
   background:linear-gradient(135deg,rgba(232,184,75,.18),rgba(232,184,75,.08));
   transform:scale(1.01);
 }
-.upload-zone input[type=file]{
-  position:absolute;inset:0;width:100%;height:100%;
-  opacity:0;cursor:pointer;z-index:3;
-}
-.upload-zone-icon{font-size:40px;margin-bottom:10px;line-height:1}
-.upload-zone-title{font-size:17px;font-weight:700;color:var(--accent);margin-bottom:6px}
-.upload-zone-sub{font-size:13px;color:var(--text2);margin-bottom:14px}
+.upload-zone input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:3;}
+.upload-zone-icon{font-size:54px;margin-bottom:12px;line-height:1}
+.upload-zone-title{font-size:20px;font-weight:700;color:var(--accent);margin-bottom:8px}
+.upload-zone-sub{font-size:15px;color:var(--text2);margin-bottom:18px}
 .upload-zone-pill{
   display:inline-block;
   background:var(--accent);color:var(--navy);
-  font-size:14px;font-weight:700;
-  padding:9px 28px;border-radius:25px;
+  font-size:16px;font-weight:700;
+  padding:12px 34px;border-radius:25px;
   box-shadow:0 4px 14px rgba(232,184,75,.4);
   pointer-events:none;
 }
 
-.file-status{display:none;align-items:center;gap:10px;padding:10px 14px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.22);border-radius:10px;margin-bottom:12px}
-.file-status-name{font-size:13px;font-weight:700;color:var(--green);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
-.file-status-meta{font-size:11px;color:var(--text2)}
+.file-status{display:none;align-items:center;gap:12px;padding:12px 16px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.22);border-radius:12px;margin-bottom:16px}
+.file-status-name{font-size:15px;font-weight:700;color:var(--green);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.file-status-meta{font-size:13px;color:var(--text2)}
 
-.text-toggle{display:none;background:none;border:none;color:var(--text2);font-size:12px;cursor:pointer;font-family:'Sarabun',sans-serif;padding:4px 0;align-items:center;gap:5px;margin-bottom:6px}
+.text-toggle{display:none;background:none;border:none;color:var(--text2);font-size:14px;cursor:pointer;font-family:'Sarabun',sans-serif;padding:6px 0;align-items:center;gap:6px;margin-bottom:8px}
 .text-toggle:hover{color:var(--text)}
-.text-box{display:none;max-height:110px;overflow-y:auto;background:rgba(0,0,0,.3);border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.7;color:var(--text2);white-space:pre-wrap;margin-bottom:12px}
+.text-box{display:none;max-height:140px;overflow-y:auto;background:rgba(0,0,0,.3);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;color:var(--text2);white-space:pre-wrap;margin-bottom:16px}
 
-.btn-convert{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--navy);border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 5px 18px rgba(232,184,75,.25)}
+/* ขยายปุ่มแปลงข้อสอบ */
+.btn-convert{width:100%;padding:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--navy);border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:18px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 5px 18px rgba(232,184,75,.25)}
 .btn-convert:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 24px rgba(232,184,75,.35)}
 .btn-convert:disabled{background:rgba(255,255,255,.08);color:var(--text2);cursor:not-allowed;box-shadow:none;transform:none}
-.spinner{width:17px;height:17px;border:2.5px solid rgba(10,22,40,.3);border-top-color:var(--navy);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+.spinner{width:20px;height:20px;border:3px solid rgba(10,22,40,.3);border-top-color:var(--navy);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-.err-msg{display:none;margin-top:10px;padding:10px 14px;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:8px;color:var(--red);font-size:13px}
+.err-msg{display:none;margin-top:12px;padding:12px 16px;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);border-radius:10px;color:var(--red);font-size:15px}
 
-.form-fields{display:flex;flex-direction:column;gap:11px}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.field{display:flex;flex-direction:column;gap:4px}
-.field-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
-.field input{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:14px;font-family:'Sarabun',sans-serif;outline:none;transition:border .2s}
+/* ขยายฟอร์ม Input */
+.form-fields{display:flex;flex-direction:column;gap:14px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em}
+.field input{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:16px;font-family:'Sarabun',sans-serif;outline:none;transition:border .2s}
 .field input:focus{border-color:var(--accent)}
+.field textarea{font-size:16px; padding:12px 16px;}
 
-.preview-layout{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}
-@media(max-width:768px){.preview-layout{grid-template-columns:1fr}}
+.steps{margin-top:24px;display:flex;flex-direction:column;gap:10px}
+.step{display:flex;align-items:center;gap:14px;padding:12px 16px;background:rgba(0,0,0,.2);border-radius:12px;font-size:15px;color:var(--text2);border:1px solid var(--border)}
+.step-num{width:28px;height:28px;background:rgba(232,184,75,.14);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0}
+
+/* ขยาย Layout Preview / Editor */
+.preview-layout{display:grid;grid-template-columns:350px 1fr;gap:24px;align-items:start}
+@media(max-width:900px){.preview-layout{grid-template-columns:1fr}}
 .editor-panel{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;max-height:calc(100vh - 180px);display:flex;flex-direction:column}
-.editor-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.editor-head h4{font-size:13px;color:var(--text2);font-weight:600}
-.btn-add-q{background:rgba(232,184,75,.14);border:1px solid rgba(232,184,75,.3);color:var(--accent);border-radius:7px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sarabun',sans-serif}
-.q-list{overflow-y:auto;flex:1;padding:10px}
-.q-item{margin-bottom:6px;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:rgba(0,0,0,.2)}
-.q-head{padding:9px 12px;display:flex;align-items:center;cursor:pointer;gap:6px}
+.editor-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.editor-head h4{font-size:15px;color:var(--text2);font-weight:600}
+.btn-add-q{background:rgba(232,184,75,.14);border:1px solid rgba(232,184,75,.3);color:var(--accent);border-radius:8px;padding:6px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sarabun',sans-serif}
+.q-list{overflow-y:auto;flex:1;padding:14px}
+.q-item{margin-bottom:8px;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:rgba(0,0,0,.2)}
+.q-head{padding:12px 16px;display:flex;align-items:center;cursor:pointer;gap:8px}
 .q-head:hover{background:rgba(255,255,255,.03)}
-.q-num{background:rgba(232,184,75,.14);color:var(--accent);border-radius:5px;padding:1px 7px;font-size:11px;font-weight:700;flex-shrink:0}
-.q-snip{color:var(--text2);font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
-.btn-del{background:none;border:none;cursor:pointer;color:rgba(248,113,113,.45);font-size:16px;padding:0 2px;line-height:1;transition:color .2s}
+.q-num{background:rgba(232,184,75,.14);color:var(--accent);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;flex-shrink:0}
+.q-snip{color:var(--text2);font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.btn-del{background:none;border:none;cursor:pointer;color:rgba(248,113,113,.45);font-size:18px;padding:0 4px;line-height:1;transition:color .2s}
 .btn-del:hover{color:var(--red)}
-.q-body{display:none;padding:10px 12px;border-top:1px solid var(--border)}
+.q-body{display:none;padding:14px 16px;border-top:1px solid var(--border)}
 .q-body.open{display:block}
-.q-field{margin-bottom:7px}
-.q-field label{display:block;font-size:10px;color:var(--text2);font-weight:700;text-transform:uppercase;margin-bottom:3px}
-.q-field input{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-size:12px;font-family:'Sarabun',sans-serif;outline:none}
+.q-field{margin-bottom:10px}
+.q-field label{display:block;font-size:11px;color:var(--text2);font-weight:700;text-transform:uppercase;margin-bottom:4px}
+.q-field input{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:14px;font-family:'Sarabun',sans-serif;outline:none}
 .q-field input:focus{border-color:var(--accent)}
-.empty-state{text-align:center;padding:80px 20px;color:var(--text2)}
-.empty-icon{font-size:52px;margin-bottom:14px;opacity:.4}
+.empty-state{text-align:center;padding:100px 20px;color:var(--text2)}
+.empty-icon{font-size:64px;margin-bottom:18px;opacity:.4}
 
 .paper-wrap{
   background:var(--glass);border:1px solid var(--border);border-radius:var(--r);
-  padding:18px;overflow-y:auto;overflow-x:hidden;
+  padding:24px;overflow-y:auto;overflow-x:hidden;
   max-height:calc(100vh - 180px);
   -webkit-overflow-scrolling:touch;
 }
@@ -145,96 +155,49 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   font-weight:normal;
   box-shadow:0 8px 40px rgba(0,0,0,.4);
   width:816px;       
-  height:1248px;
+  height:1248px; /* บังคับให้สูงเท่า F4 */
   padding:54px 62px; 
-  margin:0 auto 20px auto;
+  margin:0 auto 24px auto;
   box-sizing:border-box;
   position:relative;
   transform-origin:top center;
   transition:none;
   overflow:hidden;
 }
+
+/* --- ปรับแต่งฟอนต์หัวกระดาษเป็น 16pt (ขนาดเดียวกับเนื้อหา) TH Sarabun PSK ตัวหนา --- */
 .p-school{font-size:16pt;font-weight:bold;font-family:'TH Sarabun PSK', 'Sarabun', sans-serif;text-align:center;margin-bottom:2px}
 .p-row{font-size:16pt;font-weight:bold;font-family:'TH Sarabun PSK', 'Sarabun', sans-serif;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:2px}
 .p-row.bdr{border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:8px}
-.p-inst{font-size:16pt;font-weight:normal;text-decoration:none;font-family:'TH Sarabun PSK', 'Sarabun', sans-serif;margin-bottom:12px}
 .p-subhead{font-size:16pt;font-weight:bold;font-family:'TH Sarabun PSK', 'Sarabun', sans-serif;display:flex;justify-content:space-between;margin-bottom:4px}
 .p-subhead-line{border-bottom:2px solid #000;margin-bottom:10px}
+
+/* --- ปรับแต่งคำชี้แจงเป็น 16pt TH Sarabun PSK ตัวธรรมดา (ไม่หนา) --- */
+.p-inst{font-size:16pt;font-weight:normal;text-decoration:none;font-family:'TH Sarabun PSK', 'Sarabun', sans-serif;margin-bottom:12px}
+
 .exam-cols{column-count:2;column-gap:24px;column-rule:1px solid #ccc}
 .exam-single{column-count:1}
 .q-block{break-inside:avoid;margin-bottom:12px}
-.q-text{
-  font-weight:normal;
-  margin-bottom:3px;
-  padding-left:2.2em;
-  text-indent:-2.2em;
-  display:block;
-}
+.q-text{font-weight:normal;margin-bottom:3px;padding-left:2.2em;text-indent:-2.2em;display:block;}
 .q-choices{padding-left:1em}
-.q-choice{
-  margin:2px 0;
-  padding-left:1.8em;
-  text-indent:-1.8em;
-  display:block;
-}
+.q-choice{margin:2px 0;padding-left:1.8em;text-indent:-1.8em;display:block;}
 
 /* ═══ PRINT STYLES ═══ */
 @media print{
   @page { size: 8.5in 13in portrait; margin: 0; }
-  
-  html, body {
-    background: #fff !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 816px !important;
-    height: auto !important;
-  }
-  
+  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; width: 816px !important; height: auto !important; }
   body::before { display: none !important; }
   body > *:not(.main) { display: none !important; }
-  
   .main { display: block !important; margin: 0 !important; padding: 0 !important; max-width: none !important; border: none !important; }
   .main > *:not(#tab-preview) { display: none !important; }
   #tab-preview { display: block !important; }
   #tab-preview > *:not(#previewLayout) { display: none !important; }
   #previewLayout { display: block !important; grid-template-columns: 1fr !important; gap: 0 !important; }
-  
   .editor-panel, .empty-state { display: none !important; }
   
-  #paperWrap { 
-    display: block !important; 
-    padding: 0 !important; 
-    margin: 0 !important; 
-    border: none !important; 
-    background: transparent !important; 
-    box-shadow: none !important;
-    overflow: visible !important;
-    max-height: none !important;
-  }
-
-  .paper {
-    background: #fff !important;
-    color: #000 !important;
-    width: 816px !important;
-    height: 1248px !important;
-    padding: 54px 62px !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    transform: none !important;
-    page-break-after: always !important;
-    break-after: page !important;
-    page-break-inside: avoid !important;
-    position: relative !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
-  }
-
-  .paper:last-child {
-    page-break-after: avoid !important;
-    break-after: avoid !important;
-  }
-
+  #paperWrap { display: block !important; padding: 0 !important; margin: 0 !important; border: none !important; background: transparent !important; box-shadow: none !important; overflow: visible !important; max-height: none !important; }
+  .paper { background: #fff !important; color: #000 !important; width: 816px !important; height: 1248px !important; padding: 54px 62px !important; margin: 0 !important; box-shadow: none !important; border-radius: 0 !important; transform: none !important; page-break-after: always !important; break-after: page !important; page-break-inside: avoid !important; position: relative !important; overflow: hidden !important; box-sizing: border-box !important; }
+  .paper:last-child { page-break-after: avoid !important; break-after: avoid !important; }
   .exam-cols { column-count: 2 !important; column-gap: 24px !important; column-rule: 1px solid #999 !important; }
   .exam-single { column-count: 1 !important; }
   .q-block { break-inside: avoid !important; page-break-inside: avoid !important; }
@@ -250,46 +213,25 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .w-lines-box{display:flex;flex-direction:column;gap:0}
 .w-line{border-bottom:1px solid #999;height:32px;width:100%}
 
-.col-toggle-wrap{margin-top:4px}
-.col-toggle-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:block}
-.col-toggle-group{display:flex;gap:10px}
-.col-opt{
-  flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;
-  padding:10px 8px;border-radius:10px;cursor:pointer;
-  border:2px solid var(--border);background:rgba(0,0,0,.2);
-  transition:all .2s;position:relative;
-}
+.col-toggle-wrap{margin-top:6px}
+.col-toggle-label{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:block}
+.col-toggle-group{display:flex;gap:12px}
+.col-opt{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 10px;border-radius:12px;cursor:pointer;border:2px solid var(--border);background:rgba(0,0,0,.2);transition:all .2s;position:relative;}
 .col-opt input[type=radio]{position:absolute;opacity:0;width:0;height:0}
 .col-opt:hover{border-color:rgba(232,184,75,.4);background:rgba(232,184,75,.06)}
 .col-opt.active{border-color:var(--accent);background:rgba(232,184,75,.12)}
-.col-opt-text{font-size:12px;font-weight:600;color:var(--text2)}
+.col-opt-text{font-size:14px;font-weight:600;color:var(--text2)}
 .col-opt.active .col-opt-text{color:var(--accent)}
-.col-preview{
-  width:44px;height:32px;background:#fff;border-radius:3px;
-  display:flex;gap:3px;padding:4px;box-shadow:0 1px 4px rgba(0,0,0,.3);
-}
-.col-preview span{
-  flex:1;background:#d0d7e3;border-radius:1px;
-  background:repeating-linear-gradient(0deg,#c8d0de,#c8d0de 2px,transparent 2px,transparent 4px);
-}
-.col-preview-1{flex-direction:column;gap:2px}
-.col-preview-1 span{flex:none;height:4px;width:100%}
+.col-preview{width:48px;height:36px;background:#fff;border-radius:4px;display:flex;gap:4px;padding:5px;box-shadow:0 1px 4px rgba(0,0,0,.3);}
+.col-preview span{flex:1;background:#d0d7e3;border-radius:2px;background:repeating-linear-gradient(0deg,#c8d0de,#c8d0de 2px,transparent 2px,transparent 4px);}
+.col-preview-1{flex-direction:column;gap:3px}
+.col-preview-1 span{flex:none;height:5px;width:100%}
 
-.btn-row{display:flex;gap:10px}
+.btn-row{display:flex;gap:12px}
 .btn-row .btn-convert{flex:1}
-.btn-cancel{
-  padding:13px 18px;
-  background:rgba(248,113,113,.12);
-  color:var(--red);
-  border:1px solid rgba(248,113,113,.3);
-  border-radius:10px;
-  font-family:'Sarabun',sans-serif;
-  font-size:15px;font-weight:700;
-  cursor:pointer;transition:all .2s;
-  white-space:nowrap;
-}
+.btn-cancel{padding:16px 22px;background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3);border-radius:12px;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
 .btn-cancel:hover{background:rgba(248,113,113,.22);border-color:rgba(248,113,113,.5)}
-::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:10px}
 </style>
@@ -330,7 +272,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
           <div class="upload-zone-pill">📁 เปิดไฟล์</div>
         </div>
         <div class="file-status" id="fileStatus">
-          <span style="font-size:20px">✅</span>
+          <span style="font-size:24px">✅</span>
           <div style="flex:1;overflow:hidden">
             <div class="file-status-name" id="fileName"></div>
             <div class="file-status-meta" id="fileMeta"></div>
@@ -395,25 +337,25 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
               <label class="col-opt active" id="opt2col">
                 <input type="radio" name="colLayout" value="2" checked onchange="onLayoutChange(this)">
                 <span class="col-preview col-preview-2"><span></span><span></span></span>
-                <span class="col-opt-text">2 คอลัม</span>
+                <span class="col-opt-text">2 คอลัมน์</span>
               </label>
               <label class="col-opt" id="opt1col">
                 <input type="radio" name="colLayout" value="1" onchange="onLayoutChange(this)">
                 <span class="col-preview col-preview-1"><span></span></span>
-                <span class="col-opt-text">1 คอลัม</span>
+                <span class="col-opt-text">1 คอลัมน์</span>
               </label>
             </div>
           </div>
         </div>
         
-        <div class="col-toggle-wrap" style="margin-top:14px">
+        <div class="col-toggle-wrap" style="margin-top:16px">
           <div class="col-toggle-label">หน้าเขียนตอบ (Part II)</div>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px">
-            <input type="checkbox" id="chkWriting" onchange="onWritingToggle(this)" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
-            <span style="font-size:13px;color:var(--text1)">เพิ่มหน้าเขียนตอบท้ายข้อสอบ</span>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:12px">
+            <input type="checkbox" id="chkWriting" onchange="onWritingToggle(this)" style="width:18px;height:18px;accent-color:var(--accent);cursor:pointer">
+            <span style="font-size:15px;color:var(--text1)">เพิ่มหน้าเขียนตอบท้ายข้อสอบ</span>
           </label>
           <div id="writingOpts" style="display:none">
-            <div class="field-row" style="margin-bottom:8px">
+            <div class="field-row" style="margin-bottom:12px">
               <div class="field">
                 <label class="field-label">คะแนน</label>
                 <input type="number" id="f_wpoints" value="10" min="1" oninput="AppState.writingPoints=+this.value;schedulePaperRender()" style="width:100%">
@@ -429,7 +371,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
             </div>
             <div class="field">
               <label class="field-label">หัวข้อให้เลือก (แต่ละบรรทัด = 1 หัวข้อ)</label>
-              <textarea id="f_wtopics" rows="6" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text1);font-family:Sarabun,sans-serif;font-size:13px;padding:8px;resize:vertical;box-sizing:border-box" oninput="AppState.writingTopics=this.value.split('\n').filter(t=>t.trim());schedulePaperRender()" placeholder="Do individual actions really help solve environmental problems?&#10;Describe a restaurant experience...&#10;Do inventions always improve life?"></textarea>
+              <textarea id="f_wtopics" rows="6" style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:Sarabun,sans-serif;font-size:15px;padding:12px;resize:vertical;box-sizing:border-box" oninput="AppState.writingTopics=this.value.split('\n').filter(t=>t.trim());schedulePaperRender()" placeholder="Do individual actions really help solve environmental problems?&#10;Describe a restaurant experience...&#10;Do inventions always improve life?"></textarea>
             </div>
           </div>
         </div>
@@ -440,8 +382,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   <div id="tab-preview" class="tab-panel">
     <div class="empty-state" id="emptyState">
       <div class="empty-icon">📋</div>
-      <div style="font-size:15px">ยังไม่มีข้อสอบ</div>
-      <div style="font-size:13px;margin-top:6px;opacity:.6">กรุณาอัพโหลดและแปลงไฟล์ก่อน</div>
+      <div style="font-size:18px">ยังไม่มีข้อสอบ</div>
+      <div style="font-size:15px;margin-top:8px;opacity:.6">กรุณาอัพโหลดและแปลงไฟล์ก่อน</div>
     </div>
     <div class="preview-layout" id="previewLayout" style="display:none">
       <div class="editor-panel">
@@ -770,15 +712,15 @@ function renderPaper() {
 function scalePaper() {
   const wrap = DOMHelper.get('paperWrap');
   if (!wrap) return;
-  const wrapW = wrap.clientWidth - 36;
+  const wrapW = wrap.clientWidth - 48; /* ปรับลดพื้นที่ padding เล็กน้อยเพื่อให้สมมาตร */
   if (wrapW <= 0) return;
   wrap.querySelectorAll('.paper').forEach(p => {
-    p.style.transform = ''; p.style.marginBottom = '20px';
+    p.style.transform = ''; p.style.marginBottom = '24px';
     if (p.offsetWidth > 0 && p.offsetWidth > wrapW) {
       const scale = wrapW / p.offsetWidth;
       p.style.transform = `scale(${scale})`;
       p.style.transformOrigin = 'top center';
-      p.style.marginBottom = `${20 - (p.offsetHeight - p.offsetHeight * scale)}px`;
+      p.style.marginBottom = `${24 - (p.offsetHeight - p.offsetHeight * scale)}px`;
     }
   });
 }
