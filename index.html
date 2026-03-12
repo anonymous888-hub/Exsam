@@ -149,8 +149,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 }
 .p-subhead-line{border-bottom:2px solid #000;margin-bottom:10px}
 
-.exam-cols{column-count:2;column-gap:24px;column-rule:1px solid #ccc}
-.exam-single{column-count:1}
+/* flex 2-col: JS controls split → print = preview */
+.exam-cols{display:flex;gap:0;align-items:flex-start}
+.exam-col{flex:1;min-width:0}
+.exam-col:first-child{padding-right:12px;border-right:1px solid #ccc}
+.exam-col:last-child{padding-left:12px}
+.exam-single{display:block}
 .q-block{break-inside:avoid;margin-bottom:12px}
 .q-text{font-weight:normal;margin-bottom:3px;padding-left:2.2em;text-indent:-2.2em;display:block}
 .q-choices{padding-left:1em}
@@ -169,8 +173,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   .p-school,.p-row,.p-inst,.p-subhead{color:#000!important}
   .p-row.bdr{border-bottom:2px solid #000!important}
   .p-subhead-line{border-bottom:2px solid #000!important}
-  .exam-cols{column-count:2!important;column-gap:24px!important;column-rule:1px solid #999!important}
-  .exam-single{column-count:1!important}
+  .exam-cols{display:flex!important;gap:0!important;align-items:flex-start!important}
+  .exam-col{flex:1!important;min-width:0!important}
+  .exam-col:first-child{padding-right:12px!important;border-right:1px solid #999!important}
+  .exam-col:last-child{padding-left:12px!important}
+  .exam-single{display:block!important}
   .q-block{break-inside:avoid!important;page-break-inside:avoid!important}
   .w-line{border-bottom:1px solid #999!important}
 }
@@ -625,15 +632,35 @@ function buildQHtml(q) {
   </div>`;
 }
 
-function buildPageHtml(isFirst, pageNo, qHtml, meta) {
-  const colClass = state.twoCol ? 'exam-cols' : 'exam-single';
+function buildPageHtml(isFirst, pageNo, questions, meta, heights) {
+  let contentHtml;
+  if (state.twoCol && questions.length > 0) {
+    // แบ่ง questions เป็น 2 คอลัมน์โดย JS ตาม height balance
+    let splitAt = Math.ceil(questions.length / 2); // default: ครึ่งละเท่า
+    if (heights && heights.length === questions.length && questions.length > 1) {
+      const total = heights.reduce((a,b) => a+b, 0);
+      let cum = 0;
+      for (let i = 0; i < heights.length - 1; i++) {
+        cum += heights[i];
+        if (cum * 2 >= total) { splitAt = i + 1; break; }
+      }
+    }
+    const leftHtml  = questions.slice(0, splitAt).map(buildQHtml).join('');
+    const rightHtml = questions.slice(splitAt).map(buildQHtml).join('');
+    contentHtml = `<div class="exam-cols">
+      <div class="exam-col">${leftHtml}</div>
+      <div class="exam-col">${rightHtml}</div>
+    </div>`;
+  } else {
+    contentHtml = `<div class="exam-single">${questions.map(buildQHtml).join('')}</div>`;
+  }
   if (isFirst) {
     return `<div class="paper">
       <div class="p-school">${esc(meta.school)}</div>
       <div class="p-row"><span>ข้อสอบ${esc(meta.type)}</span><span>ปีการศึกษา ${esc(meta.year)}</span><span>ชั้น${esc(meta.grade)}</span></div>
       <div class="p-row bdr"><span>วิชา ${esc(meta.subject)}</span><span>จำนวน ${meta.total} ข้อ</span><span>เวลา ${esc(meta.time)} นาที</span></div>
       <div class="p-inst">คำชี้แจง : ${esc(meta.inst)}</div>
-      <div class="${colClass}">${qHtml}</div>
+      ${contentHtml}
     </div>`;
   } else {
     return `<div class="paper">
@@ -643,7 +670,7 @@ function buildPageHtml(isFirst, pageNo, qHtml, meta) {
         <span>หน้า ${pageNo}</span>
       </div>
       <div class="p-subhead-line"></div>
-      <div class="${colClass}">${qHtml}</div>
+      ${contentHtml}
     </div>`;
   }
 }
@@ -654,7 +681,25 @@ function renderPaper() {
     grade: v('f_grade'), subject: v('f_subject'), time: v('f_time'),
     inst: v('f_inst'), total: state.questions.length };
 
-  const PAGE_H = 1144, HEAD1_H = 130, HEADN_H = 56, SAFETY = 16;
+  const PAGE_H = 1144;
+
+  // ── วัด header height จริง (dynamic) ──
+  let headProbe = document.getElementById('_headprobe');
+  if (!headProbe) {
+    headProbe = document.createElement('div');
+    headProbe.id = '_headprobe';
+    headProbe.style.cssText = 'position:absolute;visibility:hidden;top:-9999px;left:0;width:692px;box-sizing:border-box';
+    document.body.appendChild(headProbe);
+  }
+  headProbe.innerHTML = `<div class="p-school">${esc(meta.school)}</div>
+    <div class="p-row"><span>x</span><span>x</span><span>x</span></div>
+    <div class="p-row bdr"><span>x</span><span>x</span><span>x</span></div>
+    <div class="p-inst">x</div>`;
+  const HEAD1_H = headProbe.offsetHeight + 24;
+  headProbe.innerHTML = `<div class="p-subhead"><span>x</span><span>x</span><span>x</span></div>
+    <div class="p-subhead-line"></div>`;
+  const HEADN_H = headProbe.offsetHeight + 24;
+  const SAFETY = 24;
 
   let probe = document.getElementById('_probe');
   if (!probe) { probe = document.createElement('div'); probe.id = '_probe'; document.body.appendChild(probe); }
@@ -671,7 +716,7 @@ function renderPaper() {
   const heights = Array.from(probe.querySelectorAll('.q-block')).map(el => el.offsetHeight + 10);
 
   const pages = [];
-  let pageNo = 1, isFirst = true, pageQs = [], sumH = 0;
+  let pageNo = 1, isFirst = true, pageQs = [], pageHts = [], sumH = 0;
   const availH = pg1 => PAGE_H - (pg1 ? HEAD1_H : HEADN_H) - SAFETY;
 
   state.questions.forEach((q, i) => {
@@ -679,14 +724,14 @@ function renderPaper() {
     const newSumH = sumH + h;
     const effectiveH = state.twoCol ? Math.ceil(newSumH / 2) : newSumH;
     if (pageQs.length > 0 && effectiveH > availH(isFirst)) {
-      pages.push({ pageNo, isFirst, questions: [...pageQs] });
-      pageNo++; isFirst = false; pageQs = []; sumH = 0;
+      pages.push({ pageNo, isFirst, questions: [...pageQs], heights: [...pageHts] });
+      pageNo++; isFirst = false; pageQs = []; pageHts = []; sumH = 0;
     }
-    pageQs.push(q); sumH += h;
+    pageQs.push(q); pageHts.push(h); sumH += h;
   });
-  if (pageQs.length > 0) pages.push({ pageNo, isFirst, questions: pageQs });
+  if (pageQs.length > 0) pages.push({ pageNo, isFirst, questions: pageQs, heights: pageHts });
 
-  let pagesHtml = pages.map(p => buildPageHtml(p.isFirst, p.pageNo, p.questions.map(buildQHtml).join(''), meta)).join('');
+  let pagesHtml = pages.map(p => buildPageHtml(p.isFirst, p.pageNo, p.questions, meta, p.heights)).join('');
   if (state.showWriting) pagesHtml += buildWritingPage(meta);
 
   document.getElementById('paperWrap').innerHTML = pagesHtml;
