@@ -526,7 +526,8 @@ const state = {
   writingWords: 150,
   bottomMargin: 20,
   docxImages: {},
-  mathStore: {}   // key: MATH_n → LaTeX string
+  mathStore: {},
+  pdfImages: []   // base64 PNG ของแต่ละหน้า PDF
 };
 
 function switchTab(name, el) {
@@ -558,6 +559,7 @@ function readFile(file) {
   
   state.currentChanges = [];
   state.docxImages = {};
+  state.pdfImages = [];
   document.getElementById('spellResult').style.display = 'none';
 
   if (name.endsWith('.txt')) {
@@ -571,13 +573,32 @@ function readFile(file) {
         pdfjsLib.GlobalWorkerOptions.disableWorker = true;
         const typedarray = new Uint8Array(e.target.result);
         const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
-        let text = '';
-        for (let i = 1; i <= pdf.numPages; i++) {
+        const totalPages = pdf.numPages;
+
+        showStatus(file.name, `กำลังแปลง PDF ${totalPages} หน้าเป็นรูปภาพ...`);
+        state.pdfImages = [];
+        state.rawText = '';
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        for (let i = 1; i <= totalPages; i++) {
+          showStatus(file.name, `กำลังแปลงหน้า ${i}/${totalPages}...`);
           const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          text += content.items.map(item => item.str).join(' ') + '\n';
+          const scale = 2.0; // ความละเอียดสูง เพื่อให้ Gemini อ่านได้แม่น
+          const viewport = page.getViewport({ scale });
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          const base64 = canvas.toDataURL('image/jpeg', 0.92).split(',')[1];
+          state.pdfImages.push(base64);
         }
-        state.rawText = text; onReady(file);
+
+        showStatus(file.name,
+          `PDF ${totalPages} หน้า → แปลงเป็นรูปเรียบร้อย · พร้อมให้ AI อ่าน ✓`);
+        // ตั้ง rawText dummy เพื่อให้ onReady ผ่าน
+        state.rawText = `[PDF:${totalPages} หน้า]`;
+        onReady(file);
       } catch (err) { showErr('อ่าน PDF ไม่ได้: ' + err.message); }
     };
     reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
@@ -653,12 +674,22 @@ function readFile(file) {
 
 function onReady(file) {
   if (!state.rawText || !state.rawText.trim()) { showErr('ไม่พบข้อความในไฟล์'); return; }
-  const lines = state.rawText.split('\n').filter(l => l.trim()).length;
-  showStatus(file.name, (file.size / 1024).toFixed(1) + ' KB · ' + lines + ' บรรทัด · พร้อมแปลง ✓');
-  document.getElementById('textBox').textContent = state.rawText.slice(0, 800) + (state.rawText.length > 800 ? '…' : '');
-  document.getElementById('textToggle').style.display = 'flex';
-  
-  document.getElementById('btnSpellCheck').style.display = 'block';
+
+  const isPdfVision = state.pdfImages.length > 0;
+
+  if (isPdfVision) {
+    // PDF Vision mode — ไม่แสดงข้อความ ซ่อนปุ่มตรวจคำผิด
+    document.getElementById('textToggle').style.display = 'none';
+    document.getElementById('textBox').style.display = 'none';
+    document.getElementById('btnSpellCheck').style.display = 'none';
+  } else {
+    const lines = state.rawText.split('\n').filter(l => l.trim()).length;
+    showStatus(file.name, (file.size / 1024).toFixed(1) + ' KB · ' + lines + ' บรรทัด · พร้อมแปลง ✓');
+    document.getElementById('textBox').textContent = state.rawText.slice(0, 800) + (state.rawText.length > 800 ? '…' : '');
+    document.getElementById('textToggle').style.display = 'flex';
+    document.getElementById('btnSpellCheck').style.display = 'block';
+  }
+
   document.getElementById('btnConvert').disabled = false;
 }
 
@@ -827,30 +858,60 @@ async function convertExam() {
   const btn = document.getElementById('btnConvert');
   const cancelBtn = document.getElementById('btnCancel');
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div> AI กำลังวิเคราะห์ข้อสอบ...';
   cancelBtn.style.display = 'flex';
   state.abortCtrl = new AbortController();
   showErr('');
-  const prompt = `คุณคือระบบแปลงข้อสอบ ให้ดึงข้อสอบจากข้อความด้านล่างและตอบกลับเป็น JSON อย่างเดียว
-ห้ามมี markdown ห้ามมีข้อความอื่นนอกจาก JSON
-รูปแบบ: {"questions":[{"no":1,"question":"คำถาม","image":"IMG_1","math":"MATH_1","a":"ตัวเลือก","b":"ตัวเลือก","c":"ตัวเลือก","d":"ตัวเลือก","answer":"ก","labels":["ก","ข","ค","ง"]}]}
-กฎสำคัญ:
-- ดึงทุกข้อ
+
+  // ── เลือก mode: PDF Vision หรือ Text ──
+  const isPdfVision = state.pdfImages.length > 0;
+
+  const jsonSchema = `{"questions":[{"no":1,"question":"คำถาม","image":"","math":"","a":"ตัวเลือก","b":"ตัวเลือก","c":"ตัวเลือก","d":"ตัวเลือก","answer":"ก","labels":["ก","ข","ค","ง"]}]}`;
+  const rules = `กฎสำคัญ:
+- ดึงข้อสอบทุกข้อจากรูปภาพทุกหน้า
 - answer="" ถ้าไม่มีเฉลย
 - ตัวเลือกใน a b c d ไม่ต้องมีตัวอักษร/ตัวเลขนำหน้า (เนื้อหาล้วนๆ)
-- labels: ดูจากต้นฉบับว่าใช้รูปแบบใด เช่น ["ก","ข","ค","ง"] หรือ ["1","2","3","4"] หรือ ["a","b","c","d"] หรือ ["A","B","C","D"]
-- image: ถ้าในโจทย์ข้อนั้นมี [IMAGE:IMG_n] ให้ใส่ key นั้นใน field "image" ถ้าไม่มีใส่ ""
-- math: ถ้าในโจทย์ข้อนั้นมี [MATH:MATH_n] ให้ใส่ key นั้นใน field "math" ถ้าไม่มีใส่ ""
-- บรรทัด [MATH_DATA:...] เป็น metadata ห้ามนำมาเป็นข้อสอบ
+- labels: ดูจากต้นฉบับว่าใช้รูปแบบใด ["ก","ข","ค","ง"] หรือ ["1","2","3","4"] หรือ ["a","b","c","d"] หรือ ["A","B","C","D"]
+- image: ใส่ "" เสมอ (ไม่มี placeholder รูป)
+- math: ถ้าโจทย์มีสูตรคณิตศาสตร์ ให้เขียน LaTeX ลงใน field math เช่น "\\frac{1}{2}mv^2"
+- ข้อสอบแบบอัตนัย/เขียนตอบ ไม่ต้องดึงมา ดึงเฉพาะปรนัย (มีตัวเลือก)
+- ตอบกลับเป็น JSON อย่างเดียว ห้ามมี markdown ห้ามมีข้อความอื่น`;
+
+  try {
+    let requestBody;
+
+    if (isPdfVision) {
+      btn.innerHTML = '<div class="spinner"></div> AI กำลังอ่านรูปภาพข้อสอบ...';
+      // สร้าง parts สำหรับทุกหน้า PDF
+      const imageParts = state.pdfImages.map(b64 => ({
+        inline_data: { mime_type: 'image/jpeg', data: b64 }
+      }));
+      const textPart = {
+        text: `คุณคือระบบแปลงข้อสอบ อ่านข้อสอบจากรูปภาพทุกหน้าแล้วตอบกลับเป็น JSON อย่างเดียว
+รูปแบบ: ${jsonSchema}
+${rules}`
+      };
+      requestBody = {
+        contents: [{ parts: [...imageParts, textPart] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 65536 }
+      };
+    } else {
+      btn.innerHTML = '<div class="spinner"></div> AI กำลังวิเคราะห์ข้อสอบ...';
+      const prompt = `คุณคือระบบแปลงข้อสอบ ให้ดึงข้อสอบจากข้อความด้านล่างและตอบกลับเป็น JSON อย่างเดียว
+รูปแบบ: ${jsonSchema}
+${rules.replace('จากรูปภาพทุกหน้า','จากข้อความ')}
 
 ข้อสอบ:
 ${state.rawText}`;
-  try {
+      requestBody = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 65536 }
+      };
+    }
+
     const res = await fetch(state.apiUrl + '?key=' + state.apiKey, {
       method: 'POST', signal: state.abortCtrl.signal,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 65536 } })
+      body: JSON.stringify(requestBody)
     });
     if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `HTTP ${res.status}`); }
     const data = await res.json();
@@ -936,9 +997,17 @@ function buildQHtml(q) {
     ? `<div class="q-img"><img src="${imgSrc}" style="max-width:100%;max-height:180px;display:block;margin:4px 0 6px 0;border:1px solid #ddd;border-radius:3px"></div>`
     : '';
 
-  // สูตรคณิตศาสตร์
-  const mathKey = q.math || '';
-  const mathLatex = mathKey && state.mathStore[mathKey] ? state.mathStore[mathKey] : '';
+  // สูตรคณิตศาสตร์ — รองรับทั้ง LaTeX โดยตรง และ key จาก mathStore
+  const mathVal = q.math || '';
+  let mathLatex = '';
+  if (mathVal) {
+    // ถ้าเป็น key ใน mathStore ให้ lookup ถ้าไม่ใช่ถือว่าเป็น LaTeX โดยตรง
+    mathLatex = state.mathStore[mathVal] || mathVal;
+    // ถ้ายังไม่มี \( \) ครอบ ให้เพิ่ม
+    if (mathLatex && !mathLatex.includes('\\(') && !mathLatex.includes('\\[')) {
+      mathLatex = '\\(' + mathLatex + '\\)';
+    }
+  }
   const mathHtml = mathLatex
     ? `<div class="q-math" style="margin:4px 0 6px 0;font-size:15px">${mathLatex}</div>`
     : '';
