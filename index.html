@@ -185,7 +185,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 /* ═══ PRINT STYLES ═══ */
 @media print{
   @page { size: 8.5in 13in portrait; margin: 0; }
-  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; width: 816px !important; height: auto !important; }
+  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; width: 100% !important; height: auto !important; }
   body::before { display: none !important; }
   body > *:not(.main) { display: none !important; }
   .main { display: block !important; margin: 0 !important; padding: 0 !important; max-width: none !important; border: none !important; }
@@ -195,9 +195,42 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   #previewLayout { display: block !important; grid-template-columns: 1fr !important; gap: 0 !important; }
   .editor-panel, .empty-state { display: none !important; }
   
-  #paperWrap { display: block !important; padding: 0 !important; margin: 0 !important; border: none !important; background: transparent !important; box-shadow: none !important; overflow: visible !important; max-height: none !important; }
-  .paper { background: #fff !important; color: #000 !important; width: 816px !important; height: 1248px !important; padding: 54px 62px !important; margin: 0 !important; box-shadow: none !important; border-radius: 0 !important; transform: none !important; page-break-after: always !important; break-after: page !important; page-break-inside: avoid !important; position: relative !important; overflow: hidden !important; box-sizing: border-box !important; }
-  .paper:last-child { page-break-after: avoid !important; break-after: avoid !important; }
+  #paperWrap { 
+    display: block !important; 
+    padding: 0 !important; 
+    margin: 0 !important; 
+    border: none !important; 
+    background: transparent !important; 
+    box-shadow: none !important; 
+    overflow: visible !important; 
+    max-height: none !important; 
+    height: auto !important;
+  }
+  
+  .paper { 
+    background: #fff !important; 
+    color: #000 !important; 
+    width: 100% !important; /* ให้กว้างเต็มหน้ากระดาษ */
+    height: auto !important; /* ปล่อยความสูงไหลตามจริง ป้องกันหน้ากระดาษล้น */
+    max-height: 100vh !important;
+    padding: 54px 62px !important; 
+    margin: 0 !important; 
+    box-shadow: none !important; 
+    border-radius: 0 !important; 
+    transform: none !important; 
+    page-break-inside: avoid !important;
+    page-break-after: always !important; /* สั่งขึ้นหน้าใหม่ทุกจบแผ่น */
+    break-after: page !important; 
+    position: relative !important; 
+    overflow: hidden !important; 
+    box-sizing: border-box !important; 
+  }
+  
+  .paper:last-child { 
+    page-break-after: auto !important; /* แผ่นสุดท้ายไม่ต้องสั่งขึ้นหน้าใหม่ (กันหน้าเปล่าปิดท้าย) */
+    break-after: auto !important; 
+  }
+  
   .exam-cols { column-count: 2 !important; column-gap: 24px !important; column-rule: 1px solid #999 !important; }
   .exam-single { column-count: 1 !important; }
   .q-block { break-inside: avoid !important; page-break-inside: avoid !important; }
