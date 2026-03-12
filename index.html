@@ -109,13 +109,16 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 
 .paper-wrap{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:18px;overflow-y:auto;overflow-x:hidden;max-height:calc(100vh - 180px);-webkit-overflow-scrolling:touch}
 
-/* ══ กระดาษ F4 ══ */
+/* ══ กระดาษ F4: 816×1248px (8.5in×13in @ 96dpi) ══ */
 .paper{
   background:#fff;border-radius:6px;color:#000;
   font-family:'TH Sarabun PSK','Sarabun',sans-serif;
   font-size:16px;line-height:1.5;font-weight:normal;
   box-shadow:0 8px 40px rgba(0,0,0,.4);
-  width:816px;padding:54px 62px;
+  width:816px;
+  height:1248px;        /* fixed F4 height — JS guarantees content fits */
+  overflow:hidden;
+  padding:54px 62px;
   margin:0 auto 20px auto;
   box-sizing:border-box;position:relative;
   transform-origin:top center;transition:none;
@@ -156,9 +159,19 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .exam-col:last-child{padding-left:12px}
 .exam-single{display:block}
 .q-block{break-inside:avoid;margin-bottom:12px}
-.q-text{font-weight:normal;margin-bottom:3px;padding-left:2.2em;text-indent:-2.2em;display:block}
+.q-text{
+  font-weight:normal;margin-bottom:3px;
+  display:flex;gap:0.3em;
+}
+.q-num-lbl{white-space:nowrap;flex-shrink:0}
+.q-text-body{flex:1;min-width:0}
 .q-choices{padding-left:1em}
-.q-choice{margin:2px 0;padding-left:1.8em;text-indent:-1.8em;display:block}
+.q-choice{
+  margin:2px 0;
+  display:flex;gap:0.3em;
+}
+.q-choice-lbl{white-space:nowrap;flex-shrink:0}
+.q-choice-body{flex:1;min-width:0}
 
 @media print{
   @page{size:8.5in 13in portrait;margin:0}
@@ -167,7 +180,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   body::before{display:none!important}
   #print-area{display:block!important;position:static!important;width:816px!important;margin:0!important;padding:0!important}
   #paperWrapClone{display:block!important;width:816px!important}
-  .paper{zoom:1!important;box-shadow:none!important;border-radius:0!important;margin:0!important;page-break-after:always!important;break-after:page!important;display:block!important;position:static!important;overflow:visible!important}
+  .paper{
+    zoom:1!important;box-shadow:none!important;border-radius:0!important;margin:0!important;
+    width:816px!important;height:1248px!important;overflow:hidden!important;
+    page-break-after:always!important;break-after:page!important;
+    display:block!important;position:static!important;
+  }
   .paper:last-child{page-break-after:avoid!important;break-after:avoid!important}
   .paper *{color:#000!important;background:transparent!important}
   .p-school,.p-row,.p-inst,.p-subhead{color:#000!important}
@@ -621,14 +639,21 @@ function renderEditor() {
 }
 
 function buildQHtml(q) {
+  const choices = ['a','b','c','d'];
+  const labels  = ['ก','ข','ค','ง'];
+  const choicesHtml = choices
+    .filter(k => q[k])
+    .map((k, i) => `<div class="q-choice">
+      <span class="q-choice-lbl">${labels[i]}.</span>
+      <span class="q-choice-body">${esc(q[k])}</span>
+    </div>`)
+    .join('');
   return `<div class="q-block">
-    <div class="q-text">${q.no}. ${esc(q.question)}</div>
-    <div class="q-choices">
-      ${q.a ? `<div class="q-choice">ก. ${esc(q.a)}</div>` : ''}
-      ${q.b ? `<div class="q-choice">ข. ${esc(q.b)}</div>` : ''}
-      ${q.c ? `<div class="q-choice">ค. ${esc(q.c)}</div>` : ''}
-      ${q.d ? `<div class="q-choice">ง. ${esc(q.d)}</div>` : ''}
+    <div class="q-text">
+      <span class="q-num-lbl">${q.no}.</span>
+      <span class="q-text-body">${esc(q.question)}</span>
     </div>
+    <div class="q-choices">${choicesHtml}</div>
   </div>`;
 }
 
@@ -681,60 +706,76 @@ function renderPaper() {
     grade: v('f_grade'), subject: v('f_subject'), time: v('f_time'),
     inst: v('f_inst'), total: state.questions.length };
 
-  const PAGE_H = 1144;
+  // F4 fixed dimensions
+  const PAPER_H  = 1248; // 13in @ 96dpi
+  const PAD_V    = 54;
+  const PAD_H    = 62;
+  const CONTENT_H = PAPER_H - PAD_V * 2; // 1140px
+  const CONTENT_W = 816 - PAD_H * 2;     // 692px
+  const COL_GAP   = 24;
+  const COL_INNER = 12; // padding inside each column (left has pr-12, right has pl-12)
+  // actual text-rendering width per column (what the probe should use)
+  const TEXT_W = state.twoCol
+    ? Math.floor((CONTENT_W - COL_GAP) / 2) - COL_INNER  // 334 - 12 = 322px
+    : CONTENT_W;                                            // 692px
 
-  // ── วัด header height จริง (dynamic) ──
-  let headProbe = document.getElementById('_headprobe');
-  if (!headProbe) {
-    headProbe = document.createElement('div');
-    headProbe.id = '_headprobe';
-    headProbe.style.cssText = 'position:absolute;visibility:hidden;top:-9999px;left:0;width:692px;box-sizing:border-box';
-    document.body.appendChild(headProbe);
-  }
-  headProbe.innerHTML = `<div class="p-school">${esc(meta.school)}</div>
-    <div class="p-row"><span>x</span><span>x</span><span>x</span></div>
-    <div class="p-row bdr"><span>x</span><span>x</span><span>x</span></div>
-    <div class="p-inst">x</div>`;
-  const HEAD1_H = headProbe.offsetHeight + 24;
-  headProbe.innerHTML = `<div class="p-subhead"><span>x</span><span>x</span><span>x</span></div>
-    <div class="p-subhead-line"></div>`;
-  const HEADN_H = headProbe.offsetHeight + 24;
-  const SAFETY = 24;
-
+  // ── วัด q heights ──
   let probe = document.getElementById('_probe');
   if (!probe) { probe = document.createElement('div'); probe.id = '_probe'; document.body.appendChild(probe); }
-  const contentW = 816 - 62 * 2;
-  const colW = (contentW - 24) / 2;
-  const probeW = state.twoCol ? colW : contentW;
   probe.style.cssText = [
     'position:absolute','visibility:hidden','pointer-events:none','top:-9999px','left:0',
-    `width:${probeW}px`,
+    `width:${TEXT_W}px`,
     "font-family:'TH Sarabun PSK','Sarabun',sans-serif",
-    'font-size:16px','line-height:1.5','box-sizing:border-box','padding-left:2.2em'
+    'font-size:16px','line-height:1.5','box-sizing:border-box'
   ].join(';');
   probe.innerHTML = state.questions.map(buildQHtml).join('');
-  const heights = Array.from(probe.querySelectorAll('.q-block')).map(el => el.offsetHeight + 10);
+  const qHeights = Array.from(probe.querySelectorAll('.q-block')).map(el => el.offsetHeight + 12);
 
+  // ── วัด header heights แบบ dynamic ──
+  let hp = document.getElementById('_hp');
+  if (!hp) { hp = document.createElement('div'); hp.id = '_hp'; document.body.appendChild(hp); }
+  const hStyle = `width:${CONTENT_W}px;font-family:'TH Sarabun PSK','Sarabun',sans-serif;font-size:16px;line-height:1.5;box-sizing:border-box`;
+
+  hp.innerHTML = `<div style="${hStyle}">
+    <div style="font-weight:bold;text-align:center;margin-bottom:2px">${esc(meta.school)}</div>
+    <div style="font-weight:bold;display:flex;justify-content:space-between;margin-bottom:2px"><span>ข้อสอบ${esc(meta.type)}</span><span>ปีการศึกษา ${esc(meta.year)}</span><span>ชั้น${esc(meta.grade)}</span></div>
+    <div style="font-weight:bold;display:flex;justify-content:space-between;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:8px"><span>วิชา ${esc(meta.subject)}</span><span>จำนวน ${meta.total} ข้อ</span><span>เวลา ${esc(meta.time)} นาที</span></div>
+    <div style="font-size:14px;text-decoration:underline;margin-bottom:12px">คำชี้แจง : ${esc(meta.inst)}</div>
+  </div>`;
+  const HEAD1_H = hp.firstChild.offsetHeight + 8;
+
+  hp.innerHTML = `<div style="${hStyle}">
+    <div style="font-weight:bold;display:flex;justify-content:space-between;margin-bottom:4px"><span>วิชา ${esc(meta.subject)}</span><span>ชั้น${esc(meta.grade)}</span><span>หน้า 2</span></div>
+    <div style="border-bottom:2px solid #000;margin-bottom:10px"></div>
+  </div>`;
+  const HEADN_H = hp.firstChild.offsetHeight + 8;
+
+  const SAFETY = 24;
+  const avail1 = CONTENT_H - HEAD1_H - SAFETY;
+  const availN = CONTENT_H - HEADN_H - SAFETY;
+
+  // ── แบ่งหน้า ──
   const pages = [];
-  let pageNo = 1, isFirst = true, pageQs = [], pageHts = [], sumH = 0;
-  const availH = pg1 => PAGE_H - (pg1 ? HEAD1_H : HEADN_H) - SAFETY;
+  let pageNo = 1, isFirst = true, pageQs = [], pageHts = [], colSum = 0;
 
   state.questions.forEach((q, i) => {
-    const h = heights[i] || 60;
-    const newSumH = sumH + h;
-    const effectiveH = state.twoCol ? Math.ceil(newSumH / 2) : newSumH;
-    if (pageQs.length > 0 && effectiveH > availH(isFirst)) {
+    const h = qHeights[i] || 70;
+    const newSum = colSum + h;
+    // 2-col: ความสูงจริงบนหน้า = ceil(sum / 2) เพราะ flex column ซ้าย/ขวา
+    const effective = state.twoCol ? Math.ceil(newSum / 2) : newSum;
+    const limit = isFirst ? avail1 : availN;
+
+    if (pageQs.length > 0 && effective > limit) {
       pages.push({ pageNo, isFirst, questions: [...pageQs], heights: [...pageHts] });
-      pageNo++; isFirst = false; pageQs = []; pageHts = []; sumH = 0;
+      pageNo++; isFirst = false; pageQs = []; pageHts = []; colSum = 0;
     }
-    pageQs.push(q); pageHts.push(h); sumH += h;
+    pageQs.push(q); pageHts.push(h); colSum += h;
   });
   if (pageQs.length > 0) pages.push({ pageNo, isFirst, questions: pageQs, heights: pageHts });
 
-  let pagesHtml = pages.map(p => buildPageHtml(p.isFirst, p.pageNo, p.questions, meta, p.heights)).join('');
-  if (state.showWriting) pagesHtml += buildWritingPage(meta);
-
-  document.getElementById('paperWrap').innerHTML = pagesHtml;
+  let html = pages.map(p => buildPageHtml(p.isFirst, p.pageNo, p.questions, meta, p.heights)).join('');
+  if (state.showWriting) html += buildWritingPage(meta);
+  document.getElementById('paperWrap').innerHTML = html;
   requestAnimationFrame(scalePaper);
 }
 
