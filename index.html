@@ -139,6 +139,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   margin:0 auto 20px auto;
   box-sizing:border-box;position:relative;
   transform-origin:top center;transition:none;
+  display:flex;flex-direction:column;
 }
 
 .p-school{font-family:'TH Sarabun PSK','Sarabun',sans-serif;font-size:16px;font-weight:bold;text-align:center;margin-bottom:2px;}
@@ -870,7 +871,7 @@ function buildPageHtml(isFirst, pageNo, questions, meta, heights, availH) {
       <div class="p-row"><span>ข้อสอบ${esc(meta.type)}</span><span>ปีการศึกษา ${esc(meta.year)}</span><span>ชั้น${esc(meta.grade)}</span></div>
       <div class="p-row bdr"><span>วิชา ${esc(meta.subject)}</span><span>จำนวน ${meta.total} ข้อ</span><span>เวลา ${esc(meta.time)} นาที</span></div>
       <div class="p-inst">คำชี้แจง : ${esc(meta.inst)}</div>
-      ${contentHtml}
+      <div style="flex:1">${contentHtml}</div>
     </div>`;
   } else {
     return `<div class="paper">
@@ -880,7 +881,7 @@ function buildPageHtml(isFirst, pageNo, questions, meta, heights, availH) {
         <span>หน้า ${pageNo}</span>
       </div>
       <div class="p-subhead-line"></div>
-      ${contentHtml}
+      <div style="flex:1">${contentHtml}</div>
     </div>`;
   }
 }
