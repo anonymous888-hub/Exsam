@@ -51,39 +51,13 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .card-title{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px;display:flex;align-items:center;gap:8px}
 .card-icon{width:26px;height:26px;background:rgba(232,184,75,.14);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px}
 
-/* ═══ UPLOAD ZONE ═══ */
-.upload-zone{
-  position:relative;
-  border:2.5px dashed rgba(232,184,75,.5);
-  border-radius:var(--r);
-  background:linear-gradient(135deg,rgba(232,184,75,.1),rgba(232,184,75,.04));
-  padding:36px 20px;
-  text-align:center;
-  cursor:pointer;
-  transition:all .2s;
-  margin-bottom:14px;
-}
-.upload-zone:hover,.upload-zone.over{
-  border-color:var(--accent);
-  background:linear-gradient(135deg,rgba(232,184,75,.18),rgba(232,184,75,.08));
-  transform:scale(1.01);
-}
-/* The actual input covers the whole zone */
-.upload-zone input[type=file]{
-  position:absolute;inset:0;width:100%;height:100%;
-  opacity:0;cursor:pointer;z-index:3;
-}
+.upload-zone{position:relative;border:2.5px dashed rgba(232,184,75,.5);border-radius:var(--r);background:linear-gradient(135deg,rgba(232,184,75,.1),rgba(232,184,75,.04));padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px}
+.upload-zone:hover,.upload-zone.over{border-color:var(--accent);background:linear-gradient(135deg,rgba(232,184,75,.18),rgba(232,184,75,.08));transform:scale(1.01)}
+.upload-zone input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:3}
 .upload-zone-icon{font-size:40px;margin-bottom:10px;line-height:1}
 .upload-zone-title{font-size:17px;font-weight:700;color:var(--accent);margin-bottom:6px}
 .upload-zone-sub{font-size:13px;color:var(--text2);margin-bottom:14px}
-.upload-zone-pill{
-  display:inline-block;
-  background:var(--accent);color:var(--navy);
-  font-size:14px;font-weight:700;
-  padding:9px 28px;border-radius:25px;
-  box-shadow:0 4px 14px rgba(232,184,75,.4);
-  pointer-events:none;
-}
+.upload-zone-pill{display:inline-block;background:var(--accent);color:var(--navy);font-size:14px;font-weight:700;padding:9px 28px;border-radius:25px;box-shadow:0 4px 14px rgba(232,184,75,.4);pointer-events:none}
 
 .file-status{display:none;align-items:center;gap:10px;padding:10px 14px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.22);border-radius:10px;margin-bottom:12px}
 .file-status-name{font-size:13px;font-weight:700;color:var(--green);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
@@ -133,105 +107,65 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .empty-state{text-align:center;padding:80px 20px;color:var(--text2)}
 .empty-icon{font-size:52px;margin-bottom:14px;opacity:.4}
 
-.paper-wrap{
-  background:var(--glass);border:1px solid var(--border);border-radius:var(--r);
-  padding:18px;overflow-y:auto;overflow-x:hidden;
-  max-height:calc(100vh - 180px);
-  -webkit-overflow-scrolling:touch;
-}
-/* แต่ละหน้ากระดาษ F4 (21.59cm x 33.02cm = 8.5" x 13") */
+.paper-wrap{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);padding:18px;overflow-y:auto;overflow-x:hidden;max-height:calc(100vh - 180px);-webkit-overflow-scrolling:touch}
+
+/* ══ กระดาษ F4 ══ */
 .paper{
   background:#fff;border-radius:6px;color:#000;
-  font-family:'Sarabun',sans-serif;
-  font-size:21px;line-height:1.5;
-  font-weight:normal;
+  font-family:'TH Sarabun PSK','Sarabun',sans-serif;
+  font-size:21px;line-height:1.5;font-weight:normal;
   box-shadow:0 8px 40px rgba(0,0,0,.4);
-  width:816px;       /* 21.59cm @ 96dpi */
-  padding:54px 62px; /* ~1.43cm ~1.63cm */
+  width:816px;padding:54px 62px;
   margin:0 auto 20px auto;
-  box-sizing:border-box;
-  position:relative;
-  transform-origin:top center;
-  transition:none;
+  box-sizing:border-box;position:relative;
+  transform-origin:top center;transition:none;
 }
-/* หัวกระดาษหน้า 1 */
-.p-school{font-size:21px;font-weight:bold;text-align:center;margin-bottom:2px}
-.p-row{font-size:21px;font-weight:bold;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:2px}
+
+/* ══ หัวกระดาษ: TH Sarabun PSK 16px Bold ══ */
+.p-school{
+  font-family:'TH Sarabun PSK','Sarabun',sans-serif;
+  font-size:16px;font-weight:bold;
+  text-align:center;margin-bottom:2px;
+}
+.p-row{
+  font-family:'TH Sarabun PSK','Sarabun',sans-serif;
+  font-size:16px;font-weight:bold;
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;margin-bottom:2px;
+}
 .p-row.bdr{border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:8px}
-.p-inst{font-size:21px;font-weight:bold;text-decoration:underline;margin-bottom:12px}
-/* หัวกระดาษหน้า 2+ */
-.p-subhead{font-size:21px;font-weight:bold;display:flex;justify-content:space-between;margin-bottom:4px}
+
+/* ══ คำชี้แจง: TH Sarabun PSK 14px ไม่ตัวหนา ══ */
+.p-inst{
+  font-family:'TH Sarabun PSK','Sarabun',sans-serif;
+  font-size:14px;font-weight:normal;
+  text-decoration:underline;margin-bottom:12px;
+}
+
+/* ══ หัวหน้า 2+: TH Sarabun PSK 16px Bold ══ */
+.p-subhead{
+  font-family:'TH Sarabun PSK','Sarabun',sans-serif;
+  font-size:16px;font-weight:bold;
+  display:flex;justify-content:space-between;margin-bottom:4px;
+}
 .p-subhead-line{border-bottom:2px solid #000;margin-bottom:10px}
+
 .exam-cols{column-count:2;column-gap:24px;column-rule:1px solid #ccc}
 .exam-single{column-count:1}
 .q-block{break-inside:avoid;margin-bottom:12px}
-/* คำถาม: "23. " กว้างประมาณ 2.2em — บรรทัดถัดไปจะตรงกับตัวอักษรหลังจุด */
-.q-text{
-  font-weight:normal;
-  margin-bottom:3px;
-  padding-left:2.2em;
-  text-indent:-2.2em;
-  display:block;
-}
-/* ตัวเลือก: "ก. " กว้างประมาณ 1.8em */
+.q-text{font-weight:normal;margin-bottom:3px;padding-left:2.2em;text-indent:-2.2em;display:block}
 .q-choices{padding-left:1em}
-.q-choice{
-  margin:2px 0;
-  padding-left:1.8em;
-  text-indent:-1.8em;
-  display:block;
-}
+.q-choice{margin:2px 0;padding-left:1.8em;text-indent:-1.8em;display:block}
 
 @media print{
-  /* F4: 8.5in x 13in = 816px x 1248px @ 96dpi */
   @page{size:8.5in 13in portrait;margin:0}
-
-  html,body{
-    background:#fff!important;
-    margin:0!important;padding:0!important;
-    -webkit-print-color-adjust:exact!important;
-    print-color-adjust:exact!important;
-    width:816px!important;
-    height:auto!important;
-    overflow:visible!important;
-  }
-
-  /* ซ่อนทุกอย่าง */
-  body > *{ display:none!important; }
-  body::before{ display:none!important; }
-
-  /* แสดงเฉพาะ #print-area */
-  #print-area{
-    display:block!important;
-    position:static!important;
-    width:816px!important;
-    margin:0!important;
-    padding:0!important;
-  }
-  #paperWrapClone{
-    display:block!important;
-    width:816px!important;
-  }
-
-  /* .paper พิมพ์ด้วย zoom=1 — layout ตรงกับ preview เป๊ะ */
-  .paper{
-    zoom:1!important;
-    box-shadow:none!important;
-    border-radius:0!important;
-    margin:0!important;
-    page-break-after:always!important;
-    break-after:page!important;
-    page-break-before:auto!important;
-    break-before:auto!important;
-    display:block!important;
-    position:static!important;
-    overflow:visible!important;
-  }
-  .paper:last-child{
-    page-break-after:avoid!important;
-    break-after:avoid!important;
-  }
-  .paper *{color:#000!important;background:transparent!important;}
+  html,body{background:#fff!important;margin:0!important;padding:0!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;width:816px!important;height:auto!important;overflow:visible!important}
+  body > *{display:none!important}
+  body::before{display:none!important}
+  #print-area{display:block!important;position:static!important;width:816px!important;margin:0!important;padding:0!important}
+  #paperWrapClone{display:block!important;width:816px!important}
+  .paper{zoom:1!important;box-shadow:none!important;border-radius:0!important;margin:0!important;page-break-after:always!important;break-after:page!important;display:block!important;position:static!important;overflow:visible!important}
+  .paper:last-child{page-break-after:avoid!important;break-after:avoid!important}
+  .paper *{color:#000!important;background:transparent!important}
   .p-school,.p-row,.p-inst,.p-subhead{color:#000!important}
   .p-row.bdr{border-bottom:2px solid #000!important}
   .p-subhead-line{border-bottom:2px solid #000!important}
@@ -241,8 +175,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   .w-line{border-bottom:1px solid #999!important}
 }
 
-
-/* ═══ WRITING PAGE ═══ */
+/* ══ WRITING PAGE ══ */
 .w-name-row{display:flex;gap:24px;align-items:center;margin-bottom:14px;font-size:21px}
 .w-blank{display:inline-block;border-bottom:1.5px solid #000;vertical-align:bottom}
 .w-part-head{font-size:21px;font-weight:bold;margin-bottom:4px}
@@ -252,46 +185,25 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .w-topic{font-size:18px;margin-bottom:4px;line-height:1.5}
 .w-lines-box{display:flex;flex-direction:column;gap:0}
 .w-line{border-bottom:1px solid #999;height:32px;width:100%}
-/* ═══ COLUMN LAYOUT TOGGLE ═══ */
+
+/* ══ COLUMN LAYOUT TOGGLE ══ */
 .col-toggle-wrap{margin-top:4px}
 .col-toggle-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:block}
 .col-toggle-group{display:flex;gap:10px}
-.col-opt{
-  flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;
-  padding:10px 8px;border-radius:10px;cursor:pointer;
-  border:2px solid var(--border);background:rgba(0,0,0,.2);
-  transition:all .2s;position:relative;
-}
+.col-opt{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px;border-radius:10px;cursor:pointer;border:2px solid var(--border);background:rgba(0,0,0,.2);transition:all .2s;position:relative}
 .col-opt input[type=radio]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;margin:0}
 .col-opt:hover{border-color:rgba(232,184,75,.4);background:rgba(232,184,75,.06)}
 .col-opt.active{border-color:var(--accent);background:rgba(232,184,75,.12)}
 .col-opt-text{font-size:12px;font-weight:600;color:var(--text2)}
 .col-opt.active .col-opt-text{color:var(--accent)}
-/* Mini paper preview icons */
-.col-preview{
-  width:44px;height:32px;background:#fff;border-radius:3px;
-  display:flex;gap:3px;padding:4px;box-shadow:0 1px 4px rgba(0,0,0,.3);
-}
-.col-preview span{
-  flex:1;background:#d0d7e3;border-radius:1px;
-  background:repeating-linear-gradient(0deg,#c8d0de,#c8d0de 2px,transparent 2px,transparent 4px);
-}
+.col-preview{width:44px;height:32px;background:#fff;border-radius:3px;display:flex;gap:3px;padding:4px;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.col-preview span{flex:1;background:repeating-linear-gradient(0deg,#c8d0de,#c8d0de 2px,transparent 2px,transparent 4px)}
 .col-preview-1{flex-direction:column;gap:2px}
 .col-preview-1 span{flex:none;height:4px;width:100%}
 
 .btn-row{display:flex;gap:10px}
 .btn-row .btn-convert{flex:1}
-.btn-cancel{
-  padding:13px 18px;
-  background:rgba(248,113,113,.12);
-  color:var(--red);
-  border:1px solid rgba(248,113,113,.3);
-  border-radius:10px;
-  font-family:'Sarabun',sans-serif;
-  font-size:15px;font-weight:700;
-  cursor:pointer;transition:all .2s;
-  white-space:nowrap;
-}
+.btn-cancel{padding:13px 18px;background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3);border-radius:10px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
 .btn-cancel:hover{background:rgba(248,113,113,.22);border-color:rgba(248,113,113,.5)}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -401,7 +313,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
             <label class="field-label">คำชี้แจง</label>
             <input type="text" id="f_inst" value="ให้นักเรียนอ่านและคิดพิจารณา แล้วเลือกตัวเลือกที่ถูกต้องที่สุดเพียงคำตอบเดียว">
           </div>
-          <!-- Layout toggle -->
           <div class="col-toggle-wrap">
             <div class="col-toggle-label">รูปแบบการจัดหน้า</div>
             <div class="col-toggle-group">
@@ -418,39 +329,37 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
             </div>
           </div>
         </div>
-          <!-- Writing section toggle -->
-          <div class="col-toggle-wrap" style="margin-top:14px">
-            <div class="col-toggle-label">หน้าเขียนตอบ (Part II)</div>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px">
-              <input type="checkbox" id="chkWriting" onchange="onWritingToggle(this)"
-                style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
-              <span style="font-size:13px;color:var(--text1)">เพิ่มหน้าเขียนตอบท้ายข้อสอบ</span>
-            </label>
-            <div id="writingOpts" style="display:none">
-              <div class="field-row" style="margin-bottom:8px">
-                <div class="field">
-                  <label class="field-label">คะแนน</label>
-                  <input type="number" id="f_wpoints" value="10" min="1"
-                    oninput="state.writingPoints=+this.value;schedulePaperRender()" style="width:100%">
-                </div>
-                <div class="field">
-                  <label class="field-label">จำนวนคำ</label>
-                  <input type="number" id="f_wwords" value="150" min="50"
-                    oninput="state.writingWords=+this.value;schedulePaperRender()" style="width:100%">
-                </div>
-                <div class="field">
-                  <label class="field-label">บรรทัดเขียน</label>
-                  <input type="number" id="f_wlines" value="12" min="5" max="30"
-                    oninput="state.writingLines=+this.value;schedulePaperRender()" style="width:100%">
-                </div>
+        <div class="col-toggle-wrap" style="margin-top:14px">
+          <div class="col-toggle-label">หน้าเขียนตอบ (Part II)</div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px">
+            <input type="checkbox" id="chkWriting" onchange="onWritingToggle(this)"
+              style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
+            <span style="font-size:13px;color:var(--text1)">เพิ่มหน้าเขียนตอบท้ายข้อสอบ</span>
+          </label>
+          <div id="writingOpts" style="display:none">
+            <div class="field-row" style="margin-bottom:8px">
+              <div class="field">
+                <label class="field-label">คะแนน</label>
+                <input type="number" id="f_wpoints" value="10" min="1"
+                  oninput="state.writingPoints=+this.value;schedulePaperRender()" style="width:100%">
               </div>
               <div class="field">
-                <label class="field-label">หัวข้อให้เลือก (แต่ละบรรทัด = 1 หัวข้อ)</label>
-                <textarea id="f_wtopics" rows="6"
-                  style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text1);font-family:Sarabun,sans-serif;font-size:13px;padding:8px;resize:vertical;box-sizing:border-box"
-                  oninput="state.writingTopics=this.value.split('\n').filter(t=>t.trim());schedulePaperRender()"
-                  placeholder="Do individual actions really help solve environmental problems?&#10;Describe a restaurant experience...&#10;Do inventions always improve life?"></textarea>
+                <label class="field-label">จำนวนคำ</label>
+                <input type="number" id="f_wwords" value="150" min="50"
+                  oninput="state.writingWords=+this.value;schedulePaperRender()" style="width:100%">
               </div>
+              <div class="field">
+                <label class="field-label">บรรทัดเขียน</label>
+                <input type="number" id="f_wlines" value="12" min="5" max="30"
+                  oninput="state.writingLines=+this.value;schedulePaperRender()" style="width:100%">
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">หัวข้อให้เลือก (แต่ละบรรทัด = 1 หัวข้อ)</label>
+              <textarea id="f_wtopics" rows="6"
+                style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text1);font-family:Sarabun,sans-serif;font-size:13px;padding:8px;resize:vertical;box-sizing:border-box"
+                oninput="state.writingTopics=this.value.split('\n').filter(t=>t.trim());schedulePaperRender()"
+                placeholder="Do individual actions really help solve environmental problems?&#10;Describe a restaurant experience...&#10;Do inventions always improve life?"></textarea>
             </div>
           </div>
         </div>
@@ -479,15 +388,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
         </div>
         <div class="q-list" id="qList"></div>
       </div>
-      <div id="paperWrap" class="paper-wrap">
-        <!-- pages rendered by JS -->
-      </div>
+      <div id="paperWrap" class="paper-wrap"></div>
     </div>
   </div>
 
 </div>
 
-<!-- print-area: paperWrap จะถูก move เข้ามาตอนพิมพ์ผ่าน JS beforeprint -->
 <div id="print-area" style="display:none"></div>
 
 <script>
@@ -507,7 +413,6 @@ const state = {
   writingWords: 150
 };
 
-/* ─── Tab switching ─────────────────────────────────── */
 function switchTab(name, el) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -515,36 +420,23 @@ function switchTab(name, el) {
   el.classList.add('active');
   document.getElementById('btnPrintTop').style.display =
     (name === 'preview' && state.questions.length > 0) ? 'flex' : 'none';
-  // FIX: re-scale กระดาษเมื่อ tab preview ถูกเปิด
   if (name === 'preview') requestAnimationFrame(scalePaper);
 }
 
-/* ─── Drag & Drop ────────────────────────────────────── */
-function onDragOver(e) {
-  e.preventDefault();
-  document.getElementById('uploadZone').classList.add('over');
-}
-function onDragLeave() {
-  document.getElementById('uploadZone').classList.remove('over');
-}
+function onDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('over'); }
+function onDragLeave() { document.getElementById('uploadZone').classList.remove('over'); }
 function onDrop(e) {
   e.preventDefault();
   document.getElementById('uploadZone').classList.remove('over');
-  // FIX: reset file input เมื่อ drop ไฟล์ใหม่
   document.getElementById('fileIn').value = '';
   if (e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]);
 }
-/* ─── File reading ───────────────────────────────────── */
-function onFileChange(inp) {
-  if (inp.files[0]) { readFile(inp.files[0]); inp.value = ''; }
-}
+function onFileChange(inp) { if (inp.files[0]) { readFile(inp.files[0]); inp.value = ''; } }
 
 function readFile(file) {
-  showStatus(file.name, 'กำลังอ่านไฟล์...');
-  showErr('');
+  showStatus(file.name, 'กำลังอ่านไฟล์...'); showErr('');
   const reader = new FileReader();
   const name = file.name.toLowerCase();
-
   if (name.endsWith('.txt')) {
     reader.onload = e => { state.rawText = e.target.result; onReady(file); };
     reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
@@ -562,8 +454,7 @@ function readFile(file) {
           const content = await page.getTextContent();
           text += content.items.map(item => item.str).join(' ') + '\n';
         }
-        state.rawText = text;
-        onReady(file);
+        state.rawText = text; onReady(file);
       } catch (err) { showErr('อ่าน PDF ไม่ได้: ' + err.message); }
     };
     reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
@@ -581,10 +472,7 @@ function readFile(file) {
 }
 
 function onReady(file) {
-  if (!state.rawText || !state.rawText.trim()) {
-    showErr('ไม่พบข้อความในไฟล์');
-    return;
-  }
+  if (!state.rawText || !state.rawText.trim()) { showErr('ไม่พบข้อความในไฟล์'); return; }
   const lines = state.rawText.split('\n').filter(l => l.trim()).length;
   showStatus(file.name, (file.size / 1024).toFixed(1) + ' KB · ' + lines + ' บรรทัด · พร้อมแปลง ✓');
   document.getElementById('textBox').textContent = state.rawText.slice(0, 800) + (state.rawText.length > 800 ? '…' : '');
@@ -604,75 +492,41 @@ function toggleText() {
   document.getElementById('toggleArrow').textContent = state.textOpen ? '▼' : '▶';
 }
 
-/* ─── JSON repair ────────────────────────────────────── */
-// FIX: ปรับปรุง repairJSON ให้ robust ขึ้น และ handle MAX_TOKENS
 function repairJSON(str) {
-  // ลอง parse ตรงๆ ก่อน
   try { JSON.parse(str); return str; } catch (e) {}
-
-  // หา questions array
   const qStart = str.indexOf('"questions"');
   const arrStart = str.indexOf('[', qStart);
   if (arrStart === -1) throw new Error('ไม่พบ questions array ใน response');
-
   const goodObjects = [];
   let i = arrStart + 1;
-
   while (i < str.length) {
-    // ข้าม whitespace และ comma
     while (i < str.length && /[\s,]/.test(str[i])) i++;
     if (i >= str.length || str[i] !== '{') break;
-
-    // หาจุดสิ้นสุดของ object
-    let depth = 0, inStr = false, esc = false, start = i;
+    let depth = 0, inStr = false, esc = false;
     let j = i;
     for (; j < str.length; j++) {
       const c = str[j];
       if (esc) { esc = false; continue; }
       if (c === '\\' && inStr) { esc = true; continue; }
       if (c === '"') { inStr = !inStr; continue; }
-      if (!inStr) {
-        if (c === '{') depth++;
-        else if (c === '}') { depth--; if (depth === 0) break; }
-      }
+      if (!inStr) { if (c === '{') depth++; else if (c === '}') { depth--; if (depth === 0) break; } }
     }
-
     if (depth === 0 && j < str.length) {
-      const objStr = str.slice(start, j + 1);
+      const objStr = str.slice(i, j + 1);
       try {
         const obj = JSON.parse(objStr);
         if (obj.no !== undefined || obj.question !== undefined) {
-          goodObjects.push({
-            no: obj.no || goodObjects.length + 1,
-            question: obj.question || '',
-            a: obj.a || '',
-            b: obj.b || '',
-            c: obj.c || '',
-            d: obj.d || '',
-            answer: obj.answer || ''
-          });
+          goodObjects.push({ no: obj.no || goodObjects.length + 1, question: obj.question || '',
+            a: obj.a || '', b: obj.b || '', c: obj.c || '', d: obj.d || '', answer: obj.answer || '' });
         }
-      } catch (e) { /* ข้าม object ที่เสีย */ }
+      } catch (e) {}
       i = j + 1;
-    } else {
-      // object ไม่สมบูรณ์ (ถูกตัดกลาง เช่น MAX_TOKENS)
-      break;
-    }
+    } else { break; }
   }
-
   if (goodObjects.length === 0) throw new Error('ไม่พบข้อสอบที่สมบูรณ์ใน response');
-
-  // FIX: แจ้งเตือน user ถ้าดูเหมือน response ถูกตัด
-  const totalMatch = str.match(/"no"\s*:\s*(\d+)/g);
-  const lastNo = totalMatch ? parseInt(totalMatch[totalMatch.length - 1].match(/\d+/)[0]) : 0;
-  if (lastNo > goodObjects.length + 2) {
-    console.warn(`⚠️ Response ถูกตัด: พบ ${goodObjects.length} ข้อจากประมาณ ${lastNo} ข้อ`);
-  }
-
   return JSON.stringify({ questions: goodObjects });
 }
 
-/* ─── AI conversion ──────────────────────────────────── */
 async function convertExam() {
   if (!state.rawText) return;
   const btn = document.getElementById('btnConvert');
@@ -682,7 +536,6 @@ async function convertExam() {
   cancelBtn.style.display = 'flex';
   state.abortCtrl = new AbortController();
   showErr('');
-
   const prompt = `คุณคือระบบแปลงข้อสอบ ให้ดึงข้อสอบจากข้อความด้านล่างและตอบกลับเป็น JSON อย่างเดียว
 ห้ามมี markdown ห้ามมีข้อความอื่นนอกจาก JSON
 รูปแบบ: {"questions":[{"no":1,"question":"คำถาม","a":"ตัวเลือก","b":"ตัวเลือก","c":"ตัวเลือก","d":"ตัวเลือก","answer":"ก"}]}
@@ -690,107 +543,53 @@ async function convertExam() {
 
 ข้อสอบ:
 ${state.rawText}`;
-
   try {
-    const res = await fetch(
-      state.apiUrl + '?key=' + state.apiKey,
-      {
-        method: 'POST',
-        signal: state.abortCtrl.signal,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { temperature: 0.1, maxOutputTokens: 65536 }
-        })
-      }
-    );
-
-    if (!res.ok) {
-      // FIX: handle HTTP error status
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `HTTP ${res.status}`);
-    }
-
+    const res = await fetch(state.apiUrl + '?key=' + state.apiKey, {
+      method: 'POST', signal: state.abortCtrl.signal,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 65536 } })
+    });
+    if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `HTTP ${res.status}`); }
     const data = await res.json();
-
     if (data.error) throw new Error(data.error.message);
-
-    // FIX: ตรวจสอบว่า candidates มีข้อมูล
-    if (!data.candidates || !data.candidates[0]) {
-      throw new Error('AI ไม่ส่ง response กลับมา กรุณาลองใหม่');
-    }
-
+    if (!data.candidates || !data.candidates[0]) throw new Error('AI ไม่ส่ง response กลับมา กรุณาลองใหม่');
     const candidate = data.candidates[0];
-
-    // FIX: แจ้ง user ถ้า finish reason ไม่ใช่ STOP
     if (candidate.finishReason && candidate.finishReason !== 'STOP') {
-      console.warn('finishReason:', candidate.finishReason);
-      if (candidate.finishReason === 'MAX_TOKENS') {
+      if (candidate.finishReason === 'MAX_TOKENS')
         showErr('⚠️ ไฟล์ใหญ่เกินไป AI อาจตัด response — ระบบจะพยายามกู้ข้อสอบที่ได้มา');
-      }
     }
-
     let raw = candidate.content?.parts?.[0]?.text || '';
     if (!raw) throw new Error('AI ส่ง response ว่างเปล่า กรุณาลองใหม่');
-
-    // ทำความสะอาด markdown fence
     raw = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-
-    // ดึงเฉพาะ JSON object (เริ่มจาก '{' แรก)
     const s = raw.indexOf('{');
     if (s === -1) throw new Error('AI ไม่ส่ง JSON กลับมา กรุณาลองใหม่');
-    let jsonStr = raw.slice(s);
-
-    // ซ่อม JSON ที่ถูกตัดกลาง
-    jsonStr = repairJSON(jsonStr);
+    let jsonStr = repairJSON(raw.slice(s));
     const parsed = JSON.parse(jsonStr);
     state.questions = parsed.questions || [];
-
     if (!state.questions.length) throw new Error('ไม่พบข้อสอบในไฟล์');
-
-    // อัพเดต badge
     const badge = document.getElementById('qBadge');
-    badge.textContent = state.questions.length;
-    badge.style.display = 'inline';
-
+    badge.textContent = state.questions.length; badge.style.display = 'inline';
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('previewLayout').style.display = 'grid';
-
     renderAll();
     switchTab('preview', document.getElementById('tabPreview'));
     document.getElementById('btnPrintTop').style.display = 'flex';
-
   } catch (e) {
-    if (e.name === 'AbortError') {
-      showErr('ยกเลิกการแปลงแล้ว');
-    } else {
-      showErr('แปลงไม่ได้: ' + e.message);
-    }
+    showErr(e.name === 'AbortError' ? 'ยกเลิกการแปลงแล้ว' : 'แปลงไม่ได้: ' + e.message);
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = '✨ แปลงข้อสอบด้วย AI';
-    document.getElementById('btnCancel').style.display = 'none';
-    state.abortCtrl = null;
+    btn.disabled = false; btn.innerHTML = '✨ แปลงข้อสอบด้วย AI';
+    document.getElementById('btnCancel').style.display = 'none'; state.abortCtrl = null;
   }
 }
 
-/* ─── Render debounce ────────────────────────────────── */
 let _renderTimer = null;
-
-function renderAll() {
-  renderEditor();
-  schedulePaperRender();
-}
-
+function renderAll() { renderEditor(); schedulePaperRender(); }
 function schedulePaperRender() {
   if (_renderTimer) cancelAnimationFrame(_renderTimer);
-  _renderTimer = requestAnimationFrame(() => {
-    renderPaper();
-    _renderTimer = null;
-  });
+  _renderTimer = requestAnimationFrame(() => { renderPaper(); _renderTimer = null; });
 }
 
-/* ─── Editor render ──────────────────────────────────── */
 function renderEditor() {
   const list = document.getElementById('qList');
   list.innerHTML = '';
@@ -814,7 +613,6 @@ function renderEditor() {
   });
 }
 
-/* ─── Q block HTML builder ───────────────────────────── */
 function buildQHtml(q) {
   return `<div class="q-block">
     <div class="q-text">${q.no}. ${esc(q.question)}</div>
@@ -850,169 +648,87 @@ function buildPageHtml(isFirst, pageNo, qHtml, meta) {
   }
 }
 
-/* ─── Paper render — วัด height จริงทีละข้อ ─────────── */
 function renderPaper() {
   const v = id => document.getElementById(id).value;
-  const meta = {
-    school: v('f_school'), type: v('f_type'), year: v('f_year'),
+  const meta = { school: v('f_school'), type: v('f_type'), year: v('f_year'),
     grade: v('f_grade'), subject: v('f_subject'), time: v('f_time'),
-    inst: v('f_inst'), total: state.questions.length
-  };
+    inst: v('f_inst'), total: state.questions.length };
 
-  // F4 @ 96dpi: 816px wide, แต่ความสูงไม่จำกัด (ไม่มี min-height แล้ว)
-  // ให้ใช้ความสูง content จริงของ F4: 1252px - 54*2 padding = 1144px
-  // หัวหน้า 1 (school+rows+inst) ≈ 130px, หัวหน้า 2+ ≈ 56px
-  const PAGE_H      = 1144;
-  const HEAD1_H     = 130;
-  const HEADN_H     = 56;
-  const SAFETY      = 16; // safety margin เล็กลงเพื่อให้จุข้อได้มากขึ้น
+  const PAGE_H = 1144, HEAD1_H = 130, HEADN_H = 56, SAFETY = 16;
 
-  // ── วัด height ของแต่ละข้อด้วย hidden probe ──
   let probe = document.getElementById('_probe');
-  if (!probe) {
-    probe = document.createElement('div');
-    probe.id = '_probe';
-    document.body.appendChild(probe);
-  }
-  // กำหนด style ให้เหมือน .paper จริง
-  // paper: width=816px padding=54px 62px → content width = 816 - 62*2 = 692px
-  // 2-col: column-gap=24px → col width = (692 - 24) / 2 = 334px
-  const contentW = 816 - 62 * 2;          // 692px
-  const colW     = (contentW - 24) / 2;   // 334px
-  const probeW   = state.twoCol ? colW : contentW;
+  if (!probe) { probe = document.createElement('div'); probe.id = '_probe'; document.body.appendChild(probe); }
+  const contentW = 816 - 62 * 2;
+  const colW = (contentW - 24) / 2;
+  const probeW = state.twoCol ? colW : contentW;
   probe.style.cssText = [
-    'position:absolute','visibility:hidden','pointer-events:none',
-    'top:-9999px','left:0',
+    'position:absolute','visibility:hidden','pointer-events:none','top:-9999px','left:0',
     `width:${probeW}px`,
-    'font-family:Sarabun,sans-serif',
-    'font-size:21px','line-height:1.5',
-    'box-sizing:border-box',
-    'padding-left:2.2em'  // เลียนแบบ q-text indent
+    "font-family:'TH Sarabun PSK','Sarabun',sans-serif",
+    'font-size:21px','line-height:1.5','box-sizing:border-box','padding-left:2.2em'
   ].join(';');
   probe.innerHTML = state.questions.map(buildQHtml).join('');
-  const qEls = probe.querySelectorAll('.q-block');
-  const heights = Array.from(qEls).map(el => el.offsetHeight + 10); // +10 gap
+  const heights = Array.from(probe.querySelectorAll('.q-block')).map(el => el.offsetHeight + 10);
 
-  // ── แบ่งหน้า ──
-  // สำหรับ 2-col: CSS columns จะแบ่งเนื้อหาเป็น 2 ซีก
-  //   → ความสูงที่ใช้จริงบนกระดาษ = ผลรวม h ของทุกข้อในหน้า ÷ 2
-  // สำหรับ 1-col: ใช้ h จริงตามปกติ
-  // PAGE_H = พื้นที่ content ของกระดาษ (ไม่รวม padding และ header)
   const pages = [];
-  let pageNo = 1, isFirst = true;
-  let pageQs = [];
-  let sumH = 0;   // ผลรวม h (raw, ก่อนหาร 2) ของข้อในหน้าปัจจุบัน
-
-  // พื้นที่ content ที่เหลือหลังหัก header
-  const availH = (pg1) => PAGE_H - (pg1 ? HEAD1_H : HEADN_H) - SAFETY;
+  let pageNo = 1, isFirst = true, pageQs = [], sumH = 0;
+  const availH = pg1 => PAGE_H - (pg1 ? HEAD1_H : HEADN_H) - SAFETY;
 
   state.questions.forEach((q, i) => {
     const h = heights[i] || 60;
-    // ความสูงที่จะเพิ่มขึ้นบนกระดาษจริงเมื่อใส่ข้อนี้เพิ่ม
     const newSumH = sumH + h;
     const effectiveH = state.twoCol ? Math.ceil(newSumH / 2) : newSumH;
-    const limit = availH(isFirst);
-
-    if (pageQs.length > 0 && effectiveH > limit) {
-      // ข้อนี้ไม่จุ → บันทึกหน้าเดิม แล้วขึ้นหน้าใหม่
+    if (pageQs.length > 0 && effectiveH > availH(isFirst)) {
       pages.push({ pageNo, isFirst, questions: [...pageQs] });
-      pageNo++;
-      isFirst = false;
-      pageQs = [];
-      sumH = 0;
+      pageNo++; isFirst = false; pageQs = []; sumH = 0;
     }
-    pageQs.push(q);
-    sumH += h;
+    pageQs.push(q); sumH += h;
   });
   if (pageQs.length > 0) pages.push({ pageNo, isFirst, questions: pageQs });
 
-  // ── สร้าง HTML ──
-  let pagesHtml = pages.map(p => {
-    const qHtml = p.questions.map(buildQHtml).join('');
-    return buildPageHtml(p.isFirst, p.pageNo, qHtml, meta);
-  }).join('');
+  let pagesHtml = pages.map(p => buildPageHtml(p.isFirst, p.pageNo, p.questions.map(buildQHtml).join(''), meta)).join('');
   if (state.showWriting) pagesHtml += buildWritingPage(meta);
 
-  // render ลง paperWrap (ใช้ทั้ง preview และพิมพ์)
-  const wrap = document.getElementById('paperWrap');
-  wrap.innerHTML = pagesHtml;
-
+  document.getElementById('paperWrap').innerHTML = pagesHtml;
   requestAnimationFrame(scalePaper);
 }
 
-/* ─── Paper scaling — ใช้ zoom แทน transform ────────── */
-// zoom ทำให้ layout จริงๆ ถูก scale → print เหมือน preview เป๊ะ
 function scalePaper() {
   const wrap = document.getElementById('paperWrap');
   if (!wrap) return;
   const papers = wrap.querySelectorAll('.paper');
   if (!papers.length) return;
-
   const wrapW = wrap.clientWidth - 36;
   if (wrapW <= 0) return;
-
   papers.forEach(p => {
-    // reset zoom ก่อนวัด
-    p.style.zoom = '1';
-    p.style.marginBottom = '20px';
-    const paperW = p.offsetWidth; // = 816px เสมอ
-    if (paperW > 0 && paperW > wrapW) {
-      const z = wrapW / paperW;
-      p.style.zoom = String(z);
-      // zoom หดความสูง DOM ด้วย ไม่ต้องปรับ margin
-    }
+    p.style.zoom = '1'; p.style.marginBottom = '20px';
+    const pw = p.offsetWidth;
+    if (pw > 0 && pw > wrapW) p.style.zoom = String(wrapW / pw);
   });
 }
 
-// FIX: debounce resize event เพื่อไม่ให้เรียก scalePaper บ่อยเกินไป
 let _resizeTimer = null;
-window.addEventListener('resize', () => {
-  if (_resizeTimer) clearTimeout(_resizeTimer);
-  _resizeTimer = setTimeout(scalePaper, 100);
-});
+window.addEventListener('resize', () => { if (_resizeTimer) clearTimeout(_resizeTimer); _resizeTimer = setTimeout(scalePaper, 100); });
 
-/* ─── Helpers ────────────────────────────────────────── */
 function esc(s) {
-  return String(s || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function toggleQ(i) {
-  state.openIdx = state.openIdx === i ? null : i;
-  renderEditor();
-}
+function toggleQ(i) { state.openIdx = state.openIdx === i ? null : i; renderEditor(); }
 
-// FIX: updateQ ต้อง re-render editor ด้วยเพื่ออัพเดต snippet
-// ใช้ debounce เพื่อไม่ให้กระตุกขณะพิมพ์
 let _updateTimer = null;
 function updateQ(i, f, v) {
   state.questions[i][f] = v;
-  // อัพเดต snippet ใน editor ทันที (เฉพาะ DOM node ที่เปลี่ยน)
   if (f === 'question') {
     const items = document.querySelectorAll('.q-item');
-    if (items[i]) {
-      const snip = items[i].querySelector('.q-snip');
-      if (snip) snip.textContent = v || '(ว่าง)';
-    }
+    if (items[i]) { const snip = items[i].querySelector('.q-snip'); if (snip) snip.textContent = v || '(ว่าง)'; }
   }
-  // debounce paper render
   if (_updateTimer) clearTimeout(_updateTimer);
-  _updateTimer = setTimeout(() => {
-    schedulePaperRender();
-    _updateTimer = null;
-  }, 300);
+  _updateTimer = setTimeout(() => { schedulePaperRender(); _updateTimer = null; }, 300);
 }
 
 function addQ() {
-  state.questions.push({
-    no: state.questions.length + 1,
-    question: '',
-    a: '', b: '', c: '', d: '',
-    answer: ''
-  });
+  state.questions.push({ no: state.questions.length + 1, question: '', a: '', b: '', c: '', d: '', answer: '' });
   state.openIdx = state.questions.length - 1;
   renderAll();
   document.getElementById('qBadge').textContent = state.questions.length;
@@ -1021,9 +737,8 @@ function addQ() {
 function delQ(i) {
   state.questions.splice(i, 1);
   state.questions.forEach((q, idx) => q.no = idx + 1);
-  if (state.openIdx !== null && state.openIdx >= state.questions.length) {
+  if (state.openIdx !== null && state.openIdx >= state.questions.length)
     state.openIdx = state.questions.length > 0 ? state.questions.length - 1 : null;
-  }
   renderAll();
   document.getElementById('qBadge').textContent = state.questions.length;
 }
@@ -1034,49 +749,25 @@ function showErr(msg) {
   el.textContent = msg ? '⚠️ ' + msg : '';
 }
 
-
-
-
-/* ─── Writing page toggle ────────────────────────────── */
 function onWritingToggle(chk) {
   state.showWriting = chk.checked;
   document.getElementById('writingOpts').style.display = chk.checked ? 'block' : 'none';
   if (state.questions.length > 0) schedulePaperRender();
 }
 
-/* ─── Build writing page HTML ────────────────────────── */
 function buildWritingPage(meta) {
-  const topics = state.writingTopics;
-  const lines  = state.writingLines;
-  const pts    = state.writingPoints;
-  const words  = state.writingWords;
-
-  const subj = esc(meta.subject);
-  const grade = esc(meta.grade);
-
-  // หัวข้อให้เลือก
+  const topics = state.writingTopics, lines = state.writingLines, pts = state.writingPoints, words = state.writingWords;
   const topicsHtml = topics.length
     ? topics.map((t,i) => `<div class="w-topic">${i+1}. ${esc(t)}</div>`).join('')
     : '<div class="w-topic" style="opacity:.4">(ยังไม่มีหัวข้อ)</div>';
-
-  // เส้นเขียน
-  const linesHtml = Array.from({length: lines}, () =>
-    '<div class="w-line"></div>'
-  ).join('');
-
-  // ชื่อ/เลขที่/ห้อง
+  const linesHtml = Array.from({length: lines}, () => '<div class="w-line"></div>').join('');
   const nameRow = `<div class="w-name-row">
     <span>Name: <span class="w-blank" style="width:220px"></span></span>
     <span>No: <span class="w-blank" style="width:60px"></span></span>
     <span>Class: <span class="w-blank" style="width:80px"></span></span>
   </div>`;
-
   return `<div class="paper">
-    <div class="p-subhead">
-      <span>วิชา ${subj}</span>
-      <span>ชั้น${grade}</span>
-      <span>หน้าเขียนตอบ</span>
-    </div>
+    <div class="p-subhead"><span>วิชา ${esc(meta.subject)}</span><span>ชั้น${esc(meta.grade)}</span><span>หน้าเขียนตอบ</span></div>
     <div class="p-subhead-line"></div>
     ${nameRow}
     <div class="w-part-head">Part II: Writing <span class="w-pts">(${pts} points)</span></div>
@@ -1085,57 +776,33 @@ function buildWritingPage(meta) {
     <div class="w-lines-box">${linesHtml}</div>
   </div>`;
 }
-/* ─── Cancel conversion ──────────────────────────────── */
-function cancelConvert() {
-  if (state.abortCtrl) {
-    state.abortCtrl.abort();
-  }
-}
-/* ─── Layout toggle ──────────────────────────────────── */
+
+function cancelConvert() { if (state.abortCtrl) state.abortCtrl.abort(); }
+
 function onLayoutChange(radio) {
   state.twoCol = radio.value === '2';
-  // อัพเดต active class บน label
   document.querySelectorAll('.col-opt').forEach(l => l.classList.remove('active'));
   radio.closest('.col-opt').classList.add('active');
   if (state.questions.length > 0) schedulePaperRender();
 }
-/* ─── Header field live update ───────────────────────── */
+
 document.querySelectorAll('input[id^="f_"]').forEach(el => {
-  el.addEventListener('input', () => {
-    if (state.questions.length > 0) schedulePaperRender();
-  });
+  el.addEventListener('input', () => { if (state.questions.length > 0) schedulePaperRender(); });
 });
 
-/* ─── Print handlers — clone paperWrap → print-area ─── */
 (function(){
   function beforePrint() {
-    const src  = document.getElementById('paperWrap');
+    const src = document.getElementById('paperWrap');
     const dest = document.getElementById('print-area');
-    // clone ข้อมูล (deep clone) แล้วเอา transform ออก
     const clone = src.cloneNode(true);
     clone.id = 'paperWrapClone';
-    clone.style.cssText = [
-      'background:transparent','border:none',
-      'padding:0','margin:0','max-height:none',
-      'overflow:visible','width:816px','display:block'
-    ].join(';');
-    // reset zoom และ margin สำหรับ print (paper พิมพ์เต็ม 816px/100%)
-    clone.querySelectorAll('.paper').forEach(p => {
-      p.style.zoom   = '1';
-      p.style.marginBottom = '0';
-    });
-    dest.innerHTML = '';
-    dest.appendChild(clone);
-    dest.style.display = 'block';
+    clone.style.cssText = 'background:transparent;border:none;padding:0;margin:0;max-height:none;overflow:visible;width:816px;display:block';
+    clone.querySelectorAll('.paper').forEach(p => { p.style.zoom = '1'; p.style.marginBottom = '0'; });
+    dest.innerHTML = ''; dest.appendChild(clone); dest.style.display = 'block';
   }
-  function afterPrint() {
-    const dest = document.getElementById('print-area');
-    dest.innerHTML = '';
-    dest.style.display = 'none';
-  }
+  function afterPrint() { const dest = document.getElementById('print-area'); dest.innerHTML = ''; dest.style.display = 'none'; }
   window.addEventListener('beforeprint', beforePrint);
-  window.addEventListener('afterprint',  afterPrint);
-  // Safari compat
+  window.addEventListener('afterprint', afterPrint);
   if (window.matchMedia) {
     const mq = window.matchMedia('print');
     mq.addEventListener('change', e => { e.matches ? beforePrint() : afterPrint(); });
