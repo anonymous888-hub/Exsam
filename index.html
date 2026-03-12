@@ -167,7 +167,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   
   html, body { 
     background: #fff !important; margin: 0 !important; padding: 0 !important; 
-    width: 816px !important; height: 1248px !important; 
+    width: 100% !important; 
+    height: auto !important; /* ปลดล็อก height ให้เป็น auto */
     -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; 
   }
   
@@ -190,16 +191,21 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   
   .paper { 
     background: #fff !important; color: #000 !important; 
-    width: 816px !important; 
-    height: 1248px !important;
-    max-height: 1248px !important;
+    width: 100% !important; 
+    height: 1240px !important; /* ลดความสูงลงเล็กน้อยจาก 1248px เพื่อไม่ให้ดันไปขึ้นหน้าใหม่เองอัตโนมัติ */
+    max-height: 1240px !important;
     padding: 54px 62px !important; margin: 0 !important; 
     box-shadow: none !important; border-radius: 0 !important; 
     transform: none !important; 
     page-break-inside: avoid !important; 
-    page-break-after: always !important; 
+    page-break-after: always !important; /* ใช้คำสั่งนี้ตัดหน้าอย่างเดียว */
     overflow: hidden !important; 
     box-sizing: border-box !important; 
+  }
+  
+  .paper:last-child { 
+    page-break-after: auto !important; 
+    break-after: auto !important; 
   }
   
   .exam-cols { display: flex !important; gap: 0 !important; align-items: flex-start !important; }
