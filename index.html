@@ -9,6 +9,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+// MathJax config — ต้องตั้งค่าก่อน load
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  startup: { typeset: false }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
 <style>
 :root {
   --navy: #0a1628;
@@ -514,7 +524,9 @@ const state = {
   writingLines: 12,
   writingPoints: 10,
   writingWords: 150,
-  bottomMargin: 20
+  bottomMargin: 20,
+  docxImages: {},
+  mathStore: {}   // key: MATH_n → LaTeX string
 };
 
 function switchTab(name, el) {
@@ -545,6 +557,7 @@ function readFile(file) {
   const name = file.name.toLowerCase();
   
   state.currentChanges = [];
+  state.docxImages = {};
   document.getElementById('spellResult').style.display = 'none';
 
   if (name.endsWith('.txt')) {
@@ -570,11 +583,68 @@ function readFile(file) {
     reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
     reader.readAsArrayBuffer(file);
   } else {
-    reader.onload = e => {
+    reader.onload = async e => {
       if (typeof mammoth === 'undefined') return showErr('โหลด mammoth.js ไม่ได้');
-      mammoth.extractRawText({ arrayBuffer: e.target.result })
-        .then(res => { state.rawText = res.value; onReady(file); })
-        .catch(err => showErr('อ่าน .docx ไม่ได้: ' + err.message));
+      state.docxImages = {};
+      state.mathStore = {};
+      let imgCounter = 0;
+      let mathCounter = 0;
+      const arrayBuf = e.target.result;
+
+      // ── 1. ดึง MathML จาก word/document.xml ด้วย JSZip ──
+      const mathMap = {}; // position placeholder → latex
+      try {
+        if (typeof JSZip !== 'undefined') {
+          const zip = await JSZip.loadAsync(arrayBuf);
+          const docXml = await zip.file('word/document.xml').async('string');
+          // หา <m:oMath>...</m:oMath> ทั้งหมด
+          const mathRegex = /<m:oMath[\s\S]*?<\/m:oMath>/g;
+          let m;
+          while ((m = mathRegex.exec(docXml)) !== null) {
+            const key = 'MATH_' + (++mathCounter);
+            const latex = ommlToLatex(m[0]);
+            state.mathStore[key] = latex;
+            mathMap[m[0]] = '[MATH:' + key + ']';
+          }
+        }
+      } catch(zipErr) { console.warn('JSZip math extract:', zipErr); }
+
+      // ── 2. mammoth ดึงข้อความ + รูปภาพ ──
+      mammoth.convertToHtml(
+        { arrayBuffer: arrayBuf },
+        {
+          convertImage: mammoth.images.imgElement(img => {
+            return img.read('base64').then(base64 => {
+              const key = 'IMG_' + (++imgCounter);
+              state.docxImages[key] = 'data:' + img.contentType + ';base64,' + base64;
+              return { src: key };
+            });
+          })
+        }
+      ).then(res => {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = res.value;
+        tmp.querySelectorAll('img').forEach(img => {
+          const key = img.getAttribute('src');
+          const ph = document.createTextNode('[IMAGE:' + key + ']');
+          img.parentNode.replaceChild(ph, img);
+        });
+        let text = tmp.innerText || tmp.textContent;
+
+        // ── 3. ฝัง MATH placeholder กลับเข้าข้อความ ──
+        // mammoth ลบ MathML ออก → ต้องฝัง placeholder โดยใช้ตำแหน่งโจทย์
+        // วิธีง่ายที่สุด: แนบ math store ทั้งหมดเป็น metadata ท้าย rawText
+        if (mathCounter > 0) {
+          text += '\n\n[MATH_DATA:' + JSON.stringify(state.mathStore) + ']';
+        }
+
+        state.rawText = text;
+        const total = Object.keys(state.docxImages).length + mathCounter;
+        if (total > 0) {
+          showStatus(file.name, (file.size/1024).toFixed(1) + ' KB · รูป ' + Object.keys(state.docxImages).length + ' · สูตร ' + mathCounter + ' · พร้อมแปลง ✓');
+        }
+        onReady(file);
+      }).catch(err => showErr('อ่าน .docx ไม่ได้: ' + err.message));
     };
     reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
     reader.readAsArrayBuffer(file);
@@ -763,12 +833,15 @@ async function convertExam() {
   showErr('');
   const prompt = `คุณคือระบบแปลงข้อสอบ ให้ดึงข้อสอบจากข้อความด้านล่างและตอบกลับเป็น JSON อย่างเดียว
 ห้ามมี markdown ห้ามมีข้อความอื่นนอกจาก JSON
-รูปแบบ: {"questions":[{"no":1,"question":"คำถาม","a":"ตัวเลือก","b":"ตัวเลือก","c":"ตัวเลือก","d":"ตัวเลือก","answer":"ก","labels":["ก","ข","ค","ง"]}]}
+รูปแบบ: {"questions":[{"no":1,"question":"คำถาม","image":"IMG_1","math":"MATH_1","a":"ตัวเลือก","b":"ตัวเลือก","c":"ตัวเลือก","d":"ตัวเลือก","answer":"ก","labels":["ก","ข","ค","ง"]}]}
 กฎสำคัญ:
 - ดึงทุกข้อ
 - answer="" ถ้าไม่มีเฉลย
 - ตัวเลือกใน a b c d ไม่ต้องมีตัวอักษร/ตัวเลขนำหน้า (เนื้อหาล้วนๆ)
-- labels: ดูจากต้นฉบับว่าใช้รูปแบบใด ใส่ตามนั้น เช่น ["ก","ข","ค","ง"] หรือ ["1","2","3","4"] หรือ ["a","b","c","d"] หรือ ["A","B","C","D"]
+- labels: ดูจากต้นฉบับว่าใช้รูปแบบใด เช่น ["ก","ข","ค","ง"] หรือ ["1","2","3","4"] หรือ ["a","b","c","d"] หรือ ["A","B","C","D"]
+- image: ถ้าในโจทย์ข้อนั้นมี [IMAGE:IMG_n] ให้ใส่ key นั้นใน field "image" ถ้าไม่มีใส่ ""
+- math: ถ้าในโจทย์ข้อนั้นมี [MATH:MATH_n] ให้ใส่ key นั้นใน field "math" ถ้าไม่มีใส่ ""
+- บรรทัด [MATH_DATA:...] เป็น metadata ห้ามนำมาเป็นข้อสอบ
 
 ข้อสอบ:
 ${state.rawText}`;
@@ -817,7 +890,7 @@ let _renderTimer = null;
 function renderAll() { renderEditor(); schedulePaperRender(); }
 function schedulePaperRender() {
   if (_renderTimer) cancelAnimationFrame(_renderTimer);
-  _renderTimer = requestAnimationFrame(() => { renderPaper(); _renderTimer = null; });
+  _renderTimer = requestAnimationFrame(() => { renderPaper(); renderMath(); _renderTimer = null; });
 }
 
 function renderEditor() {
@@ -855,11 +928,27 @@ function buildQHtml(q) {
       <span class="q-choice-body">${esc(q[k])}</span>
     </div>`)
     .join('');
+
+  // รูปภาพ
+  const imgKey = q.image || '';
+  const imgSrc = imgKey && state.docxImages[imgKey] ? state.docxImages[imgKey] : '';
+  const imgHtml = imgSrc
+    ? `<div class="q-img"><img src="${imgSrc}" style="max-width:100%;max-height:180px;display:block;margin:4px 0 6px 0;border:1px solid #ddd;border-radius:3px"></div>`
+    : '';
+
+  // สูตรคณิตศาสตร์
+  const mathKey = q.math || '';
+  const mathLatex = mathKey && state.mathStore[mathKey] ? state.mathStore[mathKey] : '';
+  const mathHtml = mathLatex
+    ? `<div class="q-math" style="margin:4px 0 6px 0;font-size:15px">${mathLatex}</div>`
+    : '';
+
   return `<div class="q-block">
     <div class="q-text">
       <span class="q-num-lbl">${q.no}.</span>
       <span class="q-text-body">${esc(q.question)}</span>
     </div>
+    ${imgHtml}${mathHtml}
     <div class="q-choices">${choicesHtml}</div>
   </div>`;
 }
@@ -1196,6 +1285,110 @@ async function exportDocx() {
     alert('สร้าง .docx ไม่สำเร็จ: ' + e.message);
   } finally {
     btn.innerHTML = orig; btn.disabled = false;
+  }
+}
+
+// ── OMML → LaTeX converter (rule-based สำหรับสูตรทั่วไป) ──
+function ommlToLatex(omml) {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(omml, 'text/xml');
+    return nodeToLatex(doc.documentElement);
+  } catch(e) { return '?'; }
+}
+
+function nodeToLatex(node) {
+  if (node.nodeType === 3) return node.textContent; // text node
+  const tag = node.localName || '';
+  const ch = () => Array.from(node.childNodes).map(nodeToLatex).join('');
+
+  switch(tag) {
+    case 'oMath':      return '\\(' + ch() + '\\)';
+    case 'r':          return ch();  // run
+    case 't':          return node.textContent;
+    case 'f':          { // fraction
+      const num = node.getElementsByTagNameNS('*','num')[0];
+      const den = node.getElementsByTagNameNS('*','den')[0];
+      const n = num ? Array.from(num.childNodes).map(nodeToLatex).join('') : '';
+      const d = den ? Array.from(den.childNodes).map(nodeToLatex).join('') : '';
+      return '\\frac{' + n + '}{' + d + '}';
+    }
+    case 'rad': {      // radical / sqrt
+      const deg = node.getElementsByTagNameNS('*','deg')[0];
+      const e2  = node.getElementsByTagNameNS('*','e')[0];
+      const d   = deg ? Array.from(deg.childNodes).map(nodeToLatex).join('').trim() : '';
+      const base= e2  ? Array.from(e2.childNodes).map(nodeToLatex).join('') : '';
+      return d ? '\\sqrt[' + d + ']{' + base + '}' : '\\sqrt{' + base + '}';
+    }
+    case 'sSup': {     // superscript
+      const base2 = node.getElementsByTagNameNS('*','e')[0];
+      const sup   = node.getElementsByTagNameNS('*','sup')[0];
+      const b = base2 ? Array.from(base2.childNodes).map(nodeToLatex).join('') : '';
+      const s = sup   ? Array.from(sup.childNodes).map(nodeToLatex).join('') : '';
+      return '{' + b + '}^{' + s + '}';
+    }
+    case 'sSub': {     // subscript
+      const base3 = node.getElementsByTagNameNS('*','e')[0];
+      const sub   = node.getElementsByTagNameNS('*','sub')[0];
+      const b2 = base3 ? Array.from(base3.childNodes).map(nodeToLatex).join('') : '';
+      const s2 = sub   ? Array.from(sub.childNodes).map(nodeToLatex).join('') : '';
+      return '{' + b2 + '}_{' + s2 + '}';
+    }
+    case 'sSubSup': {  // sub+superscript
+      const base4  = node.getElementsByTagNameNS('*','e')[0];
+      const sub2   = node.getElementsByTagNameNS('*','sub')[0];
+      const sup2   = node.getElementsByTagNameNS('*','sup')[0];
+      const b3 = base4 ? Array.from(base4.childNodes).map(nodeToLatex).join('') : '';
+      const s3 = sub2  ? Array.from(sub2.childNodes).map(nodeToLatex).join('') : '';
+      const s4 = sup2  ? Array.from(sup2.childNodes).map(nodeToLatex).join('') : '';
+      return '{' + b3 + '}_{' + s3 + '}^{' + s4 + '}';
+    }
+    case 'nary': {     // integral, sum, product
+      const subH  = node.getElementsByTagNameNS('*','sub')[0];
+      const supH  = node.getElementsByTagNameNS('*','sup')[0];
+      const eH    = node.getElementsByTagNameNS('*','e')[0];
+      const chrEl = node.querySelector('[m\\:chr]') || node.querySelector('naryPr');
+      let sym = '\\int';
+      if (chrEl) {
+        const c = chrEl.getAttribute('m:chr') || '';
+        if (c === '∑' || c === 'Σ') sym = '\\sum';
+        else if (c === '∏') sym = '\\prod';
+      }
+      const lo = subH ? '_{' + Array.from(subH.childNodes).map(nodeToLatex).join('') + '}' : '';
+      const hi = supH ? '^{' + Array.from(supH.childNodes).map(nodeToLatex).join('') + '}' : '';
+      const body = eH ? Array.from(eH.childNodes).map(nodeToLatex).join('') : '';
+      return sym + lo + hi + ' ' + body;
+    }
+    case 'd': {        // delimiter ( )
+      const inner = Array.from(node.getElementsByTagNameNS('*','e')).map(el =>
+        Array.from(el.childNodes).map(nodeToLatex).join('')).join(',');
+      return '\\left(' + inner + '\\right)';
+    }
+    case 'm': {        // matrix
+      const rows = Array.from(node.getElementsByTagNameNS('*','mr')).map(row =>
+        Array.from(row.getElementsByTagNameNS('*','e')).map(el =>
+          Array.from(el.childNodes).map(nodeToLatex).join('')).join(' & ')
+      ).join(' \\\\ ');
+      return '\\begin{pmatrix}' + rows + '\\end{pmatrix}';
+    }
+    case 'func': {     // function e.g. sin, cos
+      const fname = node.getElementsByTagNameNS('*','fName')[0];
+      const farg  = node.getElementsByTagNameNS('*','e')[0];
+      const fn = fname ? Array.from(fname.childNodes).map(nodeToLatex).join('') : '';
+      const fa = farg  ? Array.from(farg.childNodes).map(nodeToLatex).join('') : '';
+      const knownFn = ['sin','cos','tan','log','ln','lim','max','min','exp'];
+      const cleanFn = fn.replace(/\\/g,'').trim();
+      return (knownFn.includes(cleanFn) ? '\\' + cleanFn : fn) + '{' + fa + '}';
+    }
+    default:           return ch();
+  }
+}
+
+// ── Trigger MathJax re-render หลัง render กระดาษ ──
+function renderMath() {
+  if (window.MathJax && MathJax.typesetPromise) {
+    const wrap = document.getElementById('paperWrap');
+    if (wrap) MathJax.typesetPromise([wrap]).catch(e => console.warn('MathJax:', e));
   }
 }
 
