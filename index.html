@@ -113,7 +113,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .paper{
   background:#fff;border-radius:6px;color:#000;
   font-family:'TH Sarabun PSK','Sarabun',sans-serif;
-  font-size:21px;line-height:1.5;font-weight:normal;
+  font-size:16px;line-height:1.5;font-weight:normal;
   box-shadow:0 8px 40px rgba(0,0,0,.4);
   width:816px;padding:54px 62px;
   margin:0 auto 20px auto;
@@ -176,13 +176,13 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 }
 
 /* ══ WRITING PAGE ══ */
-.w-name-row{display:flex;gap:24px;align-items:center;margin-bottom:14px;font-size:21px}
+.w-name-row{display:flex;gap:24px;align-items:center;margin-bottom:14px;font-size:16px}
 .w-blank{display:inline-block;border-bottom:1.5px solid #000;vertical-align:bottom}
-.w-part-head{font-size:21px;font-weight:bold;margin-bottom:4px}
-.w-pts{font-weight:normal;font-size:18px}
-.w-directions{font-size:19px;margin-bottom:10px}
+.w-part-head{font-size:16px;font-weight:bold;margin-bottom:4px}
+.w-pts{font-weight:normal;font-size:14px}
+.w-directions{font-size:16px;margin-bottom:10px}
 .w-topics-box{margin-bottom:14px;padding:10px 14px;border:1px solid #bbb;border-radius:4px}
-.w-topic{font-size:18px;margin-bottom:4px;line-height:1.5}
+.w-topic{font-size:16px;margin-bottom:4px;line-height:1.5}
 .w-lines-box{display:flex;flex-direction:column;gap:0}
 .w-line{border-bottom:1px solid #999;height:32px;width:100%}
 
@@ -398,7 +398,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 
 <script>
 const state = {
-  apiKey: 'AIzaSyBQOqoeHaNbOhMqlbOYh77iwPV_NA7Dwtg',
+  apiKey: 'AIzaSyABeDa8PFVnXcl2e076kj9JT6E3fOSjdq4',
   apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
   rawText: '',
   questions: [],
@@ -665,7 +665,7 @@ function renderPaper() {
     'position:absolute','visibility:hidden','pointer-events:none','top:-9999px','left:0',
     `width:${probeW}px`,
     "font-family:'TH Sarabun PSK','Sarabun',sans-serif",
-    'font-size:21px','line-height:1.5','box-sizing:border-box','padding-left:2.2em'
+    'font-size:16px','line-height:1.5','box-sizing:border-box','padding-left:2.2em'
   ].join(';');
   probe.innerHTML = state.questions.map(buildQHtml).join('');
   const heights = Array.from(probe.querySelectorAll('.q-block')).map(el => el.offsetHeight + 10);
