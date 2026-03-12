@@ -330,6 +330,19 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 
         <div id="spellResult" class="spell-result-box"></div>
 
+        <div class="api-key-row" style="margin-bottom:12px">
+          <label style="font-size:12px;color:var(--text2);margin-bottom:5px;display:block">🔑 Gemini API Key</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="password" id="apiKeyInput" placeholder="วาง API Key ของคุณที่นี่..."
+              style="flex:1;padding:8px 10px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none"
+              oninput="state.apiKey=this.value.trim();localStorage.setItem('gemini_key',this.value.trim())"
+              onfocus="this.type='text'" onblur="this.type='password'">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank"
+              style="font-size:11px;color:var(--accent);white-space:nowrap;text-decoration:none">สร้าง key</a>
+          </div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px;opacity:.7">🔒 Key ถูกบันทึกไว้ในเครื่องของคุณ — ไม่มีในไฟล์ HTML</div>
+        </div>
+
         <div class="btn-row">
           <button id="btnSpellCheck" style="display:none; padding:12px; background:rgba(74,222,128,.15); color:var(--green); border:1px solid rgba(74,222,128,.3); border-radius:10px; font-family:'Sarabun',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all .2s;" onclick="checkSpelling()">
             🔍 ให้ AI ตรวจและแก้คำผิดก่อนแปลง
@@ -468,7 +481,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 
 <script>
 const state = {
-  apiKey: 'AIzaSyA6WGkpUbr8rIokO4DQAd35UDp8KGMNKSA',
+  apiKey: localStorage.getItem('gemini_key') || '',
   apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent',
   rawText: '',
   questions: [],
@@ -1070,6 +1083,15 @@ function onLayoutChange(radio) {
 document.querySelectorAll('input[id^="f_"]').forEach(el => {
   el.addEventListener('input', () => { if (state.questions.length > 0) schedulePaperRender(); });
 });
+
+(function() {
+  const savedKey = localStorage.getItem('gemini_key');
+  if (savedKey) {
+    state.apiKey = savedKey;
+    const inp = document.getElementById('apiKeyInput');
+    if (inp) inp.value = savedKey;
+  }
+})();
 </script>
 </body>
 </html>
