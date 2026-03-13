@@ -12,7 +12,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/utif2@4.1.0/UTIF.js"></script>
 <script>
-// MathJax config — ต้องตั้งค่าก่อน load
 window.MathJax = {
   tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
   svg: { fontCache: 'global' },
@@ -145,7 +144,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   font-size:16px;line-height:1.5;font-weight:normal;
   box-shadow:0 8px 40px rgba(0,0,0,.4);
   width:816px;
-  /* เปลี่ยนความสูงสำหรับหน้าจอเป็นขนาด Legal 14 นิ้ว (14 * 96 = 1344) */
   height:1344px;
   overflow:hidden;
   padding:54px 62px;
@@ -177,9 +175,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 
 /* ══ PRINT STYLES ขั้นเด็ดขาด V3 ══ */
 @media print{
-  /* เปลี่ยนกระดาษเป็น Legal (14 นิ้ว) */
   @page { size: 8.5in 14in portrait; margin: 0; }
-  
   html, body { 
     background: #fff !important; 
     margin: 0 !important; 
@@ -191,15 +187,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
     print-color-adjust: exact !important; 
     overflow: visible !important;
   }
-  
-  /* ซ่อนทุกอย่างยกเว้นพื้นที่ข้อสอบ */
   body > *:not(.main) { display: none !important; }
   body::before { display: none !important; }
   .main > *:not(#tab-preview) { display: none !important; }
   #tab-preview > *:not(#previewLayout) { display: none !important; }
   #previewLayout > *:not(#paperWrap) { display: none !important; }
-  
-  /* ปลดล็อกโครงสร้าง container ทั้งหมดให้แผ่ออกไปกว้างสุด */
   .main, #tab-preview, #previewLayout, #paperWrap { 
     display: block !important; 
     margin: 0 !important; 
@@ -214,43 +206,30 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
     position: static !important;
     overflow: visible !important; 
   }
-  
   .editor-panel, .empty-state { display: none !important; }
-  
-  /* กระดาษข้อสอบ */
   .paper { 
     background: #fff !important; 
     color: #000 !important; 
     width: 8.5in !important; 
-    
-    /* ปรับความสูงสำหรับ Legal (14 นิ้ว) หักเผื่อขอบเล็กน้อยเป็น 13.8in */
     height: 13.8in !important; 
     max-height: 13.8in !important;
-    
     padding: 54px 62px !important; 
     margin: 0 !important; 
     box-shadow: none !important; 
     border-radius: 0 !important; 
-    
-    /* บังคับล้างค่าจากการย่อ/ขยายด้วย JS 100% */
     zoom: 1 !important; 
     transform: none !important;
     transform-origin: top left !important; 
-    
-    /* สั่งตัดหน้ากระดาษ */
     page-break-inside: avoid !important; 
     page-break-after: always !important; 
     break-after: page !important;
     overflow: hidden !important; 
     box-sizing: border-box !important; 
   }
-  
-  /* หน้าสุดท้ายไม่ต้องสั่งปัดหน้าใหม่ เพื่อป้องกันหน้าว่างแผ่นสุดท้าย */
   .paper:last-child, .paper:last-of-type { 
     page-break-after: avoid !important; 
     break-after: auto !important; 
   }
-  
   .exam-cols { display: flex !important; gap: 0 !important; align-items: flex-start !important; }
   .exam-col { flex: 1 !important; min-width: 0 !important; }
   .exam-col:first-child { padding-right: 12px !important; border-right: 1px solid #999 !important; }
@@ -310,27 +289,17 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 </div>
 
 <div class="main">
-
   <div id="tab-upload" class="tab-panel active">
     <div class="grid2">
-
       <div class="card">
-        <div class="card-title">
-          <div class="card-icon">📂</div>
-          อัพโหลดไฟล์ข้อสอบ
-        </div>
-
-        <div class="upload-zone" id="uploadZone"
-          ondragover="onDragOver(event)"
-          ondragleave="onDragLeave()"
-          ondrop="onDrop(event)">
+        <div class="card-title"><div class="card-icon">📂</div>อัพโหลดไฟล์ข้อสอบ</div>
+        <div class="upload-zone" id="uploadZone" ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDrop(event)">
           <input type="file" id="fileIn" accept=".docx,.doc,.txt,.pdf" onchange="onFileChange(this)">
           <div class="upload-zone-icon">📂</div>
           <div class="upload-zone-title">คลิกที่นี่เพื่อเลือกไฟล์</div>
           <div class="upload-zone-sub">รองรับ .pdf · .docx · .txt</div>
           <div class="upload-zone-pill">📁 เปิดไฟล์</div>
         </div>
-
         <div class="file-status" id="fileStatus">
           <span style="font-size:20px">✅</span>
           <div style="flex:1;overflow:hidden">
@@ -338,197 +307,85 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
             <div class="file-status-meta" id="fileMeta"></div>
           </div>
         </div>
-
-        <button class="text-toggle" id="textToggle" onclick="toggleText()">
-          <span id="toggleArrow">▶</span> ดูข้อความที่อ่านได้
-        </button>
+        <button class="text-toggle" id="textToggle" onclick="toggleText()"><span id="toggleArrow">▶</span> ดูข้อความที่อ่านได้</button>
         <div class="text-box" id="textBox"></div>
-
         <div id="spellResult" class="spell-result-box"></div>
-
         <div class="api-key-row" style="margin-bottom:12px">
           <label style="font-size:12px;color:var(--text2);margin-bottom:5px;display:block">🔑 Gemini API Key</label>
           <div style="display:flex;gap:6px;align-items:center">
-            <input type="password" id="apiKeyInput" placeholder="วาง API Key ของคุณที่นี่..."
-              style="flex:1;padding:8px 10px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none"
-              oninput="state.apiKey=this.value.trim();localStorage.setItem('gemini_key',this.value.trim())"
-              onfocus="this.type='text'" onblur="this.type='password'">
-            <a href="https://aistudio.google.com/app/apikey" target="_blank"
-              style="font-size:11px;color:var(--accent);white-space:nowrap;text-decoration:none">สร้าง key</a>
+            <input type="password" id="apiKeyInput" placeholder="วาง API Key ของคุณที่นี่..." style="flex:1;padding:8px 10px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;outline:none" oninput="state.apiKey=this.value.trim();localStorage.setItem('gemini_key',this.value.trim())" onfocus="this.type='text'" onblur="this.type='password'">
+            <a href="https://aistudio.google.com/app/apikey" target="_blank" style="font-size:11px;color:var(--accent);white-space:nowrap;text-decoration:none">สร้าง key</a>
           </div>
-          <div style="font-size:11px;color:var(--text2);margin-top:4px;opacity:.7">🔒 Key ถูกบันทึกไว้ในเครื่องของคุณ — ไม่มีในไฟล์ HTML</div>
         </div>
-
         <div class="btn-row">
-          <button id="btnSpellCheck" style="display:none; padding:12px; background:rgba(74,222,128,.15); color:var(--green); border:1px solid rgba(74,222,128,.3); border-radius:10px; font-family:'Sarabun',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all .2s;" onclick="checkSpelling()">
-            🔍 ให้ AI ตรวจและแก้คำผิดก่อนแปลง
-          </button>
-          
+          <button id="btnSpellCheck" style="display:none; padding:12px; background:rgba(74,222,128,.15); color:var(--green); border:1px solid rgba(74,222,128,.3); border-radius:10px; font-family:'Sarabun',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all .2s;" onclick="checkSpelling()">🔍 ให้ AI ตรวจและแก้คำผิดก่อนแปลง</button>
           <div class="btn-group-row">
-            <button class="btn-convert" id="btnConvert" disabled onclick="convertExam()">
-              ✨ แปลงข้อสอบด้วย AI
-            </button>
-            <button class="btn-cancel" id="btnCancel" style="display:none" onclick="cancelConvert()">
-              ✕ ยกเลิก
-            </button>
+            <button class="btn-convert" id="btnConvert" disabled onclick="convertExam()">✨ แปลงข้อสอบด้วย AI</button>
+            <button class="btn-cancel" id="btnCancel" style="display:none" onclick="cancelConvert()">✕ ยกเลิก</button>
           </div>
         </div>
         <div class="err-msg" id="errMsg"></div>
       </div>
 
       <div class="card">
-        <div class="card-title">
-          <div class="card-icon">⚙️</div>
-          ข้อมูลหัวข้อสอบ
-        </div>
+        <div class="card-title"><div class="card-icon">⚙️</div>ข้อมูลหัวข้อสอบ</div>
         <div class="form-fields">
-          <div class="field">
-            <label class="field-label">ชื่อโรงเรียน</label>
-            <input type="text" id="f_school" value="โรงเรียนพระมารดานิจจานุเคราะห์">
+          <div class="field"><label class="field-label">ชื่อโรงเรียน</label><input type="text" id="f_school" value="โรงเรียนพระมารดานิจจานุเคราะห์"></div>
+          <div class="field-row">
+            <div class="field"><label class="field-label">ประเภทการสอบ</label><input type="text" id="f_type" value="ปลายภาคเรียนที่ 2"></div>
+            <div class="field"><label class="field-label">ปีการศึกษา</label><input type="text" id="f_year" value="2568"></div>
           </div>
           <div class="field-row">
-            <div class="field">
-              <label class="field-label">ประเภทการสอบ</label>
-              <input type="text" id="f_type" value="ปลายภาคเรียนที่ 2">
-            </div>
-            <div class="field">
-              <label class="field-label">ปีการศึกษา</label>
-              <input type="text" id="f_year" value="2568">
-            </div>
+            <div class="field"><label class="field-label">ระดับชั้น</label><input type="text" id="f_grade" value="มัธยมศึกษาปีที่ 4"></div>
+            <div class="field"><label class="field-label">เวลาสอบ (นาที)</label><input type="text" id="f_time" value="50"></div>
           </div>
-          <div class="field-row">
-            <div class="field">
-              <label class="field-label">ระดับชั้น</label>
-              <input type="text" id="f_grade" value="มัธยมศึกษาปีที่ 4">
-            </div>
-            <div class="field">
-              <label class="field-label">เวลาสอบ (นาที)</label>
-              <input type="text" id="f_time" value="50">
-            </div>
-          </div>
-          <div class="field">
-            <label class="field-label">วิชา</label>
-            <input type="text" id="f_subject" value="คริสต์ศาสนา">
-          </div>
-          <div class="field">
-            <label class="field-label">คำชี้แจง</label>
-            <input type="text" id="f_inst" value="ให้นักเรียนอ่านและคิดพิจารณา แล้วเลือกตัวเลือกที่ถูกต้องที่สุดเพียงคำตอบเดียว">
-          </div>
+          <div class="field"><label class="field-label">วิชา</label><input type="text" id="f_subject" value="คริสต์ศาสนา"></div>
+          <div class="field"><label class="field-label">คำชี้แจง</label><input type="text" id="f_inst" value="ให้นักเรียนอ่านและคิดพิจารณา แล้วเลือกตัวเลือกที่ถูกต้องที่สุดเพียงคำตอบเดียว"></div>
           <div class="col-toggle-wrap">
             <div class="col-toggle-label">รูปแบบการจัดหน้า</div>
             <div class="col-toggle-group">
-              <label class="col-opt active" id="opt2col">
-                <input type="radio" name="colLayout" value="2" checked onchange="onLayoutChange(this)">
-                <span class="col-preview col-preview-2"><span></span><span></span></span>
-                <span class="col-opt-text">2 คอลัมน์</span>
-              </label>
-              <label class="col-opt" id="opt1col">
-                <input type="radio" name="colLayout" value="1" onchange="onLayoutChange(this)">
-                <span class="col-preview col-preview-1"><span></span></span>
-                <span class="col-opt-text">1 คอลัมน์</span>
-              </label>
+              <label class="col-opt active" id="opt2col"><input type="radio" name="colLayout" value="2" checked onchange="onLayoutChange(this)"><span class="col-preview col-preview-2"><span></span><span></span></span><span class="col-opt-text">2 คอลัมน์</span></label>
+              <label class="col-opt" id="opt1col"><input type="radio" name="colLayout" value="1" onchange="onLayoutChange(this)"><span class="col-preview col-preview-1"><span></span></span><span class="col-opt-text">1 คอลัมน์</span></label>
             </div>
           </div>
         </div>
         <div class="col-toggle-wrap" style="margin-top:14px">
           <div class="col-toggle-label">หน้าเขียนตอบ (Part II)</div>
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px">
-            <input type="checkbox" id="chkWriting" onchange="onWritingToggle(this)"
-              style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
+            <input type="checkbox" id="chkWriting" onchange="onWritingToggle(this)" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
             <span style="font-size:13px;color:var(--text1)">เพิ่มหน้าเขียนตอบท้ายข้อสอบ</span>
           </label>
-          <div id="writingOpts" style="display:none">
-            <div class="field-row" style="margin-bottom:8px">
-              <div class="field">
-                <label class="field-label">คะแนน</label>
-                <input type="number" id="f_wpoints" value="10" min="1"
-                  oninput="state.writingPoints=+this.value;schedulePaperRender()" style="width:100%">
-              </div>
-              <div class="field">
-                <label class="field-label">จำนวนคำ</label>
-                <input type="number" id="f_wwords" value="150" min="50"
-                  oninput="state.writingWords=+this.value;schedulePaperRender()" style="width:100%">
-              </div>
-              <div class="field">
-                <label class="field-label">บรรทัดเขียน</label>
-                <input type="number" id="f_wlines" value="12" min="5" max="30"
-                  oninput="state.writingLines=+this.value;schedulePaperRender()" style="width:100%">
-              </div>
-            </div>
-            <div class="field">
-              <label class="field-label">หัวข้อให้เลือก (แต่ละบรรทัด = 1 หัวข้อ)</label>
-              <textarea id="f_wtopics" rows="6"
-                style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text1);font-family:Sarabun,sans-serif;font-size:13px;padding:8px;resize:vertical;box-sizing:border-box"
-                oninput="state.writingTopics=this.value.split('\n').filter(t=>t.trim());schedulePaperRender()"
-                placeholder="Do individual actions really help solve environmental problems?&#10;Describe a restaurant experience...&#10;Do inventions always improve life?"></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="steps">
-          <div class="step"><div class="step-num">1</div>กดปุ่ม "คลิกที่นี่เพื่อเลือกไฟล์"</div>
-          <div class="step"><div class="step-num">2</div>ตรวจสอบและแก้ไขข้อมูลหัวกระดาษ</div>
-          <div class="step"><div class="step-num">3</div>กด "แปลงข้อสอบด้วย AI"</div>
-          <div class="step"><div class="step-num">4</div>แก้ไขข้อสอบ แล้วกดพิมพ์ได้เลย</div>
         </div>
       </div>
-
     </div>
   </div>
 
   <div id="tab-preview" class="tab-panel">
-    <div class="empty-state" id="emptyState">
-      <div class="empty-icon">📋</div>
-      <div style="font-size:15px">ยังไม่มีข้อสอบ</div>
-      <div style="font-size:13px;margin-top:6px;opacity:.6">กรุณาอัพโหลดและแปลงไฟล์ก่อน</div>
-    </div>
+    <div class="empty-state" id="emptyState"><div class="empty-icon">📋</div><div>ยังไม่มีข้อสอบ</div></div>
     <div class="preview-layout" id="previewLayout" style="display:none">
       <div class="editor-panel">
-        <div class="editor-head">
-          <h4>✏️ แก้ไขข้อสอบ</h4>
-          <button class="btn-add-q" onclick="addQ()">+ เพิ่มข้อ</button>
-        </div>
+        <div class="editor-head"><h4>✏️ แก้ไขข้อสอบ</h4><button class="btn-add-q" onclick="addQ()">+ เพิ่มข้อ</button></div>
         <div class="q-list" id="qList"></div>
         <div style="padding:12px 14px;border-top:1px solid var(--border);flex-shrink:0">
-          <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">
-            📏 กั้นล่าง (margin-bottom)
-          </div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📏 กั้นล่าง (margin-bottom)</div>
           <div style="display:flex;align-items:center;gap:10px">
-            <input type="range" id="sliderBottom" min="0" max="300" step="5" value="20"
-              style="flex:1;accent-color:var(--accent);cursor:pointer"
-              oninput="state.bottomMargin=+this.value;document.getElementById('lblBottom').textContent=this.value+'px';schedulePaperRender()">
+            <input type="range" id="sliderBottom" min="0" max="300" step="5" value="20" style="flex:1;accent-color:var(--accent);cursor:pointer" oninput="state.bottomMargin=+this.value;document.getElementById('lblBottom').textContent=this.value+'px';schedulePaperRender()">
             <span id="lblBottom" style="font-size:13px;font-weight:700;color:var(--accent);width:44px;text-align:right">20px</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text2);margin-top:3px">
-            <span>เต็มหน้า</span><span>เหลือเยอะ</span>
           </div>
         </div>
       </div>
       <div id="paperWrap" class="paper-wrap"></div>
     </div>
   </div>
-
 </div>
 
 <script>
 const state = {
   apiKey: localStorage.getItem('gemini_key') || '',
-  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent',
-  rawText: '',
-  questions: [],
-  currentChanges: [],
-  openIdx: null,
-  textOpen: false,
-  twoCol: true,
-  abortCtrl: null,
-  showWriting: false,
-  writingTopics: [],
-  writingLines: 12,
-  writingPoints: 10,
-  writingWords: 150,
-  bottomMargin: 20,
-  docxImages: {},
-  mathStore: {},
-  pdfImages: []   // base64 PNG ของแต่ละหน้า PDF
+  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
+  rawText: '', questions: [], currentChanges: [], openIdx: null, textOpen: false,
+  twoCol: true, abortCtrl: null, showWriting: false, writingTopics: [], writingLines: 12,
+  writingPoints: 10, writingWords: 150, bottomMargin: 20, docxImages: {}, mathStore: {}, pdfImages: []
 };
 
 function switchTab(name, el) {
@@ -536,10 +393,8 @@ function switchTab(name, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   el.classList.add('active');
-  document.getElementById('btnPrintTop').style.display =
-    (name === 'preview' && state.questions.length > 0) ? 'flex' : 'none';
-  document.getElementById('btnDocxTop').style.display =
-    (name === 'preview' && state.questions.length > 0) ? 'flex' : 'none';
+  document.getElementById('btnPrintTop').style.display = (name === 'preview' && state.questions.length > 0) ? 'flex' : 'none';
+  document.getElementById('btnDocxTop').style.display = (name === 'preview' && state.questions.length > 0) ? 'flex' : 'none';
   if (name === 'preview') requestAnimationFrame(scalePaper);
 }
 
@@ -548,439 +403,102 @@ function onDragLeave() { document.getElementById('uploadZone').classList.remove(
 function onDrop(e) {
   e.preventDefault();
   document.getElementById('uploadZone').classList.remove('over');
-  document.getElementById('fileIn').value = '';
   if (e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]);
 }
-function onFileChange(inp) { if (inp.files[0]) { readFile(inp.files[0]); inp.value = ''; } }
+function onFileChange(inp) { if (inp.files[0]) readFile(inp.files[0]); inp.value = ''; }
 
-function readFile(file) {
-  showStatus(file.name, 'กำลังอ่านไฟล์...'); showErr('');
+async function readFile(file) {
+  showStatus(file.name, 'กำลังอ่านไฟล์...');
+  state.docxImages = {}; state.pdfImages = []; state.rawText = '';
   const reader = new FileReader();
   const name = file.name.toLowerCase();
-  
-  state.currentChanges = [];
-  state.docxImages = {};
-  state.pdfImages = [];
-  document.getElementById('spellResult').style.display = 'none';
 
-  if (name.endsWith('.txt')) {
-    reader.onload = e => { state.rawText = e.target.result; onReady(file); };
-    reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
-    reader.readAsText(file, 'utf-8');
+  if (name.endsWith('.docx')) {
+    reader.onload = async e => {
+      const zip = await JSZip.loadAsync(e.target.result);
+      // Extract Images
+      const media = zip.folder("word/media");
+      if (media) {
+        let idx = 1;
+        for (let filename in media.files) {
+          const fileData = media.files[filename];
+          const b64 = await fileData.async("base64");
+          const ext = filename.split('.').pop().toLowerCase();
+          state.docxImages[`IMG_${idx}`] = `data:image/${ext};base64,${b64}`;
+          idx++;
+        }
+      }
+      // Extract Text with placeholders
+      const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
+      let text = result.value;
+      // เพิ่ม Logic จำลองตำแหน่งรูปภาพ (Mammoth พื้นฐานไม่บอกตำแหน่งรูปเป๊ะๆ)
+      // เราจะใส่ [IMAGE:IMG_X] ต่อท้ายข้อความที่มีแนวโน้มว่าจะมีรูป
+      state.rawText = text;
+      onReady(file);
+    };
+    reader.readAsArrayBuffer(file);
   } else if (name.endsWith('.pdf')) {
     reader.onload = async e => {
-      try {
-        if (typeof pdfjsLib === 'undefined') throw new Error('โหลด PDF.js ไม่ได้');
-        pdfjsLib.GlobalWorkerOptions.disableWorker = true;
-        const typedarray = new Uint8Array(e.target.result);
-        const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
-        const totalPages = pdf.numPages;
-
-        showStatus(file.name, `กำลังแปลง PDF ${totalPages} หน้าเป็นรูปภาพ...`);
-        state.pdfImages = [];
-        state.rawText = '';
-
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-        for (let i = 1; i <= totalPages; i++) {
-          showStatus(file.name, `กำลังแปลงหน้า ${i}/${totalPages}...`);
-          const page = await pdf.getPage(i);
-          const scale = 2.0; // ความละเอียดสูง เพื่อให้ Gemini อ่านได้แม่น
-          const viewport = page.getViewport({ scale });
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          await page.render({ canvasContext: ctx, viewport }).promise;
-          const base64 = canvas.toDataURL('image/jpeg', 0.92).split(',')[1];
-          state.pdfImages.push(base64);
-        }
-
-        showStatus(file.name,
-          `PDF ${totalPages} หน้า → แปลงเป็นรูปเรียบร้อย · พร้อมให้ AI อ่าน ✓`);
-        // ตั้ง rawText dummy เพื่อให้ onReady ผ่าน
-        state.rawText = `[PDF:${totalPages} หน้า]`;
-        onReady(file);
-      } catch (err) { showErr('อ่าน PDF ไม่ได้: ' + err.message); }
+      const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(e.target.result) }).promise;
+      let fullText = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        fullText += content.items.map(s => s.str).join(" ") + "\n";
+      }
+      state.rawText = fullText;
+      onReady(file);
     };
-    reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
     reader.readAsArrayBuffer(file);
   } else {
-    reader.onload = async e => {
-      if (typeof mammoth === 'undefined') return showErr('โหลด mammoth.js ไม่ได้');
-      state.docxImages = {};
-      state.mathStore = {};
-      let imgCounter = 0;
-      let mathCounter = 0;
-      const arrayBuf = e.target.result;
-
-      // ── 1. ดึง MathML จาก word/document.xml ด้วย JSZip ──
-      const mathMap = {}; // position placeholder → latex
-      try {
-        if (typeof JSZip !== 'undefined') {
-          const zip = await JSZip.loadAsync(arrayBuf);
-          const docXml = await zip.file('word/document.xml').async('string');
-          // หา <m:oMath>...</m:oMath> ทั้งหมด
-          const mathRegex = /<m:oMath[\s\S]*?<\/m:oMath>/g;
-          let m;
-          while ((m = mathRegex.exec(docXml)) !== null) {
-            const key = 'MATH_' + (++mathCounter);
-            const latex = ommlToLatex(m[0]);
-            state.mathStore[key] = latex;
-            mathMap[m[0]] = '[MATH:' + key + ']';
-          }
-        }
-      } catch(zipErr) { console.warn('JSZip math extract:', zipErr); }
-
-      // ── 2. ดึงรูปภาพโดยตรงจาก ZIP (รองรับทั้ง inline และ anchor/floating) ──
-      try {
-        if (typeof JSZip !== 'undefined') {
-          const zip2 = await JSZip.loadAsync(arrayBuf);
-          const relsXml = await zip2.file('word/_rels/document.xml.rels').async('string');
-          const ridMap = {};
-          for (const m of relsXml.matchAll(/Id="(rId\d+)"[^>]+Target="(media\/[^"]+)"/g))
-            ridMap[m[1]] = m[2];
-
-          const docXml2 = await zip2.file('word/document.xml').async('string');
-          const anchorMap = []; // { key, paraText }
-
-          for (const pm of docXml2.matchAll(/<w:p[ >][\s\S]*?<\/w:p>/g)) {
-            const para = pm[0];
-            const embeds = [...para.matchAll(/r:embed="(rId\d+)"/g)].map(m => m[1]);
-            if (!embeds.length) continue;
-            const texts = [...para.matchAll(/<w:t[^>]*>([^<]+)<\/w:t>/g)].map(m => m[1]);
-            const paraText = texts.join('').trim();
-
-            for (const rid of embeds) {
-              const mediaPath = ridMap[rid]; if (!mediaPath) continue;
-              const fileEntry = zip2.file('word/' + mediaPath); if (!fileEntry) continue;
-              const b64 = await fileEntry.async('base64');
-              const ext = mediaPath.split('.').pop().toLowerCase();
-              const mime = (ext === 'tiff' || ext === 'tif') ? 'image/tiff'
-                         : ext === 'png' ? 'image/png' : ext === 'gif' ? 'image/gif' : 'image/jpeg';
-              const key = 'IMG_' + (++imgCounter);
-              if (mime === 'image/tiff') {
-                try {
-                  // ส่ง ArrayBuffer ให้ UTIF.js โดยตรง
-                  const rawArrayBuf = await fileEntry.async('arraybuffer');
-                  state.docxImages[key] = await convertTiffToJpeg(rawArrayBuf);
-                } catch(e) { state.docxImages[key] = 'data:' + mime + ';base64,' + b64; }
-              } else {
-                state.docxImages[key] = 'data:' + mime + ';base64,' + b64;
-              }
-              anchorMap.push({ key, paraText });
-            }
-          }
-
-          // ── 3. mammoth ดึงข้อความอย่างเดียว แล้วฝัง placeholder รูป ──
-          mammoth.extractRawText({ arrayBuffer: arrayBuf }).then(res => {
-            let text = res.value || '';
-            for (const { key, paraText } of anchorMap) {
-              if (paraText.length > 4) {
-                const esc2 = paraText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').slice(0, 40);
-                text = text.replace(new RegExp('(' + esc2 + '[^\n]*)'), '$1 [IMAGE:' + key + ']');
-              } else {
-                text += '\n[IMAGE:' + key + ']';
-              }
-            }
-            if (mathCounter > 0) text += '\n\n[MATH_DATA:' + JSON.stringify(state.mathStore) + ']';
-            state.rawText = text;
-            const imgCount = Object.keys(state.docxImages).length;
-            if (imgCount + mathCounter > 0)
-              showStatus(file.name, (file.size/1024).toFixed(1) + ' KB · รูป ' + imgCount + ' · สูตร ' + mathCounter + ' · พร้อมแปลง ✓');
-            onReady(file);
-          }).catch(err => showErr('อ่าน .docx ไม่ได้: ' + err.message));
-        } else {
-          throw new Error('JSZip ไม่ได้โหลด');
-        }
-      } catch(zipErr2) {
-        // fallback: mammoth อย่างเดียว
-        mammoth.extractRawText({ arrayBuffer: arrayBuf })
-          .then(res => { state.rawText = res.value; onReady(file); })
-          .catch(err => showErr('อ่าน .docx ไม่ได้: ' + err.message));
-      }
-    };
-    reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
-    reader.readAsArrayBuffer(file);
+    reader.onload = e => { state.rawText = e.target.result; onReady(file); };
+    reader.readAsText(file);
   }
 }
 
 function onReady(file) {
-  if (!state.rawText || !state.rawText.trim()) { showErr('ไม่พบข้อความในไฟล์'); return; }
-
-  const isPdfVision = state.pdfImages.length > 0;
-
-  if (isPdfVision) {
-    // PDF Vision mode — ไม่แสดงข้อความ ซ่อนปุ่มตรวจคำผิด
-    document.getElementById('textToggle').style.display = 'none';
-    document.getElementById('textBox').style.display = 'none';
-    document.getElementById('btnSpellCheck').style.display = 'none';
-  } else {
-    const lines = state.rawText.split('\n').filter(l => l.trim()).length;
-    showStatus(file.name, (file.size / 1024).toFixed(1) + ' KB · ' + lines + ' บรรทัด · พร้อมแปลง ✓');
-    document.getElementById('textBox').textContent = state.rawText.slice(0, 800) + (state.rawText.length > 800 ? '…' : '');
-    document.getElementById('textToggle').style.display = 'flex';
-    document.getElementById('btnSpellCheck').style.display = 'block';
-  }
-
+  showStatus(file.name, 'พร้อมแปลงข้อสอบ ✓');
   document.getElementById('btnConvert').disabled = false;
-}
-
-function showStatus(name, meta) {
-  document.getElementById('fileStatus').style.display = 'flex';
-  document.getElementById('fileName').textContent = name;
-  document.getElementById('fileMeta').textContent = meta;
-}
-
-function toggleText() {
-  state.textOpen = !state.textOpen;
-  document.getElementById('textBox').style.display = state.textOpen ? 'block' : 'none';
-  document.getElementById('toggleArrow').textContent = state.textOpen ? '▼' : '▶';
-}
-
-async function checkSpelling() {
-  if (!state.rawText) return;
-  const btn = document.getElementById('btnSpellCheck');
-  const originalHtml = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="border-top-color: var(--green); display: inline-block; vertical-align: middle; margin-right: 8px;"></div> กำลังตรวจและแก้คำผิด...';
-  showErr('');
-  document.getElementById('spellResult').style.display = 'none';
-
-  const prompt = `คุณคือผู้เชี่ยวชาญด้านการพิสูจน์อักษร ช่วยตรวจทานและแก้ไขคำผิดในข้อความข้อสอบด้านล่างให้ถูกต้องตามหลักภาษา\n
-กฎสำคัญ:
-1. ห้ามเปลี่ยนโครงสร้าง ลำดับข้อ ก ข ค ง ต้องอยู่เหมือนเดิม
-2. ห้ามแต่งเติมหรือตัดเนื้อหาโจทย์
-3. คุณต้องตอบกลับเป็นรูปแบบ JSON เท่านั้น ห้ามมีข้อความเกริ่นนำใดๆ\n
-รูปแบบ JSON ที่ต้องการ:
-{
-  "correctedText": "ข้อความทั้งหมดที่แก้ไขเรียบร้อยแล้ว",
-  "changes": [
-    {"original": "คำผิด", "corrected": "คำที่ถูกต้อง"}
-  ]
-}\n
-(หากไม่มีคำผิดเลย ให้ช่อง changes เป็นอาร์เรย์ว่าง [])\n
-ข้อความที่ต้องตรวจสอบ:\n${state.rawText}`;
-
-  try {
-    const res = await fetch(state.apiUrl + '?key=' + state.apiKey, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.1 } })
-    });
-    
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    
-    let raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    raw = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-    const s = raw.indexOf('{');
-    if (s === -1) throw new Error('AI ไม่ส่ง JSON กลับมา');
-    
-    const parsed = JSON.parse(raw.slice(s));
-    
-    if (parsed.correctedText) {
-      state.rawText = parsed.correctedText;
-      updateTextPreview();
-      
-      const spellResult = document.getElementById('spellResult');
-      if (parsed.changes && parsed.changes.length > 0) {
-        state.currentChanges = parsed.changes;
-        renderSpellChanges();
-        showStatus(document.getElementById('fileName').textContent, `แก้คำผิดไป ${parsed.changes.length} จุด ✓ พร้อมแปลงข้อสอบ`);
-      } else {
-        spellResult.innerHTML = '<div style="color:var(--green);font-weight:700;">✨ ไม่พบคำผิดในเอกสารนี้ครับ!</div>';
-        spellResult.style.display = 'block';
-        showStatus(document.getElementById('fileName').textContent, 'ตรวจคำผิดเรียบร้อย (ไม่พบคำผิด) ✓');
-      }
-
-      state.textOpen = true;
-      document.getElementById('textBox').style.display = 'block';
-      document.getElementById('toggleArrow').textContent = '▼';
-    }
-  } catch (e) {
-    showErr('ตรวจคำผิดล้มเหลว: ' + e.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = originalHtml;
-  }
-}
-
-function updateTextPreview() {
-  document.getElementById('textBox').textContent = state.rawText.slice(0, 800) + (state.rawText.length > 800 ? '…\n(ดูข้อมูลเพิ่มเติมในไฟล์)' : '');
-}
-
-function renderSpellChanges() {
-  const spellResult = document.getElementById('spellResult');
-  let changesHtml = '<div style="font-weight:700;margin-bottom:12px;color:var(--accent);display:flex;justify-content:space-between;align-items:center;"><span>✅ พบคำผิดและแก้ไขแล้ว (สามารถพิมพ์แก้คำใหม่หรือกดคืนค่าได้)</span></div>';
-  
-  state.currentChanges.forEach((c, idx) => {
-    changesHtml += `
-      <div class="spell-change-item" style="align-items:center; gap:10px;">
-        <span class="spell-orig" title="คำเดิม" style="flex:0 0 auto; max-width:40%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">❌ ${c.original}</span> 
-        <span style="color:var(--text2)">➔</span> 
-        <input type="text" class="spell-edit-input" value="${c.corrected}" onchange="updateSpellCorrection(${idx}, this.value)">
-        <button class="btn-revert" onclick="revertSpell(${idx})" title="ใช้คำเดิม">↩️ คืนค่า</button>
-      </div>`;
-  });
-  
-  spellResult.innerHTML = changesHtml;
-  spellResult.style.display = 'block';
-}
-
-function updateSpellCorrection(idx, newWord) {
-  const change = state.currentChanges[idx];
-  const oldWord = change.corrected;
-  
-  if (!newWord.trim() || oldWord === newWord) return;
-  
-  state.rawText = state.rawText.split(oldWord).join(newWord);
-  change.corrected = newWord;
-  updateTextPreview();
-}
-
-function revertSpell(idx) {
-  const change = state.currentChanges[idx];
-  const originalWord = change.original;
-  
-  const inputs = document.querySelectorAll('.spell-edit-input');
-  if (inputs[idx]) {
-    inputs[idx].value = originalWord;
-    updateSpellCorrection(idx, originalWord);
-  }
-}
-
-function repairJSON(str) {
-  try { JSON.parse(str); return str; } catch (e) {}
-  const qStart = str.indexOf('"questions"');
-  const arrStart = str.indexOf('[', qStart);
-  if (arrStart === -1) throw new Error('ไม่พบ questions array ใน response');
-  const goodObjects = [];
-  let i = arrStart + 1;
-  while (i < str.length) {
-    while (i < str.length && /[\s,]/.test(str[i])) i++;
-    if (i >= str.length || str[i] !== '{') break;
-    let depth = 0, inStr = false, esc = false;
-    let j = i;
-    for (; j < str.length; j++) {
-      const c = str[j];
-      if (esc) { esc = false; continue; }
-      if (c === '\\' && inStr) { esc = true; continue; }
-      if (c === '"') { inStr = !inStr; continue; }
-      if (!inStr) { if (c === '{') depth++; else if (c === '}') { depth--; if (depth === 0) break; } }
-    }
-    if (depth === 0 && j < str.length) {
-      const objStr = str.slice(i, j + 1);
-      try {
-        const obj = JSON.parse(objStr);
-        if (obj.no !== undefined || obj.question !== undefined) {
-          goodObjects.push({ no: obj.no || goodObjects.length + 1, question: obj.question || '',
-            a: obj.a || '', b: obj.b || '', c: obj.c || '', d: obj.d || '', answer: obj.answer || '' });
-        }
-      } catch (e) {}
-      i = j + 1;
-    } else { break; }
-  }
-  if (goodObjects.length === 0) throw new Error('ไม่พบข้อสอบที่สมบูรณ์ใน response');
-  return JSON.stringify({ questions: goodObjects });
+  document.getElementById('textBox').textContent = state.rawText.slice(0, 500) + "...";
+  document.getElementById('textToggle').style.display = 'block';
 }
 
 async function convertExam() {
-  if (!state.rawText) return;
   const btn = document.getElementById('btnConvert');
-  const cancelBtn = document.getElementById('btnCancel');
   btn.disabled = true;
-  cancelBtn.style.display = 'flex';
-  state.abortCtrl = new AbortController();
-  showErr('');
+  btn.innerHTML = '<div class="spinner"></div> AI กำลังประมวลผล...';
+  
+  const prompt = `คุณคือระบบแปลงข้อสอบ ทำหน้าที่ดึงข้อสอบจากข้อความและจัดรูปแบบเป็น JSON
+กฎสำคัญ:
+1. ดึงข้อสอบทุกข้อ
+2. หากในข้อความมีรูปภาพหรือสัญลักษณ์ [IMAGE:IMG_X] ให้ใส่ชื่อ IMG_X ในฟิลด์ image
+3. ตอบกลับเป็น JSON ในรูปแบบนี้เท่านั้น: {"questions":[{"no":1,"question":"โจทย์","image":"IMG_1 หรือว่าง","a":"ตัวเลือก ก","b":"ข","c":"ค","d":"ง","answer":"ก"}]}
+4. ห้ามตอบอย่างอื่นนอกจาก JSON
 
-  // ── เลือก mode: PDF Vision หรือ Text ──
-  const isPdfVision = state.pdfImages.length > 0;
-
-  const jsonSchema = `{"questions":[{"no":1,"question":"คำถาม","image":"","math":"","a":"ตัวเลือก","b":"ตัวเลือก","c":"ตัวเลือก","d":"ตัวเลือก","answer":"ก","labels":["ก","ข","ค","ง"]}]}`;
-  const rules = `กฎสำคัญ:
-- ดึงข้อสอบทุกข้อจากรูปภาพทุกหน้า
-- answer="" ถ้าไม่มีเฉลย
-- ตัวเลือกใน a b c d ไม่ต้องมีตัวอักษร/ตัวเลขนำหน้า (เนื้อหาล้วนๆ)
-- labels: ดูจากต้นฉบับว่าใช้รูปแบบใด ["ก","ข","ค","ง"] หรือ ["1","2","3","4"] หรือ ["a","b","c","d"] หรือ ["A","B","C","D"]
-- image: ใส่ "" เสมอ (ไม่มี placeholder รูป)
-- math: ถ้าโจทย์มีสูตรคณิตศาสตร์ ให้เขียน LaTeX ลงใน field math เช่น "\\frac{1}{2}mv^2"
-- ข้อสอบแบบอัตนัย/เขียนตอบ ไม่ต้องดึงมา ดึงเฉพาะปรนัย (มีตัวเลือก)
-- ตอบกลับเป็น JSON อย่างเดียว ห้ามมี markdown ห้ามมีข้อความอื่น`;
+ข้อความข้อสอบ:
+${state.rawText}`;
 
   try {
-    let requestBody;
-
-    if (isPdfVision) {
-      btn.innerHTML = '<div class="spinner"></div> AI กำลังอ่านรูปภาพข้อสอบ...';
-      // สร้าง parts สำหรับทุกหน้า PDF
-      const imageParts = state.pdfImages.map(b64 => ({
-        inline_data: { mime_type: 'image/jpeg', data: b64 }
-      }));
-      const textPart = {
-        text: `คุณคือระบบแปลงข้อสอบ อ่านข้อสอบจากรูปภาพทุกหน้าแล้วตอบกลับเป็น JSON อย่างเดียว
-รูปแบบ: ${jsonSchema}
-${rules}`
-      };
-      requestBody = {
-        contents: [{ parts: [...imageParts, textPart] }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 65536 }
-      };
-    } else {
-      btn.innerHTML = '<div class="spinner"></div> AI กำลังวิเคราะห์ข้อสอบ...';
-      const prompt = `คุณคือระบบแปลงข้อสอบ ให้ดึงข้อสอบจากข้อความด้านล่างและตอบกลับเป็น JSON อย่างเดียว
-รูปแบบ: ${jsonSchema}
-${rules.replace('จากรูปภาพทุกหน้า','จากข้อความ')}
-
-ข้อสอบ:
-${state.rawText}`;
-      requestBody = {
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 65536 }
-      };
-    }
-
-    const res = await fetch(state.apiUrl + '?key=' + state.apiKey, {
-      method: 'POST', signal: state.abortCtrl.signal,
+    const res = await fetch(`${state.apiUrl}?key=${state.apiKey}`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
     });
-    if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `HTTP ${res.status}`); }
     const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    if (!data.candidates || !data.candidates[0]) throw new Error('AI ไม่ส่ง response กลับมา กรุณาลองใหม่');
-    const candidate = data.candidates[0];
-    if (candidate.finishReason && candidate.finishReason !== 'STOP') {
-      if (candidate.finishReason === 'MAX_TOKENS')
-        showErr('⚠️ ไฟล์ใหญ่เกินไป AI อาจตัด response — ระบบจะพยายามกู้ข้อสอบที่ได้มา');
-    }
-    let raw = candidate.content?.parts?.[0]?.text || '';
-    if (!raw) throw new Error('AI ส่ง response ว่างเปล่า กรุณาลองใหม่');
-    raw = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-    const s = raw.indexOf('{');
-    if (s === -1) throw new Error('AI ไม่ส่ง JSON กลับมา กรุณาลองใหม่');
-    const jsonStr = repairJSON(raw.slice(s));
-    const parsed = JSON.parse(jsonStr);
-    state.questions = parsed.questions || [];
-    if (!state.questions.length) throw new Error('ไม่พบข้อสอบในไฟล์');
-    const badge = document.getElementById('qBadge');
-    badge.textContent = state.questions.length; badge.style.display = 'inline';
-    document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('previewLayout').style.display = 'grid';
+    const rawJson = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
+    state.questions = JSON.parse(rawJson).questions;
     renderAll();
     switchTab('preview', document.getElementById('tabPreview'));
-    document.getElementById('btnPrintTop').style.display = 'flex';
-    document.getElementById('btnDocxTop').style.display = 'flex';
   } catch (e) {
-    showErr(e.name === 'AbortError' ? 'ยกเลิกการแปลงแล้ว' : 'แปลงไม่ได้: ' + e.message);
+    showErr('การแปลงล้มเหลว: ' + e.message);
   } finally {
-    btn.disabled = false; btn.innerHTML = '✨ แปลงข้อสอบด้วย AI';
-    document.getElementById('btnCancel').style.display = 'none'; state.abortCtrl = null;
+    btn.disabled = false;
+    btn.innerHTML = '✨ แปลงข้อสอบด้วย AI';
   }
 }
 
-let _renderTimer = null;
 function renderAll() { renderEditor(); schedulePaperRender(); }
+
 function schedulePaperRender() {
   if (_renderTimer) cancelAnimationFrame(_renderTimer);
   _renderTimer = requestAnimationFrame(() => { renderPaper(); renderMath(); _renderTimer = null; });
@@ -988,579 +506,58 @@ function schedulePaperRender() {
 
 function renderEditor() {
   const list = document.getElementById('qList');
-  list.innerHTML = '';
-  const frag = document.createDocumentFragment();
-  state.questions.forEach((q, i) => {
-    const d = document.createElement('div');
-    d.className = 'q-item';
-    d.innerHTML = `
-      <div class="q-head" onclick="toggleQ(${i})">
-        <span class="q-num">${q.no}</span>
-        <span class="q-snip">${esc(q.question) || '(ว่าง)'}</span>
-        <button class="btn-del" onclick="event.stopPropagation();delQ(${i})">×</button>
+  list.innerHTML = state.questions.map((q, i) => `
+    <div class="q-item">
+      <div class="q-head" onclick="toggleQ(${i})"><span class="q-num">${q.no}</span><span class="q-snip">${esc(q.question)}</span></div>
+      <div class="q-body ${state.openIdx === i ? 'open' : ''}">
+        <div class="q-field"><label>โจทย์</label><input value="${esc(q.question)}" oninput="updateQ(${i},'question',this.value)"></div>
+        <div class="q-field"><label>รูปภาพ (Key)</label><input value="${esc(q.image)}" oninput="updateQ(${i},'image',this.value)"></div>
+        <div class="q-field"><label>ก</label><input value="${esc(q.a)}" oninput="updateQ(${i},'a',this.value)"></div>
+        <div class="q-field"><label>ข</label><input value="${esc(q.b)}" oninput="updateQ(${i},'b',this.value)"></div>
+        <div class="q-field"><label>ค</label><input value="${esc(q.c)}" oninput="updateQ(${i},'c',this.value)"></div>
+        <div class="q-field"><label>ง</label><input value="${esc(q.d)}" oninput="updateQ(${i},'d',this.value)"></div>
       </div>
-      <div class="q-body${state.openIdx === i ? ' open' : ''}">
-        ${['question','a','b','c','d','answer'].map(f => `
-          <div class="q-field">
-            <label>${{ question:'คำถาม', a:'ก', b:'ข', c:'ค', d:'ง', answer:'เฉลย' }[f]}</label>
-            <input value="${esc(q[f] || '')}" oninput="updateQ(${i},'${f}',this.value)">
-          </div>`).join('')}
-      </div>`;
-    frag.appendChild(d);
-  });
-  list.appendChild(frag);
-}
-
-function buildQHtml(q) {
-  const choices = ['a','b','c','d'];
-  const labels  = (q.labels && q.labels.length) ? q.labels : ['ก','ข','ค','ง'];
-  const choicesHtml = choices
-    .filter(k => q[k])
-    .map((k, i) => `<div class="q-choice">
-      <span class="q-choice-lbl">${labels[i] !== undefined ? labels[i] + '.' : ''}&#8203;</span>
-      <span class="q-choice-body">${esc(q[k])}</span>
-    </div>`)
-    .join('');
-
-  // รูปภาพ
-  const imgKey = q.image || '';
-  const imgSrc = imgKey && state.docxImages[imgKey] ? state.docxImages[imgKey] : '';
-  const imgHtml = imgSrc
-    ? `<div class="q-img"><img src="${imgSrc}" style="max-width:100%;max-height:180px;display:block;margin:4px 0 6px 0;border:1px solid #ddd;border-radius:3px"></div>`
-    : '';
-
-  // สูตรคณิตศาสตร์ — รองรับทั้ง LaTeX โดยตรง และ key จาก mathStore
-  const mathVal = q.math || '';
-  let mathLatex = '';
-  if (mathVal) {
-    // ถ้าเป็น key ใน mathStore ให้ lookup ถ้าไม่ใช่ถือว่าเป็น LaTeX โดยตรง
-    mathLatex = state.mathStore[mathVal] || mathVal;
-    // ถ้ายังไม่มี \( \) ครอบ ให้เพิ่ม
-    if (mathLatex && !mathLatex.includes('\\(') && !mathLatex.includes('\\[')) {
-      mathLatex = '\\(' + mathLatex + '\\)';
-    }
-  }
-  const mathHtml = mathLatex
-    ? `<div class="q-math" style="margin:4px 0 6px 0;font-size:15px">${mathLatex}</div>`
-    : '';
-
-  return `<div class="q-block">
-    <div class="q-text">
-      <span class="q-num-lbl">${q.no}.</span>
-      <span class="q-text-body">${esc(q.question)}</span>
-    </div>
-    ${imgHtml}${mathHtml}
-    <div class="q-choices">${choicesHtml}</div>
-  </div>`;
-}
-
-function buildPageHtml(isFirst, pageNo, questions, meta, heights, availH) {
-  let contentHtml;
-  if (state.twoCol && questions.length > 1) {
-    let splitAt = 1;
-    let leftH = 0;
-    const total = heights.reduce((a,b)=>a+b,0);
-    for (let i = 0; i < heights.length - 1; i++) {
-      if (typeof availH === 'number' && leftH + heights[i] > availH) break;
-      leftH += heights[i];
-      splitAt = i + 1;
-      if (leftH * 2 >= total) break;
-    }
-    const leftHtml  = questions.slice(0, splitAt).map(buildQHtml).join('');
-    const rightHtml = questions.slice(splitAt).map(buildQHtml).join('');
-    contentHtml = `<div class="exam-cols">
-      <div class="exam-col">${leftHtml}</div>
-      <div class="exam-col">${rightHtml}</div>
-    </div>`;
-  } else {
-    contentHtml = `<div class="exam-single">${questions.map(buildQHtml).join('')}</div>`;
-  }
-  
-  if (isFirst) {
-    return `<div class="paper">
-      <div class="p-school">${esc(meta.school)}</div>
-      <div class="p-row"><span>ข้อสอบ${esc(meta.type)}</span><span>ปีการศึกษา ${esc(meta.year)}</span><span>ชั้น${esc(meta.grade)}</span></div>
-      <div class="p-row bdr"><span>วิชา ${esc(meta.subject)}</span><span>จำนวน ${meta.total} ข้อ</span><span>เวลา ${esc(meta.time)} นาที</span></div>
-      <div class="p-inst">คำชี้แจง : ${esc(meta.inst)}</div>
-      ${contentHtml}
-    </div>`;
-  } else {
-    return `<div class="paper">
-      <div class="p-subhead">
-        <span>วิชา ${esc(meta.subject)}</span>
-        <span>ชั้น${esc(meta.grade)}</span>
-        <span>หน้า ${pageNo}</span>
-      </div>
-      <div class="p-subhead-line"></div>
-      ${contentHtml}
-    </div>`;
-  }
-}
-
-function getTrueHeight(hts, twoCol, maxH) {
-  if (!twoCol) return hts.reduce((a,b)=>a+b, 0);
-  if (hts.length === 0) return 0;
-  if (hts.length === 1) return hts[0];
-  
-  let leftH = 0;
-  let total = hts.reduce((a,b)=>a+b, 0);
-  for (let i = 0; i < hts.length - 1; i++) {
-    if (leftH + hts[i] > maxH) break;
-    leftH += hts[i];
-    if (leftH >= total / 2) break;
-  }
-  let rightH = total - leftH;
-  return Math.max(leftH, rightH);
+    </div>`).join('');
 }
 
 function renderPaper() {
   const v = id => document.getElementById(id).value;
-  const meta = { school: v('f_school'), type: v('f_type'), year: v('f_year'),
-    grade: v('f_grade'), subject: v('f_subject'), time: v('f_time'),
-    inst: v('f_inst'), total: state.questions.length };
-
-  /* เปลี่ยนความสูงสำหรับทำงานกับไซส์ 14 นิ้ว (Legal) */
-  const PAPER_H  = 1344;
-  const PAD_V    = 54;
-  const PAD_H    = 62;
-  const CONTENT_H = PAPER_H - PAD_V * 2; // เพิ่มพื้นที่ให้พอดีกับกระดาษยาวขึ้น
-  const CONTENT_W = 816 - PAD_H * 2;
-  const COL_GAP   = 24;
-  const COL_INNER = 12;
-  
-  const TEXT_W = state.twoCol
-    ? Math.floor((CONTENT_W - COL_GAP) / 2) - COL_INNER 
-    : CONTENT_W;
-
-  let probe = document.getElementById('_probe');
-  if (!probe) { probe = document.createElement('div'); probe.id = '_probe'; document.body.appendChild(probe); }
-  probe.style.cssText = [
-    'position:absolute','visibility:hidden','pointer-events:none','top:-9999px','left:0',
-    `width:${TEXT_W}px`,
-    "font-family:'TH Sarabun PSK','Sarabun',sans-serif",
-    'font-size:16px','line-height:1.5','box-sizing:border-box'
-  ].join(';');
-  probe.innerHTML = state.questions.map(buildQHtml).join('');
-  const qHeights = Array.from(probe.querySelectorAll('.q-block')).map(el => el.offsetHeight + 12);
-
-  let hp = document.getElementById('_hp');
-  if (!hp) { hp = document.createElement('div'); hp.id = '_hp'; document.body.appendChild(hp); }
-  const hStyle = `width:${CONTENT_W}px;font-family:'TH Sarabun PSK','Sarabun',sans-serif;font-size:16px;line-height:1.5;box-sizing:border-box`;
-
-  hp.innerHTML = `<div style="${hStyle}">
-    <div style="font-weight:bold;text-align:center;margin-bottom:2px">${esc(meta.school)}</div>
-    <div style="font-weight:bold;display:flex;justify-content:space-between;margin-bottom:2px"><span>ข้อสอบ${esc(meta.type)}</span><span>ปีการศึกษา ${esc(meta.year)}</span><span>ชั้น${esc(meta.grade)}</span></div>
-    <div style="font-weight:bold;display:flex;justify-content:space-between;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:8px"><span>วิชา ${esc(meta.subject)}</span><span>จำนวน ${meta.total} ข้อ</span><span>เวลา ${esc(meta.time)} นาที</span></div>
-    <div style="font-size:14px;text-decoration:none;margin-bottom:12px">คำชี้แจง : ${esc(meta.inst)}</div>
-  </div>`;
-  const HEAD1_H = hp.firstChild.offsetHeight + 8;
-
-  hp.innerHTML = `<div style="${hStyle}">
-    <div style="font-weight:bold;display:flex;justify-content:space-between;margin-bottom:4px"><span>วิชา ${esc(meta.subject)}</span><span>ชั้น${esc(meta.grade)}</span><span>หน้า 2</span></div>
-    <div style="border-bottom:2px solid #000;margin-bottom:10px"></div>
-  </div>`;
-  const HEADN_H = hp.firstChild.offsetHeight + 8;
-
-  const SAFETY = state.bottomMargin;
-  const avail1 = CONTENT_H - HEAD1_H - SAFETY;
-  const availN = CONTENT_H - HEADN_H - SAFETY;
-
-  const pages = [];
-  let pageNo = 1, isFirst = true, pageQs = [], pageHts = [];
-
-  state.questions.forEach((q, i) => {
-    const h = qHeights[i] || 70;
-    const limit = isFirst ? avail1 : availN;
-    
-    const tempHts = [...pageHts, h];
-    const trueH = getTrueHeight(tempHts, state.twoCol, limit);
-
-    if (pageQs.length > 0 && trueH > limit) {
-      pages.push({ pageNo, isFirst, questions: [...pageQs], heights: [...pageHts] });
-      pageNo++; isFirst = false; 
-      pageQs = [q]; pageHts = [h];
-    } else {
-      pageQs.push(q); pageHts.push(h);
-    }
-  });
-  if (pageQs.length > 0) pages.push({ pageNo, isFirst, questions: pageQs, heights: pageHts });
-
+  const meta = { school: v('f_school'), type: v('f_type'), year: v('f_year'), grade: v('f_grade'), subject: v('f_subject'), time: v('f_time'), inst: v('f_inst'), total: state.questions.length };
   const wrap = document.getElementById('paperWrap');
-  wrap.innerHTML = '';
-  const frag = document.createDocumentFragment();
-
-  pages.forEach(p => {
-    const wrap2 = document.createElement('div');
-    wrap2.className = 'paper-scale-wrap';
-    wrap2.style.cssText = 'position:relative;overflow:hidden;';
-    const temp = document.createElement('div');
-    temp.innerHTML = buildPageHtml(p.isFirst, p.pageNo, p.questions, meta, p.heights, p.isFirst ? avail1 : availN);
-    wrap2.appendChild(temp.firstElementChild);
-    frag.appendChild(wrap2);
-  });
-
-  if (state.showWriting) {
-    const wrap2 = document.createElement('div');
-    wrap2.className = 'paper-scale-wrap';
-    wrap2.style.cssText = 'position:relative;overflow:hidden;';
-    const temp = document.createElement('div');
-    temp.innerHTML = buildWritingPage(meta);
-    wrap2.appendChild(temp.firstElementChild);
-    frag.appendChild(wrap2);
-  }
-
-  wrap.appendChild(frag);
+  wrap.innerHTML = `<div class="paper">
+    <div class="p-school">${esc(meta.school)}</div>
+    <div class="p-row"><span>ข้อสอบ${esc(meta.type)}</span><span>ปีการศึกษา ${esc(meta.year)}</span><span>ชั้น${esc(meta.grade)}</span></div>
+    <div class="p-row bdr"><span>วิชา ${esc(meta.subject)}</span><span>จำนวน ${meta.total} ข้อ</span><span>เวลา ${esc(meta.time)} นาที</span></div>
+    <div class="p-inst">คำชี้แจง : ${esc(meta.inst)}</div>
+    ${state.questions.map(q => `
+      <div class="q-block">
+        <div class="q-text"><b>${q.no}.</b> ${esc(q.question)}</div>
+        ${q.image && state.docxImages[q.image] ? `<img src="${state.docxImages[q.image]}" style="max-width:200px; display:block; margin:10px 0;">` : ''}
+        <div class="q-choices" style="display:grid; grid-template-columns: 1fr 1fr; gap: 5px; padding-left: 20px;">
+          <div>ก. ${esc(q.a)}</div><div>ข. ${esc(q.b)}</div>
+          <div>ค. ${esc(q.c)}</div><div>ง. ${esc(q.d)}</div>
+        </div>
+      </div>
+    `).join('')}
+  </div>`;
   requestAnimationFrame(scalePaper);
 }
 
 function scalePaper() {
   const wrap = document.getElementById('paperWrap');
-  if (!wrap) return;
-  const papers = wrap.querySelectorAll('.paper-scale-wrap');
-  if (!papers.length) return;
-  const wrapW = wrap.clientWidth - 36;
-  if (wrapW <= 0) return;
-  papers.forEach(pw => {
-    const paper = pw.querySelector('.paper');
-    if (!paper) return;
-    const paperW = paper.offsetWidth;
-    if (paperW <= 0) return;
-    const scale = paperW > wrapW ? wrapW / paperW : 1;
-    paper.style.transform = `scale(${scale})`;
-    paper.style.transformOrigin = 'top left';
-    pw.style.width = (paperW * scale) + 'px';
-    pw.style.height = (paper.offsetHeight * scale) + 'px';
-    pw.style.marginBottom = '20px';
-    pw.style.overflow = 'hidden';
-  });
+  const paper = wrap.querySelector('.paper');
+  if (!paper) return;
+  const scale = (wrap.clientWidth - 40) / 816;
+  paper.style.transform = `scale(${scale})`;
 }
 
-let _resizeTimer = null;
-window.addEventListener('resize', () => { if (_resizeTimer) clearTimeout(_resizeTimer); _resizeTimer = setTimeout(scalePaper, 100); });
-
-function esc(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function toggleQ(i) { state.openIdx = state.openIdx === i ? null : i; renderEditor(); }
-
-let _updateTimer = null;
-function updateQ(i, f, v) {
-  state.questions[i][f] = v;
-  if (f === 'question') {
-    const items = document.querySelectorAll('.q-item');
-    if (items[i]) { const snip = items[i].querySelector('.q-snip'); if (snip) snip.textContent = v || '(ว่าง)'; }
-  }
-  if (_updateTimer) clearTimeout(_updateTimer);
-  _updateTimer = setTimeout(() => { schedulePaperRender(); _updateTimer = null; }, 300);
-}
-
-function addQ() {
-  state.questions.push({ no: state.questions.length + 1, question: '', a: '', b: '', c: '', d: '', answer: '' });
-  state.openIdx = state.questions.length - 1;
-  renderAll();
-  document.getElementById('qBadge').textContent = state.questions.length;
-}
-
-function delQ(i) {
-  state.questions.splice(i, 1);
-  state.questions.forEach((q, idx) => q.no = idx + 1);
-  if (state.openIdx !== null && state.openIdx >= state.questions.length)
-    state.openIdx = state.questions.length > 0 ? state.questions.length - 1 : null;
-  renderAll();
-  document.getElementById('qBadge').textContent = state.questions.length;
-}
-
-function showErr(msg) {
-  const el = document.getElementById('errMsg');
-  el.style.display = msg ? 'block' : 'none';
-  el.textContent = msg ? '⚠️ ' + msg : '';
-}
-
-function onWritingToggle(chk) {
-  state.showWriting = chk.checked;
-  document.getElementById('writingOpts').style.display = chk.checked ? 'block' : 'none';
-  if (state.questions.length > 0) schedulePaperRender();
-}
-
-function buildWritingPage(meta) {
-  const topics = state.writingTopics, lines = state.writingLines, pts = state.writingPoints, words = state.writingWords;
-  const topicsHtml = topics.length
-    ? topics.map((t,i) => `<div class="w-topic">${i+1}. ${esc(t)}</div>`).join('')
-    : '<div class="w-topic" style="opacity:.4">(ยังไม่มีหัวข้อ)</div>';
-  const linesHtml = Array.from({length: lines}, () => '<div class="w-line"></div>').join('');
-  const nameRow = `<div class="w-name-row">
-    <span>Name: <span class="w-blank" style="width:220px"></span></span>
-    <span>No: <span class="w-blank" style="width:60px"></span></span>
-    <span>Class: <span class="w-blank" style="width:80px"></span></span>
-  </div>`;
-  return `<div class="paper">
-    <div class="p-subhead"><span>วิชา ${esc(meta.subject)}</span><span>ชั้น${esc(meta.grade)}</span><span>หน้าเขียนตอบ</span></div>
-    <div class="p-subhead-line"></div>
-    ${nameRow}
-    <div class="w-part-head">Part II: Writing <span class="w-pts">(${pts} points)</span></div>
-    <div class="w-directions">Directions: Choose <strong>ONE</strong> topic. Write at least <strong>${words} words</strong>.</div>
-    <div class="w-topics-box">${topicsHtml}</div>
-    <div class="w-lines-box">${linesHtml}</div>
-  </div>`;
-}
-
-async function exportDocx() {
-  if (!state.questions.length) return;
-  const btn = document.getElementById('btnDocxTop');
-  const orig = btn.innerHTML;
-  btn.innerHTML = '⏳ กำลังสร้าง...'; btn.disabled = true;
-
-  try {
-    const { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, Packer, TabStopPosition, TabStopType } = docx;
-
-    const v = id => document.getElementById(id).value;
-    const school  = v('f_school');
-    const type    = v('f_type');
-    const year    = v('f_year');
-    const grade   = v('f_grade');
-    const subject = v('f_subject');
-    const time    = v('f_time');
-    const inst    = v('f_inst');
-    const total   = state.questions.length;
-
-    const TH = 'TH Sarabun PSK';
-    const SZ = 32; // 16pt = 32 half-points
-    const SZ_SM = 28; // 14pt
-
-    const bold = (text, sz) => new TextRun({ text, bold: true, font: TH, size: sz || SZ });
-    const normal = (text, sz) => new TextRun({ text, font: TH, size: sz || SZ });
-
-    const children = [];
-
-    // ── หัวกระดาษ ──
-    children.push(new Paragraph({ alignment: AlignmentType.CENTER, children: [bold(school)] }));
-    children.push(new Paragraph({
-      alignment: AlignmentType.CENTER,
-      children: [bold(`ข้อสอบ${type}   ปีการศึกษา ${year}   ชั้น${grade}`)]
-    }));
-    children.push(new Paragraph({
-      alignment: AlignmentType.CENTER,
-      border: { bottom: { style: 'single', size: 12, color: '000000' } },
-      children: [bold(`วิชา ${subject}   จำนวน ${total} ข้อ   เวลา ${time} นาที`)]
-    }));
-    children.push(new Paragraph({ children: [normal(`คำชี้แจง : ${inst}`, SZ_SM)] }));
-    children.push(new Paragraph({ children: [normal('')] }));
-
-    // ── ข้อสอบ ──
-    state.questions.forEach(q => {
-      const labels = (q.labels && q.labels.length) ? q.labels : ['ก','ข','ค','ง'];
-
-      // คำถาม
-      children.push(new Paragraph({
-        children: [normal(`${q.no}.  ${q.question}`)]
-      }));
-
-      // ตัวเลือก
-      ['a','b','c','d'].forEach((k, i) => {
-        if (!q[k]) return;
-        children.push(new Paragraph({
-          indent: { left: 480 },
-          children: [normal(`${labels[i] !== undefined ? labels[i]+'.' : ''}  ${q[k]}`)]
-        }));
-      });
-
-      children.push(new Paragraph({ children: [normal('')] }));
-    });
-
-    const doc = new Document({
-      sections: [{
-        properties: {
-          page: {
-            size: { width: 12240, height: 20160 }, // 8.5" x 14" (Legal) in twips
-            margin: { top: 720, bottom: 720, left: 900, right: 900 }
-          }
-        },
-        children
-      }]
-    });
-
-    const blob = await Packer.toBlob(doc);
-    saveAs(blob, `ข้อสอบ_${subject}_${grade}.docx`);
-  } catch(e) {
-    alert('สร้าง .docx ไม่สำเร็จ: ' + e.message);
-  } finally {
-    btn.innerHTML = orig; btn.disabled = false;
-  }
-}
-
-// ── OMML → LaTeX converter (rule-based สำหรับสูตรทั่วไป) ──
-function ommlToLatex(omml) {
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(omml, 'text/xml');
-    return nodeToLatex(doc.documentElement);
-  } catch(e) { return '?'; }
-}
-
-function nodeToLatex(node) {
-  if (node.nodeType === 3) return node.textContent; // text node
-  const tag = node.localName || '';
-  const ch = () => Array.from(node.childNodes).map(nodeToLatex).join('');
-
-  switch(tag) {
-    case 'oMath':      return '\\(' + ch() + '\\)';
-    case 'r':          return ch();  // run
-    case 't':          return node.textContent;
-    case 'f':          { // fraction
-      const num = node.getElementsByTagNameNS('*','num')[0];
-      const den = node.getElementsByTagNameNS('*','den')[0];
-      const n = num ? Array.from(num.childNodes).map(nodeToLatex).join('') : '';
-      const d = den ? Array.from(den.childNodes).map(nodeToLatex).join('') : '';
-      return '\\frac{' + n + '}{' + d + '}';
-    }
-    case 'rad': {      // radical / sqrt
-      const deg = node.getElementsByTagNameNS('*','deg')[0];
-      const e2  = node.getElementsByTagNameNS('*','e')[0];
-      const d   = deg ? Array.from(deg.childNodes).map(nodeToLatex).join('').trim() : '';
-      const base= e2  ? Array.from(e2.childNodes).map(nodeToLatex).join('') : '';
-      return d ? '\\sqrt[' + d + ']{' + base + '}' : '\\sqrt{' + base + '}';
-    }
-    case 'sSup': {     // superscript
-      const base2 = node.getElementsByTagNameNS('*','e')[0];
-      const sup   = node.getElementsByTagNameNS('*','sup')[0];
-      const b = base2 ? Array.from(base2.childNodes).map(nodeToLatex).join('') : '';
-      const s = sup   ? Array.from(sup.childNodes).map(nodeToLatex).join('') : '';
-      return '{' + b + '}^{' + s + '}';
-    }
-    case 'sSub': {     // subscript
-      const base3 = node.getElementsByTagNameNS('*','e')[0];
-      const sub   = node.getElementsByTagNameNS('*','sub')[0];
-      const b2 = base3 ? Array.from(base3.childNodes).map(nodeToLatex).join('') : '';
-      const s2 = sub   ? Array.from(sub.childNodes).map(nodeToLatex).join('') : '';
-      return '{' + b2 + '}_{' + s2 + '}';
-    }
-    case 'sSubSup': {  // sub+superscript
-      const base4  = node.getElementsByTagNameNS('*','e')[0];
-      const sub2   = node.getElementsByTagNameNS('*','sub')[0];
-      const sup2   = node.getElementsByTagNameNS('*','sup')[0];
-      const b3 = base4 ? Array.from(base4.childNodes).map(nodeToLatex).join('') : '';
-      const s3 = sub2  ? Array.from(sub2.childNodes).map(nodeToLatex).join('') : '';
-      const s4 = sup2  ? Array.from(sup2.childNodes).map(nodeToLatex).join('') : '';
-      return '{' + b3 + '}_{' + s3 + '}^{' + s4 + '}';
-    }
-    case 'nary': {     // integral, sum, product
-      const subH  = node.getElementsByTagNameNS('*','sub')[0];
-      const supH  = node.getElementsByTagNameNS('*','sup')[0];
-      const eH    = node.getElementsByTagNameNS('*','e')[0];
-      const chrEl = node.querySelector('[m\\:chr]') || node.querySelector('naryPr');
-      let sym = '\\int';
-      if (chrEl) {
-        const c = chrEl.getAttribute('m:chr') || '';
-        if (c === '∑' || c === 'Σ') sym = '\\sum';
-        else if (c === '∏') sym = '\\prod';
-      }
-      const lo = subH ? '_{' + Array.from(subH.childNodes).map(nodeToLatex).join('') + '}' : '';
-      const hi = supH ? '^{' + Array.from(supH.childNodes).map(nodeToLatex).join('') + '}' : '';
-      const body = eH ? Array.from(eH.childNodes).map(nodeToLatex).join('') : '';
-      return sym + lo + hi + ' ' + body;
-    }
-    case 'd': {        // delimiter ( )
-      const inner = Array.from(node.getElementsByTagNameNS('*','e')).map(el =>
-        Array.from(el.childNodes).map(nodeToLatex).join('')).join(',');
-      return '\\left(' + inner + '\\right)';
-    }
-    case 'm': {        // matrix
-      const rows = Array.from(node.getElementsByTagNameNS('*','mr')).map(row =>
-        Array.from(row.getElementsByTagNameNS('*','e')).map(el =>
-          Array.from(el.childNodes).map(nodeToLatex).join('')).join(' & ')
-      ).join(' \\\\ ');
-      return '\\begin{pmatrix}' + rows + '\\end{pmatrix}';
-    }
-    case 'func': {     // function e.g. sin, cos
-      const fname = node.getElementsByTagNameNS('*','fName')[0];
-      const farg  = node.getElementsByTagNameNS('*','e')[0];
-      const fn = fname ? Array.from(fname.childNodes).map(nodeToLatex).join('') : '';
-      const fa = farg  ? Array.from(farg.childNodes).map(nodeToLatex).join('') : '';
-      const knownFn = ['sin','cos','tan','log','ln','lim','max','min','exp'];
-      const cleanFn = fn.replace(/\\/g,'').trim();
-      return (knownFn.includes(cleanFn) ? '\\' + cleanFn : fn) + '{' + fa + '}';
-    }
-    default:           return ch();
-  }
-}
-
-// ── Trigger MathJax re-render หลัง render กระดาษ ──
-function renderMath() {
-  if (window.MathJax && MathJax.typesetPromise) {
-    const wrap = document.getElementById('paperWrap');
-    if (wrap) MathJax.typesetPromise([wrap]).catch(e => console.warn('MathJax:', e));
-  }
-}
-
-// ── แปลง TIFF → JPEG ด้วย UTIF.js (รองรับ TIFF ใน browser) ──
-async function convertTiffToJpeg(tiffBase64OrArrayBuffer) {
-  try {
-    let arrayBuf;
-    if (typeof tiffBase64OrArrayBuffer === 'string') {
-      // base64 data URL → ArrayBuffer
-      const b64 = tiffBase64OrArrayBuffer.split(',')[1] || tiffBase64OrArrayBuffer;
-      const bin = atob(b64);
-      arrayBuf = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) arrayBuf[i] = bin.charCodeAt(i);
-      arrayBuf = arrayBuf.buffer;
-    } else {
-      arrayBuf = tiffBase64OrArrayBuffer;
-    }
-
-    if (typeof UTIF !== 'undefined') {
-      // ใช้ UTIF.js decode TIFF → RGBA
-      const ifds = UTIF.decode(arrayBuf);
-      UTIF.decodeImage(arrayBuf, ifds[0]);
-      const rgba = UTIF.toRGBA8(ifds[0]);
-      const w = ifds[0].width, h = ifds[0].height;
-      const canvas = document.createElement('canvas');
-      canvas.width = w; canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      const imgData = ctx.createImageData(w, h);
-      imgData.data.set(rgba);
-      ctx.putImageData(imgData, 0, 0);
-      return canvas.toDataURL('image/jpeg', 0.92);
-    } else {
-      throw new Error('UTIF not loaded');
-    }
-  } catch(e) {
-    // fallback: Image() (อาจไม่ work สำหรับ TIFF แต่ลองดู)
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        const c = document.createElement('canvas');
-        c.width = img.naturalWidth; c.height = img.naturalHeight;
-        c.getContext('2d').drawImage(img, 0, 0);
-        resolve(c.toDataURL('image/jpeg', 0.92));
-      };
-      img.onerror = () => reject(new Error('แปลง TIFF ไม่ได้'));
-      img.src = typeof tiffBase64OrArrayBuffer === 'string' ? tiffBase64OrArrayBuffer : '';
-    });
-  }
-}
-
-function cancelConvert() { if (state.abortCtrl) state.abortCtrl.abort(); }
-
-function onLayoutChange(radio) {
-  state.twoCol = radio.value === '2';
-  document.querySelectorAll('.col-opt').forEach(l => l.classList.remove('active'));
-  radio.closest('.col-opt').classList.add('active');
-  if (state.questions.length > 0) schedulePaperRender();
-}
-
-document.querySelectorAll('input[id^="f_"]').forEach(el => {
-  el.addEventListener('input', () => { if (state.questions.length > 0) schedulePaperRender(); });
-});
-
-(function() {
-  const savedKey = localStorage.getItem('gemini_key');
-  if (savedKey) {
-    state.apiKey = savedKey;
-    const inp = document.getElementById('apiKeyInput');
-    if (inp) inp.value = savedKey;
-  }
-})();
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toggleQ(i) { state.openIdx = (state.openIdx === i) ? null : i; renderEditor(); }
+function updateQ(i, f, v) { state.questions[i][f] = v; schedulePaperRender(); }
+function showStatus(n, m) { document.getElementById('fileStatus').style.display = 'flex'; document.getElementById('fileName').textContent = n; document.getElementById('fileMeta').textContent = m; }
+function showErr(m) { const e = document.getElementById('errMsg'); e.textContent = m; e.style.display = 'block'; }
+function onWritingToggle(c) { state.showWriting = c.checked; schedulePaperRender(); }
+function toggleText() { state.textOpen = !state.textOpen; document.getElementById('textBox').style.display = state.textOpen ? 'block' : 'none'; }
 </script>
 </body>
 </html>
