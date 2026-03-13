@@ -410,7 +410,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 // 🌟 เปลี่ยนมาใช้ gemini-2.5-flash โมเดลล่าสุดของ Google ที่เสถียรและเก่งกว่ารุ่น lite
 const state = {
   apiKey: localStorage.getItem('gemini_key') || '',
-  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent',
+  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
   rawText: '',
   questions: [],
   openIdx: null,
