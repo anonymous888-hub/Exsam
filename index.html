@@ -485,7 +485,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 // State Management
 const state = {
   apiKey: localStorage.getItem('gemini_key') || '',
-  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', // เปลี่ยนเป็น Flash รุ่นปกติที่เก่งกว่า Lite
+  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent', // เปลี่ยนเป็น Flash รุ่นปกติที่เก่งกว่า Lite
   rawText: '',
   questions: [],
   currentChanges: [],
