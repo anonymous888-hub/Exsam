@@ -1025,14 +1025,16 @@ async function convertExam() {
   // ── เลือก mode: PDF Vision หรือ Text ──
   const isPdfVision = state.pdfImages.length > 0;
 
-  const jsonSchema = `{"questions":[{"no":1,"question":"คำถาม","image":"","math":"","a":"ตัวเลือก","b":"ตัวเลือก","c":"ตัวเลือก","d":"ตัวเลือก","answer":"ก","labels":["ก","ข","ค","ง"]}]}`;
+  const jsonSchema = `{"questions":[{"no":1,"question":"คำถาม (ฝัง LaTeX ได้ เช่น \\(\\vec{A}+\\vec{B}=0\\))","image":"","math":"","a":"ตัวเลือก (ฝัง LaTeX ได้)","b":"","c":"","d":"","answer":"ก","labels":["ก","ข","ค","ง"]}]}`;
   const rules = `กฎสำคัญ:
 - ดึงข้อสอบทุกข้อจากรูปภาพทุกหน้า
 - answer="" ถ้าไม่มีเฉลย
 - ตัวเลือกใน a b c d ไม่ต้องมีตัวอักษร/ตัวเลขนำหน้า (เนื้อหาล้วนๆ)
 - labels: ดูจากต้นฉบับว่าใช้รูปแบบใด ["ก","ข","ค","ง"] หรือ ["1","2","3","4"] หรือ ["a","b","c","d"] หรือ ["A","B","C","D"]
 - image: ถ้าในข้อความใกล้โจทย์ข้อนั้นมี [IMAGE:IMG_n] ให้ใส่ key นั้น เช่น "image":"IMG_3" ถ้าไม่มีให้ใส่ ""
-- math: ถ้าโจทย์มีสูตรคณิตศาสตร์ ให้เขียน LaTeX ลงใน field math เช่น "\\frac{1}{2}mv^2"
+- สัญลักษณ์คณิตศาสตร์ทุกชนิด (เวกเตอร์, เศษส่วน, ยกกำลัง, รากที่สอง ฯลฯ) ให้ฝัง LaTeX inline ใน field question/a/b/c/d โดยใช้ \\( ... \\) เช่น: "\\(\\vec{A}+\\vec{D}+\\vec{E}=0\\)" หรือ "\\(\\frac{1}{2}mv^2\\)"
+- เวกเตอร์: ใช้ \\vec{} เช่น \\vec{A}, \\vec{B} — ห้ามใช้ Unicode arrow แทน
+- field math: ถ้ามีสูตรหลักแยกต่างหากจาก question text ให้ใส่ LaTeX ใน math ไม่ต้องใส่ \\( \\) ถ้าฝังใน question แล้วให้ math=""
 - ข้อสอบแบบอัตนัย/เขียนตอบ ไม่ต้องดึงมา ดึงเฉพาะปรนัย (มีตัวเลือก)
 - ตอบกลับเป็น JSON อย่างเดียว ห้ามมี markdown ห้ามมีข้อความอื่น`;
 
@@ -1147,7 +1149,7 @@ function buildQHtml(q) {
   const choicesHtml = activeChoices
     .map((k, i) => `<div class="q-choice">
       <span class="q-choice-lbl">${labels[i] !== undefined ? labels[i] + '.' : ''}&#8203;</span>
-      <span class="q-choice-body">${esc(q[k])}</span>
+      <span class="q-choice-body">${escMathSafe(q[k])}</span>
     </div>`)
     .join('');
 
@@ -1177,7 +1179,7 @@ function buildQHtml(q) {
   return `<div class="q-block">
     <div class="q-text">
       <span class="q-num-lbl">${q.no}.</span>
-      <span class="q-text-body">${esc(q.question)}</span>
+      <span class="q-text-body">${escMathSafe(q.question)}</span>
     </div>
     ${imgHtml}${mathHtml}
     ${choicesWrapper}
@@ -1370,6 +1372,43 @@ window.addEventListener('resize', () => { if (_resizeTimer) clearTimeout(_resize
 
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// escMath: escape HTML แต่คง \( \) \[ \] ไว้ให้ MathJax render ได้
+function escMath(s) {
+  if (!s) return '';
+  // แยก LaTeX tokens ออกก่อน แล้ว escape ส่วนที่เป็น text เท่านั้น
+  const parts = String(s).split(/(\\[\(\)\[\]][\s\S]*?\\[\(\)\[\]])/g);
+  // ใช้ regex ที่แม่นกว่า: แยก \(...\) และ \[...\]
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    // คืนค่า \( \) \[ \] ที่ถูก escape กลับมา (MathJax ต้องการ backslash จริงๆ)
+    .replace(/\\&amp;/g, '\&amp;'); // ไม่ escape & ใน LaTeX
+}
+
+// escMathSafe: ใช้แทน esc() เมื่อ field อาจมี LaTeX \( ... \)
+function escMathSafe(s) {
+  if (!s) return '';
+  const str = String(s);
+  // ถ้าไม่มี LaTeX เลย ใช้ esc() ปกติ
+  if (!str.includes('\(') && !str.includes('\[')) return esc(str);
+  // มี LaTeX: escape HTML แต่อย่าแตะ backslash และ delimiters
+  // Split by LaTeX regions, escape only non-LaTeX parts
+  const result = [];
+  const regex = /(\\([\s\S]*?\\)|\\[[\s\S]*?\\])/g;
+  let last = 0, m;
+  while ((m = regex.exec(str)) !== null) {
+    // escape ส่วน text ก่อน LaTeX
+    result.push(esc(str.slice(last, m.index)));
+    // เก็บ LaTeX ไว้ดิบๆ (MathJax จะ process เอง)
+    result.push(m[0]);
+    last = m.index + m[0].length;
+  }
+  result.push(esc(str.slice(last)));
+  return result.join('');
 }
 
 function toggleQ(i) { state.openIdx = state.openIdx === i ? null : i; renderEditor(); }
