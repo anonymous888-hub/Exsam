@@ -14,6 +14,7 @@
 <script>
 // MathJax config — ต้องตั้งค่าก่อน load
 window.MathJax = {
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] },
   tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
   svg: { fontCache: 'global' },
   startup: { typeset: false }
@@ -167,8 +168,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .exam-col:last-child{padding-left:12px}
 .exam-single{display:block}
 .q-block{break-inside:avoid;margin-bottom:12px}
-.paper mjx-container{font-size:100% !important;vertical-align:middle !important;margin:0 1px !important}
-.paper mjx-container svg{vertical-align:middle !important}
+.paper mjx-container{font-size:16px !important;vertical-align:middle !important;margin:0 0px !important;display:inline !important}
+.paper mjx-container svg{vertical-align:-0.2em !important;height:1em !important}
+.paper .q-text-body,.paper .q-choice-body{line-height:1.7}
 .q-text{font-weight:normal;margin-bottom:3px;display:flex;gap:0.3em;}
 .q-num-lbl{white-space:nowrap;flex-shrink:0}
 .q-text-body{flex:1;min-width:0}
@@ -1176,6 +1178,14 @@ function renderEditor() {
             <label>${{ question:'คำถาม', a:'ก', b:'ข', c:'ค', d:'ง', answer:'เฉลย' }[f]}</label>
             <input value="${esc(q[f] || '')}" oninput="updateQ(${i},'${f}',this.value)">
           </div>`).join('')}
+        ${q.image && state.docxImages[q.image] ? `
+          <div class="q-field" style="flex-direction:column;align-items:flex-start;gap:6px">
+            <label style="display:flex;align-items:center;justify-content:space-between;width:100%">
+              <span>📷 รูปภาพ: ${q.image}</span>
+              <button onclick="event.stopPropagation();clearQImage(${i})" style="font-size:11px;padding:2px 8px;border-radius:5px;border:1px solid rgba(248,113,113,.4);background:rgba(248,113,113,.1);color:#f87171;cursor:pointer">✕ ลบรูป</button>
+            </label>
+            <img src="${state.docxImages[q.image]}" style="max-width:100%;max-height:120px;border-radius:4px;border:1px solid var(--border)">
+          </div>` : ''}
       </div>`;
     frag.appendChild(d);
   });
@@ -1449,6 +1459,7 @@ function escMathSafe(s) {
 }
 
 function toggleQ(i) { state.openIdx = state.openIdx === i ? null : i; renderEditor(); }
+function clearQImage(i) { state.questions[i].image = ''; renderEditor(); schedulePaperRender(); }
 
 let _updateTimer = null;
 function updateQ(i, f, v) {
