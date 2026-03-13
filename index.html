@@ -167,6 +167,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .exam-col:last-child{padding-left:12px}
 .exam-single{display:block}
 .q-block{break-inside:avoid;margin-bottom:12px}
+.paper mjx-container{font-size:100% !important;vertical-align:middle !important;margin:0 1px !important}
+.paper mjx-container svg{vertical-align:middle !important}
 .q-text{font-weight:normal;margin-bottom:3px;display:flex;gap:0.3em;}
 .q-num-lbl{white-space:nowrap;flex-shrink:0}
 .q-text-body{flex:1;min-width:0}
@@ -1139,8 +1141,11 @@ function normalizeQ(q) {
 
     q[f] = s;
   });
+  // ล้าง [IMAGE:...] ออกจาก question/choices text (ไม่ใช่ field image)
+  fields.forEach(f => {
+    if (q[f]) q[f] = String(q[f]).replace(/\[IMAGE:[^\]]+\]/g, '').replace(/\[ดู[^\]]*\]/g, '').trim();
+  });
   // สำหรับ PDF Vision: ล้าง image field เพราะไม่มีรูปจริงใน state.docxImages
-  // (AI อาจใส่ image key ผิด เช่น IMG_2 ที่ไม่มีอยู่จริง)
   if (q.image && q.image.startsWith('IMG_')) {
     if (!state.docxImages[q.image]) q.image = '';
   }
