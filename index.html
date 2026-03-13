@@ -1020,28 +1020,32 @@ async function convertExam() {
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div> กำลังวิเคราะห์และแยกข้อสอบ...';
   
-  // ── ปรับ Prompt ใหม่ บังคับให้ AI แยกตัวเลือก ก, ข, ค, ง อย่างเด็ดขาด ──
-  const prompt = `คุณคือระบบวิเคราะห์และแปลงข้อสอบระดับผู้เชี่ยวชาญ หน้าที่ของคุณคือ:
-1. วิเคราะห์ข้อมูลหัวกระดาษ (ชื่อวิชา, ระดับชั้น, โรงเรียน, ปีการศึกษา, เวลาสอบ) จากข้อความ
-2. ดึงข้อสอบแต่ละข้อออกมา โดยต้องแยก "โจทย์" และ "ตัวเลือก" ออกจากกันอย่างเด็ดขาด
-3. นำข้อความตัวเลือก ก, ข, ค, ง ไปใส่ในฟิลด์ a, b, c, d ตามลำดับ (ให้ตัดอักษร ก. ข. ค. ง. ด้านหน้าออก เอาเฉพาะเนื้อหา) ห้ามนำตัวเลือกไปรวมไว้ในฟิลด์โจทย์ (question) เด็ดขาด
-4. หากพบข้อความ "[IMAGE:IMG_X]" ในโจทย์ ให้เก็บรหัส "IMG_X" ไว้ในฟิลด์ "image"
-5. ข้อสอบวิชาคำนวณ หากมีสมการ เวกเตอร์ หรือสัญลักษณ์ ให้ออกแบบเป็น LaTeX โดยต้องครอบด้วย \\( และ \\) เสมอ (เช่น \\(\\vec{A} + \\vec{B} = 0\\))
-6. ตอบกลับเฉพาะ JSON เท่านั้น รูปแบบเป๊ะๆ ตามนี้:
+  // ── Prompt ฉบับเด็ดขาด บังคับแยกตัวเลือก ──
+  const prompt = `คุณคือระบบวิเคราะห์ข้อสอบระดับผู้เชี่ยวชาญ (Data Parser)
+งานของคุณคืออ่านข้อความ แล้วสกัดข้อมูลลงในโครงสร้าง JSON ให้ถูกต้อง 100%
+
+กฎขั้นเด็ดขาด:
+1. "โจทย์" ต้องอยู่แยกกับ "ตัวเลือก" ห้ามนำตัวเลือก ก, ข, ค, ง ไปต่อท้ายเนื้อหาในฟิลด์ question เด็ดขาด
+2. ตัวเลือก ก, ข, ค, ง ต้องถูกนำไปใส่ในฟิลด์ a, b, c, d ตามลำดับ โดยให้ตัดตัวอักษร ก. ข. ค. ง. ด้านหน้าออก เอาแค่เนื้อหา
+3. ฟิลด์ a, b, c, d ต้องไม่เป็นค่าว่าง หากในข้อความต้นฉบับมีตัวเลือกให้เห็น
+4. หากพบ "[IMAGE:IMG_X]" ในโจทย์ ให้เก็บรหัส "IMG_X" ไว้ในฟิลด์ "image"
+5. สมการ ฟิสิกส์ คณิตศาสตร์ หรือเวกเตอร์ ให้แปลงเป็น LaTeX แล้วครอบด้วย \\( และ \\)
+
+รูปแบบ JSON ที่คุณต้องตอบกลับ (ห้ามตอบข้อความอื่นนอกจาก JSON):
 {
   "metadata": {
-    "school": "ชื่อโรงเรียน (ถ้าไม่มีให้ปล่อยว่าง)",
+    "school": "ชื่อโรงเรียน",
     "type": "ประเภทการสอบ",
     "year": "ปีการศึกษา",
     "grade": "ระดับชั้น",
     "subject": "ชื่อวิชา",
-    "time": "เวลาสอบ (เฉพาะตัวเลข)"
+    "time": "เวลาสอบ"
   },
   "questions": [
     { 
       "no": 1, 
       "question": "เนื้อหาโจทย์เท่านั้น", 
-      "image": "IMG_X หรือเว้นว่าง", 
+      "image": "รหัสภาพ หรือเว้นว่าง", 
       "a": "เนื้อหาตัวเลือก ก", 
       "b": "เนื้อหาตัวเลือก ข", 
       "c": "เนื้อหาตัวเลือก ค", 
@@ -1051,16 +1055,22 @@ async function convertExam() {
   ]
 }
 
-ข้อความข้อสอบ:
+ข้อความข้อสอบที่ต้องวิเคราะห์:
 ${state.rawText}`;
 
   try {
     let requestBody;
+    // ใช้ฟีเจอร์ responseMimeType เพื่อบังคับ Gemini ให้ตอบเป็น JSON โครงสร้างเป๊ะๆ
+    const genConfig = { 
+      temperature: 0.1, 
+      responseMimeType: "application/json" 
+    };
+
     if (state.pdfImages && state.pdfImages.length > 0) {
       const imageParts = state.pdfImages.map(b64 => ({ inline_data: { mime_type: 'image/jpeg', data: b64 } }));
-      requestBody = { contents: [{ parts: [...imageParts, { text: prompt }] }], generationConfig: { temperature: 0.1 } };
+      requestBody = { contents: [{ parts: [...imageParts, { text: prompt }] }], generationConfig: genConfig };
     } else {
-      requestBody = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.1 } };
+      requestBody = { contents: [{ parts: [{ text: prompt }] }], generationConfig: genConfig };
     }
 
     const res = await fetch(`${state.apiUrl}?key=${state.apiKey}`, {
@@ -1072,7 +1082,8 @@ ${state.rawText}`;
     const data = await res.json();
     if(data.error) throw new Error(data.error.message);
 
-    const raw = data.candidates[0].content.parts[0].text.replace(/```json|```/g, "").trim();
+    // เนื่องจากเราตั้ง responseMimeType แล้ว ข้อความที่ได้จะเป็น JSON ทันที ไม่ต้องมี ```json ครอบ
+    const raw = data.candidates[0].content.parts[0].text.trim();
     const parsed = JSON.parse(raw);
     
     // Auto-Fill Form 
@@ -1101,7 +1112,6 @@ ${state.rawText}`;
     btn.innerHTML = '✨ แปลงข้อสอบด้วย AI';
   }
 }
-
 let _renderTimer = null;
 function renderAll() { renderEditor(); schedulePaperRender(); }
 function schedulePaperRender() {
