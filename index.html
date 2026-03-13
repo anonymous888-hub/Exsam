@@ -16,7 +16,7 @@
 window.MathJax = {
   options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] },
   tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
-  chtml: { scale: 1, matchFontHeight: false, mtextInheritFont: true },
+  chtml: { scale: 0.95, matchFontHeight: true, mtextInheritFont: true, minScale: 0.5 },
   startup: { typeset: false }
 };
 </script>
@@ -174,12 +174,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .paper .q-text-body,.paper .q-choice-body{line-height:1.8}
 .q-text{font-weight:normal;margin-bottom:3px;display:flex;gap:0.3em;}
 .q-num-lbl{white-space:nowrap;flex-shrink:0}
-.q-text-body{flex:1;min-width:0}
+.q-text-body{flex:1;min-width:0;word-break:break-word;overflow-wrap:anywhere}
 .q-choices{padding-left:1em}
 .q-choices-2col{padding-left:1em;display:grid;grid-template-columns:1fr 1fr;gap:0}
 .q-choice{margin:2px 0;display:flex;gap:0.3em;}
 .q-choice-lbl{white-space:nowrap;flex-shrink:0}
-.q-choice-body{flex:1;min-width:0}
+.q-choice-body{flex:1;min-width:0;word-break:break-word;overflow-wrap:anywhere}
 
 /* ══ PRINT STYLES ขั้นเด็ดขาด V3 ══ */
 @media print{
@@ -1037,15 +1037,15 @@ async function convertExam() {
 - ดึงข้อสอบทุกข้อจากรูปภาพทุกหน้า
 - answer="" ถ้าไม่มีเฉลย
 - ตัวเลือกใน a b c d ไม่ต้องมีตัวอักษร/ตัวเลขนำหน้า (เนื้อหาล้วนๆ)
-- labels: ดูจากต้นฉบับว่าใช้รูปแบบใด ["ก","ข","ค","ง"] หรือ ["1","2","3","4"] หรือ ["a","b","c","d"] หรือ ["A","B","C","D"]
-- image (PDF Vision): ถ้าข้อนั้นมีรูป/กราฟ/แผนภาพ ให้บรรยายสั้นๆ ต่อท้าย question เช่น "[ดูกราฟ F-S ในรูป]" / ถ้ามี [IMAGE:IMG_n] ให้ใส่ใน field image
+- labels: ดูจากต้นฉบับว่าใช้รูปแบบใด ["ก","ข","ค","ง"] หรือ ["1","2","3","4"]
+- image: ให้ใส่ "" เสมอ ระบบจะจัดการรูปภาพให้เอง
 - สัญลักษณ์ฟิสิกส์/คณิต: แปลงเป็น LaTeX ฝัง inline ใน question/a/b/c/d
-- LaTeX ใน JSON: ใช้ \( และ \) (backslash จริง 1 ตัว) เช่น "\(\vec{A}+\vec{B}=0\)"
+- LaTeX ใน JSON: ใช้ \( และ \) เช่น "\(\vec{A}+\vec{B}=0\)"
 - เวกเตอร์: \vec{X} เช่น "a":"\(\vec{A}+\vec{D}+\vec{E}=0\)"
-- สูตรตัวอย่าง: "\(\frac{1}{2}mv^2\)", "\(\sqrt{3}\)", "\(v^2\)"
-- field math: LaTeX เพิ่มเติม ไม่ต้องใส่ \( \) / ถ้าฝังใน question แล้วให้ math=""
-- ข้อสอบแบบอัตนัย/เขียนตอบ ไม่ต้องดึงมา ดึงเฉพาะปรนัย (มีตัวเลือก)
-- ตอบกลับเป็น JSON อย่างเดียว ห้ามมี markdown ห้ามมีข้อความอื่น`;
+- สูตรตัวอย่าง: "\(\frac{1}{2}mv^2\)", "\(v^2\)", "\(\sqrt{3}\)"
+- field math: LaTeX เพิ่มเติม ถ้าฝังใน question แล้วให้ math=""
+- ข้อสอบแบบอัตนัย/เขียนตอบ ไม่ต้องดึงมา ดึงเฉพาะปรนัย
+- ตอบกลับเป็น JSON อย่างเดียว ห้ามมี markdown`;
 
   try {
     let requestBody;
@@ -1103,6 +1103,10 @@ ${state.rawText}`;
     const jsonStr = repairJSON(raw.slice(s));
     const parsed = JSON.parse(jsonStr);
     state.questions = (parsed.questions || []).map(normalizeQ);
+    // assign image keys จาก rawText (DOCX mode) — ดีกว่าให้ AI เดา
+    if (Object.keys(state.docxImages).length > 0 && state.rawText) {
+      assignDocxImages(state.questions, state.rawText);
+    }
     if (!state.questions.length) throw new Error('ไม่พบข้อสอบในไฟล์');
     const badge = document.getElementById('qBadge');
     badge.textContent = state.questions.length; badge.style.display = 'inline';
@@ -1123,6 +1127,41 @@ ${state.rawText}`;
 let _renderTimer = null;
 
 // ── normalizeQ: แก้ LaTeX ที่ AI ส่งมาผิดรูปแบบ ──
+
+// ── assignDocxImages: match รูปภาพจาก rawText เข้ากับข้อที่ถูกต้อง ──
+function assignDocxImages(questions, rawText) {
+  // หา [IMAGE:IMG_n] และตำแหน่งในข้อความ
+  const imgMatches = [...rawText.matchAll(/\[IMAGE:(IMG_\d+)\]/g)];
+  if (!imgMatches.length) return;
+
+  // หาตำแหน่งตัวเลขข้อในข้อความ (เช่น "1." "2." ฯลฯ)
+  // สร้าง array ของ {qNo, pos} ตามลำดับ
+  const qPositions = [];
+  questions.forEach(q => {
+    const re = new RegExp('(?:^|\n)\\s*' + q.no + '\.\\s', 'g');
+    let m;
+    while ((m = re.exec(rawText)) !== null) {
+      qPositions.push({ qNo: q.no, pos: m.index });
+    }
+  });
+  qPositions.sort((a, b) => a.pos - b.pos);
+
+  // assign แต่ละรูปเข้ากับข้อที่อยู่ก่อนหน้า (รูปอยู่หลังข้อความข้อ)
+  imgMatches.forEach(match => {
+    const imgKey = match[1];
+    const imgPos = match.index;
+    // หาข้อที่อยู่ก่อนตำแหน่งรูปล่าสุด
+    let bestQ = null;
+    for (let i = qPositions.length - 1; i >= 0; i--) {
+      if (qPositions[i].pos <= imgPos) { bestQ = qPositions[i].qNo; break; }
+    }
+    if (bestQ !== null) {
+      const q = questions.find(q => q.no === bestQ);
+      if (q && !q.image) q.image = imgKey;
+    }
+  });
+}
+
 function normalizeQ(q) {
   const fields = ['question','a','b','c','d'];
   fields.forEach(f => {
