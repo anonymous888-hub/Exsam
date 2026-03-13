@@ -482,10 +482,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 </div>
 
 <script>
-// State Management (จัดกลุ่ม State ไว้ใน Object เดียว)
+// State Management
 const state = {
   apiKey: localStorage.getItem('gemini_key') || '',
-  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', // เปลี่ยนเป็น Flash รุ่นปกติที่เก่งกว่า Lite
   rawText: '',
   questions: [],
   currentChanges: [],
@@ -505,7 +505,7 @@ const state = {
   pdfImages: []
 };
 
-// ── Tabs ──
+// Tabs
 function switchTab(name, el) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -518,7 +518,7 @@ function switchTab(name, el) {
   if (name === 'preview') requestAnimationFrame(scalePaper);
 }
 
-// ── File Drag & Drop ──
+// File Drag & Drop
 function onDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('over'); }
 function onDragLeave() { document.getElementById('uploadZone').classList.remove('over'); }
 function onDrop(e) {
@@ -538,8 +538,7 @@ function readFile(file) {
   state.currentChanges = [];
   state.docxImages = {};
   state.pdfImages = [];
-  const spellRes = document.getElementById('spellResult');
-  if(spellRes) spellRes.style.display = 'none';
+  document.getElementById('spellResult').style.display = 'none';
 
   if (name.endsWith('.txt')) {
     reader.onload = e => { state.rawText = e.target.result; onReady(file); };
@@ -589,6 +588,7 @@ function readFile(file) {
       let mathCounter = 0;
       const arrayBuf = e.target.result;
 
+      // 1. ดึงสมการ OMML ด้วย JSZip
       try {
         if (typeof JSZip !== 'undefined') {
           const zip = await JSZip.loadAsync(arrayBuf);
@@ -602,6 +602,7 @@ function readFile(file) {
         }
       } catch(zipErr) { console.warn('JSZip math extract error:', zipErr); }
 
+      // 2. mammoth แปลง HTML
       const options = {
         convertImage: mammoth.images.imgElement(img => {
           return img.read('base64').then(b64mm => {
@@ -617,12 +618,13 @@ function readFile(file) {
         const tmp = document.createElement('div');
         tmp.innerHTML = res.value;
 
+        // แปลง IMG → Tag
         tmp.querySelectorAll('img').forEach(imgEl => {
           const k = imgEl.getAttribute('src');
           if (k && k.startsWith('IMG_')) imgEl.replaceWith(document.createTextNode(' [IMAGE:' + k + '] '));
         });
 
-        // ถนอม sup/sub
+        // 🌟 หัวใจสำคัญ: ถนอม sup และ sub เพื่อให้ AI อ่านตัวยก/ตัวห้อยออก!
         tmp.querySelectorAll('sup').forEach(el => el.replaceWith(document.createTextNode('^(' + el.textContent + ')')));
         tmp.querySelectorAll('sub').forEach(el => el.replaceWith(document.createTextNode('_(' + el.textContent + ')')));
 
@@ -649,23 +651,22 @@ function onReady(file) {
   if (isPdfVision) {
     document.getElementById('textToggle').style.display = 'none';
     document.getElementById('textBox').style.display = 'none';
-    const btnSpell = document.getElementById('btnSpellCheck');
-    if(btnSpell) btnSpell.style.display = 'none';
+    document.getElementById('btnSpellCheck').style.display = 'none';
   } else {
     document.getElementById('textBox').textContent = state.rawText.slice(0, 800) + (state.rawText.length > 800 ? '…' : '');
     document.getElementById('textToggle').style.display = 'flex';
-    const btnSpell = document.getElementById('btnSpellCheck');
-    if(btnSpell) btnSpell.style.display = 'block';
+    document.getElementById('btnSpellCheck').style.display = 'block';
   }
 
   document.getElementById('btnConvert').disabled = false;
-  autoFillMeta();
+  autoFillMeta(); // สั่งให้ AI กรอกหัวกระดาษอัตโนมัติ
 }
 
-// ── OMML to LaTeX Parser ──
+// ── OMML to LaTeX Parser (Clean & Robust) ──
 function ommlToLatex(omml) {
   try {
     const parser = new DOMParser();
+    // ลบ namespace เพื่อป้องกันข้อผิดพลาดการดึงข้อมูลบนเบราว์เซอร์
     const cleanXml = omml.replace(/m:/g, '').replace(/xmlns:m="[^"]+"/g, ''); 
     const doc = parser.parseFromString(cleanXml, 'text/xml');
     return nodeToLatex(doc.documentElement);
@@ -673,7 +674,8 @@ function ommlToLatex(omml) {
 }
 
 function nodeToLatex(node) {
-  if (node.nodeType === 3) return node.textContent; 
+  if (node.nodeType === 3) return node.textContent; // Text node
+  
   const tag = node.localName || '';
   const getTag = (name) => Array.from(node.childNodes).find(n => n.localName === name);
   const ch = () => Array.from(node.childNodes).map(nodeToLatex).join('');
@@ -791,20 +793,22 @@ async function convertExam() {
   btn.disabled = true; cancelBtn.style.display = 'flex';
   state.abortCtrl = new AbortController(); showErr('');
 
-  const jsonSchema = `{"questions":[{"no":1,"question":"โจทย์ (ใช้ \\n ขึ้นบรรทัดใหม่ได้)","image":"","math":"","a":"ตัวเลือก","b":"","c":"","d":"","answer":"","labels":["ก","ข","ค","ง"]}]}`;
+  const jsonSchema = `{"questions":[{"no":1,"question":"โจทย์","image":"","math":"","a":"ตัวเลือก","b":"","c":"","d":"","answer":"","labels":["ก","ข","ค","ง"]}]}`;
   
-  const rules = `กฎสำคัญขั้นเด็ดขาด:
-1. ดึงข้อสอบมา **ทุกข้อ** ทั้งแบบปรนัย (กขคง) และ อัตนัย (แสดงวิธีทำ) ห้ามข้าม!
-2. **ห้ามตัดเนื้อหาโจทย์ทิ้งเด็ดขาด!** ข้อความในโจทย์ ตาราง หรือคำถามย่อย (1., 2.) ต้องเก็บมาให้ครบทุกตัวอักษร นำไปรวมไว้ในฟิลด์ "question" (ใช้ \\n ในการขึ้นบรรทัดใหม่)
-3. หากเป็นข้อสอบอัตนัย (ไม่มีตัวเลือก) ให้ปล่อย a, b, c, d เป็น "" (ค่าว่าง)
-4. image: ให้เว้นว่าง "" เสมอ ระบบจะจับคู่รูปภาพให้เอง
-5. สมการคณิตศาสตร์/ฟิสิกส์ ต้องครอบด้วย \\( ... \\) เสมอ เช่น \\(\\frac{1}{2}mv^2\\)
-6. ห้ามมั่วสมการ หรือสร้างเศษส่วนลอยๆ (เช่น \\frac{12}{}) หากต้นฉบับคือ 1/2 mv^(2) ต้องแก้เป็น \\(\\frac{1}{2}mv^2\\)`;
+  // 🌟 พรอมต์บังคับสูตรคณิตศาสตร์
+  const rules = `กฎสำคัญ:
+- ดึงข้อสอบปรนัยทั้งหมด
+- answer="" ถ้าไม่มีเฉลย
+- ตัวเลือก a b c d ให้ตัดอักษร ก ข ค ง ออก
+- image: ให้เว้นว่าง "" เสมอ
+- หากเจอข้อความที่เกิดจาก sup/sub เช่น v^(2) หรือ 1/2 mv^(2) ให้แปลงเป็น LaTeX ให้ถูกต้องคือ \\(v^2\\) หรือ \\(\\frac{1}{2}mv^2\\)
+- ห้ามเดาหรือสร้างเศษส่วนที่ไม่มีตัวส่วน เช่น \\frac{12}{} เด็ดขาด (ถ้าเจอ 12 mv2 ในบริบทพลังงาน ให้แก้เป็น \\(\\frac{1}{2}mv^2\\) ทันที)
+- ใส่สมการ LaTeX ในรูปแบบ inline \\( ... \\)`;
 
   try {
     const isPdf = state.pdfImages.length > 0;
     const reqBody = {
-      system_instruction: { parts: [{ text: "คุณคือระบบแปลงข้อสอบเป็น JSON โครงสร้างเป๊ะๆ ห้ามสรุปความ ห้ามตัดเนื้อหาทิ้ง" }] },
+      system_instruction: { parts: [{ text: "คุณคือระบบแปลงข้อสอบเป็น JSON โครงสร้างเป๊ะๆ" }] },
       generationConfig: { temperature: 0, responseMimeType: "application/json" }
     };
 
@@ -831,6 +835,7 @@ async function convertExam() {
     
     state.questions = (parsed.questions || []).map(normalizeQ);
     
+    // ผูกรูปภาพในกรณี Word DOCX
     if (Object.keys(state.docxImages).length > 0 && state.rawText) {
       const imgMatches = [...state.rawText.matchAll(/\[IMAGE:(IMG_\d+)\]/g)];
       imgMatches.forEach((m, idx) => {
@@ -862,10 +867,11 @@ function normalizeQ(q) {
   ['question','a','b','c','d'].forEach(f => {
     if (!q[f]) return;
     let s = String(q[f]);
+    // แก้ LaTeX ที่ลืมใส่ Slash
     s = s.replace(/(^|[^\\])\b(vec|frac|sqrt|cdot|times|pm|alpha|beta|theta|Delta|sigma|omega|pi|mu|lambda|sum|int|infty)\b(?=\{|\s|$)/g, '$1\\$2');
     
     if (/\\(?:vec|frac|sqrt|cdot|times|pm|alpha)/.test(s) && !/\\[\(\[]/.test(s)) {
-      s = '\\(' + s + '\\)';
+      s = '\\(' + s + '\\)'; // ถ้ามีสมการแต่ลืมครอบ ให้ครอบให้
     }
     q[f] = s.replace(/\[IMAGE:[^\]]+\]/g, '').trim();
   });
@@ -877,19 +883,18 @@ function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt
 function escMathSafe(s) {
   if (!s) return '';
   const str = String(s);
+  if (!str.includes('\\(') && !str.includes('\\[')) return esc(str);
   
   const result = [];
   const regex = /\\[\(\[][\s\S]*?\\[\)\]]/g;
   let last = 0, m;
-  
   while ((m = regex.exec(str)) !== null) {
     result.push(esc(str.slice(last, m.index)));
-    result.push(m[0].replace(/</g, '&lt;').replace(/>/g, '&gt;')); 
+    result.push(m[0].replace(/</g, '&lt;').replace(/>/g, '&gt;')); // อนุญาต & ใน LaTeX สำหรับ Matrix
     last = m.index + m[0].length;
   }
   result.push(esc(str.slice(last)));
-  
-  return result.join('').replace(/\n/g, '<br>');
+  return result.join('');
 }
 
 // ── Rendering Engine (DocumentFragment + Batching) ──
@@ -914,13 +919,9 @@ function renderEditor() {
         <button class="btn-del" onclick="event.stopPropagation();delQ(${i})">×</button>
       </div>
       <div class="q-body${state.openIdx === i ? ' open' : ''}">
-        <div class="q-field">
-          <label>คำถาม</label>
-          <textarea rows="4" style="width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-size:12px;font-family:'Sarabun',sans-serif;outline:none;resize:vertical;" oninput="updateQ(${i},'question',this.value)">${esc(q.question || '')}</textarea>
-        </div>
-        ${['a','b','c','d','answer'].map(f => `
+        ${['question','a','b','c','d','answer'].map(f => `
           <div class="q-field">
-            <label>${{a:'ก',b:'ข',c:'ค',d:'ง',answer:'เฉลย'}[f]}</label>
+            <label>${{question:'คำถาม',a:'ก',b:'ข',c:'ค',d:'ง',answer:'เฉลย'}[f]}</label>
             <input value="${esc(q[f] || '')}" oninput="updateQ(${i},'${f}',this.value)">
           </div>`).join('')}
       </div>`;
@@ -990,25 +991,12 @@ function renderMath() {
   }
 }
 
-// ── CRUD Actions ──
+// Event Listeners
+window.addEventListener('resize', scalePaper);
 function toggleQ(i) { state.openIdx = state.openIdx === i ? null : i; renderEditor(); }
-function delQ(i) { 
-  state.questions.splice(i, 1); 
-  state.questions.forEach((q, idx) => q.no = idx + 1); 
-  renderAll(); 
-  document.getElementById('qBadge').textContent = state.questions.length; 
-}
-function addQ() { 
-  state.questions.push({ no: state.questions.length + 1, question: '', a: '', b: '', c: '', d: '', answer: '' }); 
-  state.openIdx = state.questions.length - 1; 
-  renderAll(); 
-  const badge = document.getElementById('qBadge');
-  badge.textContent = state.questions.length; 
-  badge.style.display = 'inline';
-}
+function delQ(i) { state.questions.splice(i, 1); state.questions.forEach((q, idx) => q.no = idx + 1); renderAll(); document.getElementById('qBadge').textContent = state.questions.length; }
+function addQ() { state.questions.push({ no: state.questions.length + 1, question: '', a: '', b: '', c: '', d: '', answer: '' }); state.openIdx = state.questions.length - 1; renderAll(); document.getElementById('qBadge').textContent = state.questions.length; }
 function updateQ(i, f, v) { state.questions[i][f] = v; schedulePaperRender(); }
-
-// ── Settings Actions ──
 function onLayoutChange(el) { state.twoCol = el.value === '2'; document.querySelectorAll('.col-opt[id^="opt1col"], .col-opt[id^="opt2col"]').forEach(n => n.classList.remove('active')); el.closest('.col-opt').classList.add('active'); schedulePaperRender(); }
 function onChoiceLayoutChange(el) { state.twoColChoice = el.value === '2'; document.querySelectorAll('.col-opt[id^="optChoice"]').forEach(n => n.classList.remove('active')); el.closest('.col-opt').classList.add('active'); schedulePaperRender(); }
 document.querySelectorAll('input[id^="f_"]').forEach(el => el.addEventListener('input', schedulePaperRender));
