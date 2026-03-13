@@ -482,10 +482,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 </div>
 
 <script>
-// State Management
+// State Management (จัดกลุ่ม State ไว้ใน Object เดียว)
 const state = {
   apiKey: localStorage.getItem('gemini_key') || '',
-  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', // เปลี่ยนเป็น Flash รุ่นปกติที่เก่งกว่า Lite
+  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
   rawText: '',
   questions: [],
   currentChanges: [],
@@ -505,7 +505,7 @@ const state = {
   pdfImages: []
 };
 
-// Tabs
+// ── Tabs ──
 function switchTab(name, el) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -518,7 +518,7 @@ function switchTab(name, el) {
   if (name === 'preview') requestAnimationFrame(scalePaper);
 }
 
-// File Drag & Drop
+// ── File Drag & Drop ──
 function onDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('over'); }
 function onDragLeave() { document.getElementById('uploadZone').classList.remove('over'); }
 function onDrop(e) {
@@ -538,7 +538,8 @@ function readFile(file) {
   state.currentChanges = [];
   state.docxImages = {};
   state.pdfImages = [];
-  document.getElementById('spellResult').style.display = 'none';
+  const spellRes = document.getElementById('spellResult');
+  if(spellRes) spellRes.style.display = 'none';
 
   if (name.endsWith('.txt')) {
     reader.onload = e => { state.rawText = e.target.result; onReady(file); };
@@ -588,7 +589,6 @@ function readFile(file) {
       let mathCounter = 0;
       const arrayBuf = e.target.result;
 
-      // 1. ดึงสมการ OMML ด้วย JSZip
       try {
         if (typeof JSZip !== 'undefined') {
           const zip = await JSZip.loadAsync(arrayBuf);
@@ -602,7 +602,6 @@ function readFile(file) {
         }
       } catch(zipErr) { console.warn('JSZip math extract error:', zipErr); }
 
-      // 2. mammoth แปลง HTML
       const options = {
         convertImage: mammoth.images.imgElement(img => {
           return img.read('base64').then(b64mm => {
@@ -618,13 +617,12 @@ function readFile(file) {
         const tmp = document.createElement('div');
         tmp.innerHTML = res.value;
 
-        // แปลง IMG → Tag
         tmp.querySelectorAll('img').forEach(imgEl => {
           const k = imgEl.getAttribute('src');
           if (k && k.startsWith('IMG_')) imgEl.replaceWith(document.createTextNode(' [IMAGE:' + k + '] '));
         });
 
-        // 🌟 หัวใจสำคัญ: ถนอม sup และ sub เพื่อให้ AI อ่านตัวยก/ตัวห้อยออก!
+        // ถนอม sup/sub
         tmp.querySelectorAll('sup').forEach(el => el.replaceWith(document.createTextNode('^(' + el.textContent + ')')));
         tmp.querySelectorAll('sub').forEach(el => el.replaceWith(document.createTextNode('_(' + el.textContent + ')')));
 
@@ -651,22 +649,23 @@ function onReady(file) {
   if (isPdfVision) {
     document.getElementById('textToggle').style.display = 'none';
     document.getElementById('textBox').style.display = 'none';
-    document.getElementById('btnSpellCheck').style.display = 'none';
+    const btnSpell = document.getElementById('btnSpellCheck');
+    if(btnSpell) btnSpell.style.display = 'none';
   } else {
     document.getElementById('textBox').textContent = state.rawText.slice(0, 800) + (state.rawText.length > 800 ? '…' : '');
     document.getElementById('textToggle').style.display = 'flex';
-    document.getElementById('btnSpellCheck').style.display = 'block';
+    const btnSpell = document.getElementById('btnSpellCheck');
+    if(btnSpell) btnSpell.style.display = 'block';
   }
 
   document.getElementById('btnConvert').disabled = false;
-  autoFillMeta(); // สั่งให้ AI กรอกหัวกระดาษอัตโนมัติ
+  autoFillMeta();
 }
 
-// ── OMML to LaTeX Parser (Clean & Robust) ──
+// ── OMML to LaTeX Parser ──
 function ommlToLatex(omml) {
   try {
     const parser = new DOMParser();
-    // ลบ namespace เพื่อป้องกันข้อผิดพลาดการดึงข้อมูลบนเบราว์เซอร์
     const cleanXml = omml.replace(/m:/g, '').replace(/xmlns:m="[^"]+"/g, ''); 
     const doc = parser.parseFromString(cleanXml, 'text/xml');
     return nodeToLatex(doc.documentElement);
@@ -674,8 +673,7 @@ function ommlToLatex(omml) {
 }
 
 function nodeToLatex(node) {
-  if (node.nodeType === 3) return node.textContent; // Text node
-  
+  if (node.nodeType === 3) return node.textContent; 
   const tag = node.localName || '';
   const getTag = (name) => Array.from(node.childNodes).find(n => n.localName === name);
   const ch = () => Array.from(node.childNodes).map(nodeToLatex).join('');
@@ -795,7 +793,6 @@ async function convertExam() {
 
   const jsonSchema = `{"questions":[{"no":1,"question":"โจทย์ (ใช้ \\n ขึ้นบรรทัดใหม่ได้)","image":"","math":"","a":"ตัวเลือก","b":"","c":"","d":"","answer":"","labels":["ก","ข","ค","ง"]}]}`;
   
-  // 🌟 พรอมต์ใหม่: บังคับเก็บทุกตัวอักษร รองรับอัตนัย
   const rules = `กฎสำคัญขั้นเด็ดขาด:
 1. ดึงข้อสอบมา **ทุกข้อ** ทั้งแบบปรนัย (กขคง) และ อัตนัย (แสดงวิธีทำ) ห้ามข้าม!
 2. **ห้ามตัดเนื้อหาโจทย์ทิ้งเด็ดขาด!** ข้อความในโจทย์ ตาราง หรือคำถามย่อย (1., 2.) ต้องเก็บมาให้ครบทุกตัวอักษร นำไปรวมไว้ในฟิลด์ "question" (ใช้ \\n ในการขึ้นบรรทัดใหม่)
@@ -857,6 +854,7 @@ async function convertExam() {
     cancelBtn.style.display = 'none'; state.abortCtrl = null;
   }
 }
+
 function cancelConvert() { if (state.abortCtrl) state.abortCtrl.abort(); }
 
 // ── Normalization & Formatting ──
@@ -864,11 +862,10 @@ function normalizeQ(q) {
   ['question','a','b','c','d'].forEach(f => {
     if (!q[f]) return;
     let s = String(q[f]);
-    // แก้ LaTeX ที่ลืมใส่ Slash
     s = s.replace(/(^|[^\\])\b(vec|frac|sqrt|cdot|times|pm|alpha|beta|theta|Delta|sigma|omega|pi|mu|lambda|sum|int|infty)\b(?=\{|\s|$)/g, '$1\\$2');
     
     if (/\\(?:vec|frac|sqrt|cdot|times|pm|alpha)/.test(s) && !/\\[\(\[]/.test(s)) {
-      s = '\\(' + s + '\\)'; // ถ้ามีสมการแต่ลืมครอบ ให้ครอบให้
+      s = '\\(' + s + '\\)';
     }
     q[f] = s.replace(/\[IMAGE:[^\]]+\]/g, '').trim();
   });
@@ -877,22 +874,14 @@ function normalizeQ(q) {
 
 function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-// ⬇️ วางฟังก์ชันใหม่ตรงนี้ได้เลย ⬇️
-function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-// ⬇️ วางฟังก์ชันใหม่ตรงนี้ได้เลย ⬇️
 function escMathSafe(s) {
   if (!s) return '';
   const str = String(s);
-  if (!str.includes('\\(') && !str.includes('\\[')) return esc(str);
   
   const result = [];
   const regex = /\\[\(\[][\s\S]*?\\[\)\]]/g;
   let last = 0, m;
   
-  // ตรวจหา LaTeX block แล้วแยกไว้ไม่ให้ถูกแปลง HTML tags
   while ((m = regex.exec(str)) !== null) {
     result.push(esc(str.slice(last, m.index)));
     result.push(m[0].replace(/</g, '&lt;').replace(/>/g, '&gt;')); 
@@ -900,12 +889,10 @@ function escMathSafe(s) {
   }
   result.push(esc(str.slice(last)));
   
-  // แปลง \n เป็น <br> เพื่อให้ขึ้นบรรทัดใหม่ในหน้ากระดาษได้
   return result.join('').replace(/\n/g, '<br>');
 }
-// ⬆️ สิ้นสุดฟังก์ชันที่นำมาวาง ⬆️
 
-// (โค้ดส่วนอื่นๆ ที่อยู่ด้านล่างต่อจากนี้ ปล่อยไว้เหมือนเดิมครับ)
+// ── Rendering Engine (DocumentFragment + Batching) ──
 let _renderTimer = null;
 function renderAll() { renderEditor(); schedulePaperRender(); }
 function schedulePaperRender() {
@@ -1003,12 +990,25 @@ function renderMath() {
   }
 }
 
-// Event Listeners
-window.addEventListener('resize', scalePaper);
+// ── CRUD Actions ──
 function toggleQ(i) { state.openIdx = state.openIdx === i ? null : i; renderEditor(); }
-function delQ(i) { state.questions.splice(i, 1); state.questions.forEach((q, idx) => q.no = idx + 1); renderAll(); document.getElementById('qBadge').textContent = state.questions.length; }
-function addQ() { state.questions.push({ no: state.questions.length + 1, question: '', a: '', b: '', c: '', d: '', answer: '' }); state.openIdx = state.questions.length - 1; renderAll(); document.getElementById('qBadge').textContent = state.questions.length; }
+function delQ(i) { 
+  state.questions.splice(i, 1); 
+  state.questions.forEach((q, idx) => q.no = idx + 1); 
+  renderAll(); 
+  document.getElementById('qBadge').textContent = state.questions.length; 
+}
+function addQ() { 
+  state.questions.push({ no: state.questions.length + 1, question: '', a: '', b: '', c: '', d: '', answer: '' }); 
+  state.openIdx = state.questions.length - 1; 
+  renderAll(); 
+  const badge = document.getElementById('qBadge');
+  badge.textContent = state.questions.length; 
+  badge.style.display = 'inline';
+}
 function updateQ(i, f, v) { state.questions[i][f] = v; schedulePaperRender(); }
+
+// ── Settings Actions ──
 function onLayoutChange(el) { state.twoCol = el.value === '2'; document.querySelectorAll('.col-opt[id^="opt1col"], .col-opt[id^="opt2col"]').forEach(n => n.classList.remove('active')); el.closest('.col-opt').classList.add('active'); schedulePaperRender(); }
 function onChoiceLayoutChange(el) { state.twoColChoice = el.value === '2'; document.querySelectorAll('.col-opt[id^="optChoice"]').forEach(n => n.classList.remove('active')); el.closest('.col-opt').classList.add('active'); schedulePaperRender(); }
 document.querySelectorAll('input[id^="f_"]').forEach(el => el.addEventListener('input', schedulePaperRender));
