@@ -16,11 +16,11 @@
 window.MathJax = {
   options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] },
   tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
-  svg: { fontCache: 'global' },
+  chtml: { scale: 1, matchFontHeight: false, mtextInheritFont: true },
   startup: { typeset: false }
 };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
 <style>
 :root {
   --navy: #0a1628;
@@ -168,9 +168,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .exam-col:last-child{padding-left:12px}
 .exam-single{display:block}
 .q-block{break-inside:avoid;margin-bottom:12px}
-.paper mjx-container{font-size:16px !important;vertical-align:middle !important;margin:0 0px !important;display:inline !important}
-.paper mjx-container svg{vertical-align:-0.2em !important;height:1em !important}
-.paper .q-text-body,.paper .q-choice-body{line-height:1.7}
+.paper mjx-container{vertical-align:middle !important;margin:0 0.05em !important}
+.paper mjx-container[jax="CHTML"]{font-size:inherit !important}
+.paper .MJX-TEX{font-size:inherit}
+.paper .q-text-body,.paper .q-choice-body{line-height:1.8}
 .q-text{font-weight:normal;margin-bottom:3px;display:flex;gap:0.3em;}
 .q-num-lbl{white-space:nowrap;flex-shrink:0}
 .q-text-body{flex:1;min-width:0}
