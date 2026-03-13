@@ -171,6 +171,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .q-num-lbl{white-space:nowrap;flex-shrink:0}
 .q-text-body{flex:1;min-width:0}
 .q-choices{padding-left:1em}
+.q-choices-2col{padding-left:1em;display:grid;grid-template-columns:1fr 1fr;gap:0}
 .q-choice{margin:2px 0;display:flex;gap:0.3em;}
 .q-choice-lbl{white-space:nowrap;flex-shrink:0}
 .q-choice-body{flex:1;min-width:0}
@@ -430,6 +431,21 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
             </div>
           </div>
         </div>
+        <div class="col-toggle-wrap" style="margin-top:10px">
+          <div class="col-toggle-label">รูปแบบตัวเลือก ก-ง</div>
+          <div class="col-toggle-group">
+            <label class="col-opt active" id="optChoice1">
+              <input type="radio" name="choiceLayout" value="1" checked onchange="onChoiceLayoutChange(this)">
+              <span class="col-preview col-preview-1"><span></span></span>
+              <span class="col-opt-text">1 คอลัมน์</span>
+            </label>
+            <label class="col-opt" id="optChoice2">
+              <input type="radio" name="choiceLayout" value="2" onchange="onChoiceLayoutChange(this)">
+              <span class="col-preview col-preview-2"><span></span><span></span></span>
+              <span class="col-opt-text">2 คอลัมน์</span>
+            </label>
+          </div>
+        </div>
         <div class="col-toggle-wrap" style="margin-top:14px">
           <div class="col-toggle-label">หน้าเขียนตอบ (Part II)</div>
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px">
@@ -519,6 +535,7 @@ const state = {
   openIdx: null,
   textOpen: false,
   twoCol: true,
+  twoColChoice: false,
   abortCtrl: null,
   showWriting: false,
   writingTopics: [],
@@ -671,17 +688,52 @@ function readFile(file) {
             }
           }
 
-          // ── 3. mammoth ดึงข้อความอย่างเดียว แล้วฝัง placeholder รูป ──
-          mammoth.extractRawText({ arrayBuffer: arrayBuf }).then(res => {
-            let text = res.value || '';
-            for (const { key, paraText } of anchorMap) {
+          // ── 3. mammoth.convertToHtml + custom handler ฝัง [IMAGE:IMG_n] ตรงตำแหน่งจริง ──
+          const anchorKeys = [...anchorMap];
+
+          mammoth.convertToHtml(
+            { arrayBuffer: arrayBuf },
+            {
+              convertImage: mammoth.images.imgElement(img => {
+                return img.read('base64').then(async b64mm => {
+                  // หา key ที่ตรงกับรูปนี้จาก state.docxImages (match base64 prefix)
+                  const prefix = b64mm.slice(0, 60);
+                  let matchedKey = null;
+                  for (const [k, dataUrl] of Object.entries(state.docxImages)) {
+                    if ((dataUrl.split(',')[1] || '').slice(0, 60) === prefix) {
+                      matchedKey = k; break;
+                    }
+                  }
+                  if (!matchedKey) {
+                    matchedKey = 'IMG_' + (++imgCounter);
+                    state.docxImages[matchedKey] = 'data:' + (img.contentType || 'image/jpeg') + ';base64,' + b64mm;
+                  }
+                  return { src: matchedKey }; // placeholder ชั่วคราว
+                });
+              })
+            }
+          ).then(res => {
+            // แปลง HTML → ข้อความ แทนที่ <img src="IMG_n"> → [IMAGE:IMG_n]
+            const tmp = document.createElement('div');
+            tmp.innerHTML = res.value;
+            tmp.querySelectorAll('img').forEach(imgEl => {
+              const k = imgEl.getAttribute('src');
+              if (k && k.startsWith('IMG_'))
+                imgEl.replaceWith(document.createTextNode(' [IMAGE:' + k + '] '));
+            });
+            let text = tmp.innerText || tmp.textContent || '';
+
+            // inject anchor (floating) images ที่ mammoth ข้ามไป โดย match paraText
+            for (const { key, paraText } of anchorKeys) {
+              if (text.includes('[IMAGE:' + key + ']')) continue; // inline handler จัดการไปแล้ว
               if (paraText.length > 4) {
                 const esc2 = paraText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').slice(0, 40);
-                text = text.replace(new RegExp('(' + esc2 + '[^\n]*)'), '$1 [IMAGE:' + key + ']');
-              } else {
-                text += '\n[IMAGE:' + key + ']';
+                const replaced = text.replace(new RegExp('(' + esc2 + '[^\n]*)'), '$1 [IMAGE:' + key + ']');
+                if (replaced !== text) { text = replaced; continue; }
               }
+              text += '\n[IMAGE:' + key + ']'; // paragraph ว่าง → ต่อท้าย
             }
+
             if (mathCounter > 0) text += '\n\n[MATH_DATA:' + JSON.stringify(state.mathStore) + ']';
             state.rawText = text;
             const imgCount = Object.keys(state.docxImages).length;
@@ -1014,31 +1066,33 @@ function renderEditor() {
 function buildQHtml(q) {
   const choices = ['a','b','c','d'];
   const labels  = (q.labels && q.labels.length) ? q.labels : ['ก','ข','ค','ง'];
-  const choicesHtml = choices
-    .filter(k => q[k])
+  const activeChoices = choices.filter(k => q[k]);
+
+  const choicesHtml = activeChoices
     .map((k, i) => `<div class="q-choice">
       <span class="q-choice-lbl">${labels[i] !== undefined ? labels[i] + '.' : ''}&#8203;</span>
       <span class="q-choice-body">${esc(q[k])}</span>
     </div>`)
     .join('');
 
+  const choicesWrapper = state.twoColChoice
+    ? `<div class="q-choices q-choices-2col">${choicesHtml}</div>`
+    : `<div class="q-choices">${choicesHtml}</div>`;
+
   // รูปภาพ
   const imgKey = q.image || '';
   const imgSrc = imgKey && state.docxImages[imgKey] ? state.docxImages[imgKey] : '';
   const imgHtml = imgSrc
-    ? `<div class="q-img"><img src="${imgSrc}" style="max-width:100%;max-height:180px;display:block;margin:4px 0 6px 0;border:1px solid #ddd;border-radius:3px"></div>`
+    ? `<div class="q-img"><img src="${imgSrc}" style="max-width:100%;max-height:180px;display:block;margin:4px 0 6px 0;border-radius:3px"></div>`
     : '';
 
-  // สูตรคณิตศาสตร์ — รองรับทั้ง LaTeX โดยตรง และ key จาก mathStore
+  // สูตรคณิตศาสตร์
   const mathVal = q.math || '';
   let mathLatex = '';
   if (mathVal) {
-    // ถ้าเป็น key ใน mathStore ให้ lookup ถ้าไม่ใช่ถือว่าเป็น LaTeX โดยตรง
     mathLatex = state.mathStore[mathVal] || mathVal;
-    // ถ้ายังไม่มี \( \) ครอบ ให้เพิ่ม
-    if (mathLatex && !mathLatex.includes('\\(') && !mathLatex.includes('\\[')) {
+    if (mathLatex && !mathLatex.includes('\\(') && !mathLatex.includes('\\['))
       mathLatex = '\\(' + mathLatex + '\\)';
-    }
   }
   const mathHtml = mathLatex
     ? `<div class="q-math" style="margin:4px 0 6px 0;font-size:15px">${mathLatex}</div>`
@@ -1050,7 +1104,7 @@ function buildQHtml(q) {
       <span class="q-text-body">${esc(q.question)}</span>
     </div>
     ${imgHtml}${mathHtml}
-    <div class="q-choices">${choicesHtml}</div>
+    ${choicesWrapper}
   </div>`;
 }
 
@@ -1544,8 +1598,17 @@ function cancelConvert() { if (state.abortCtrl) state.abortCtrl.abort(); }
 
 function onLayoutChange(radio) {
   state.twoCol = radio.value === '2';
-  document.querySelectorAll('.col-opt').forEach(l => l.classList.remove('active'));
-  radio.closest('.col-opt').classList.add('active');
+  document.querySelectorAll('input[name="colLayout"]').forEach(r => {
+    r.closest('.col-opt').classList.toggle('active', r === radio);
+  });
+  if (state.questions.length > 0) schedulePaperRender();
+}
+
+function onChoiceLayoutChange(radio) {
+  state.twoColChoice = radio.value === '2';
+  document.querySelectorAll('input[name="choiceLayout"]').forEach(r => {
+    r.closest('.col-opt').classList.toggle('active', r === radio);
+  });
   if (state.questions.length > 0) schedulePaperRender();
 }
 
