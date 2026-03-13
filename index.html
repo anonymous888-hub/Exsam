@@ -793,22 +793,21 @@ async function convertExam() {
   btn.disabled = true; cancelBtn.style.display = 'flex';
   state.abortCtrl = new AbortController(); showErr('');
 
-  const jsonSchema = `{"questions":[{"no":1,"question":"โจทย์","image":"","math":"","a":"ตัวเลือก","b":"","c":"","d":"","answer":"","labels":["ก","ข","ค","ง"]}]}`;
+  const jsonSchema = `{"questions":[{"no":1,"question":"โจทย์ (ใช้ \\n ขึ้นบรรทัดใหม่ได้)","image":"","math":"","a":"ตัวเลือก","b":"","c":"","d":"","answer":"","labels":["ก","ข","ค","ง"]}]}`;
   
-  // 🌟 พรอมต์บังคับสูตรคณิตศาสตร์
-  const rules = `กฎสำคัญ:
-- ดึงข้อสอบปรนัยทั้งหมด
-- answer="" ถ้าไม่มีเฉลย
-- ตัวเลือก a b c d ให้ตัดอักษร ก ข ค ง ออก
-- image: ให้เว้นว่าง "" เสมอ
-- หากเจอข้อความที่เกิดจาก sup/sub เช่น v^(2) หรือ 1/2 mv^(2) ให้แปลงเป็น LaTeX ให้ถูกต้องคือ \\(v^2\\) หรือ \\(\\frac{1}{2}mv^2\\)
-- ห้ามเดาหรือสร้างเศษส่วนที่ไม่มีตัวส่วน เช่น \\frac{12}{} เด็ดขาด (ถ้าเจอ 12 mv2 ในบริบทพลังงาน ให้แก้เป็น \\(\\frac{1}{2}mv^2\\) ทันที)
-- ใส่สมการ LaTeX ในรูปแบบ inline \\( ... \\)`;
+  // 🌟 พรอมต์ใหม่: บังคับเก็บทุกตัวอักษร รองรับอัตนัย
+  const rules = `กฎสำคัญขั้นเด็ดขาด:
+1. ดึงข้อสอบมา **ทุกข้อ** ทั้งแบบปรนัย (กขคง) และ อัตนัย (แสดงวิธีทำ) ห้ามข้าม!
+2. **ห้ามตัดเนื้อหาโจทย์ทิ้งเด็ดขาด!** ข้อความในโจทย์ ตาราง หรือคำถามย่อย (1., 2.) ต้องเก็บมาให้ครบทุกตัวอักษร นำไปรวมไว้ในฟิลด์ "question" (ใช้ \\n ในการขึ้นบรรทัดใหม่)
+3. หากเป็นข้อสอบอัตนัย (ไม่มีตัวเลือก) ให้ปล่อย a, b, c, d เป็น "" (ค่าว่าง)
+4. image: ให้เว้นว่าง "" เสมอ ระบบจะจับคู่รูปภาพให้เอง
+5. สมการคณิตศาสตร์/ฟิสิกส์ ต้องครอบด้วย \\( ... \\) เสมอ เช่น \\(\\frac{1}{2}mv^2\\)
+6. ห้ามมั่วสมการ หรือสร้างเศษส่วนลอยๆ (เช่น \\frac{12}{}) หากต้นฉบับคือ 1/2 mv^(2) ต้องแก้เป็น \\(\\frac{1}{2}mv^2\\)`;
 
   try {
     const isPdf = state.pdfImages.length > 0;
     const reqBody = {
-      system_instruction: { parts: [{ text: "คุณคือระบบแปลงข้อสอบเป็น JSON โครงสร้างเป๊ะๆ" }] },
+      system_instruction: { parts: [{ text: "คุณคือระบบแปลงข้อสอบเป็น JSON โครงสร้างเป๊ะๆ ห้ามสรุปความ ห้ามตัดเนื้อหาทิ้ง" }] },
       generationConfig: { temperature: 0, responseMimeType: "application/json" }
     };
 
@@ -835,7 +834,6 @@ async function convertExam() {
     
     state.questions = (parsed.questions || []).map(normalizeQ);
     
-    // ผูกรูปภาพในกรณี Word DOCX
     if (Object.keys(state.docxImages).length > 0 && state.rawText) {
       const imgMatches = [...state.rawText.matchAll(/\[IMAGE:(IMG_\d+)\]/g)];
       imgMatches.forEach((m, idx) => {
@@ -859,7 +857,6 @@ async function convertExam() {
     cancelBtn.style.display = 'none'; state.abortCtrl = null;
   }
 }
-
 function cancelConvert() { if (state.abortCtrl) state.abortCtrl.abort(); }
 
 // ── Normalization & Formatting ──
