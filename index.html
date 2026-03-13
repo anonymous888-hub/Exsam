@@ -1014,104 +1014,99 @@ function repairJSON(str) {
 }
 
 async function convertExam() {
-  if (!state.apiKey) return alert("กรุณาใส่ API Key");
-  
+  if (!state.rawText) return;
   const btn = document.getElementById('btnConvert');
+  const cancelBtn = document.getElementById('btnCancel');
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div> กำลังวิเคราะห์และแยกข้อสอบ...';
-  
-  // ── Prompt ฉบับเด็ดขาด บังคับแยกตัวเลือก ──
-  const prompt = `คุณคือระบบวิเคราะห์ข้อสอบระดับผู้เชี่ยวชาญ (Data Parser)
-งานของคุณคืออ่านข้อความ แล้วสกัดข้อมูลลงในโครงสร้าง JSON ให้ถูกต้อง 100%
+  cancelBtn.style.display = 'flex';
+  state.abortCtrl = new AbortController();
+  showErr('');
 
-กฎขั้นเด็ดขาด:
-1. "โจทย์" ต้องอยู่แยกกับ "ตัวเลือก" ห้ามนำตัวเลือก ก, ข, ค, ง ไปต่อท้ายเนื้อหาในฟิลด์ question เด็ดขาด
-2. ตัวเลือก ก, ข, ค, ง ต้องถูกนำไปใส่ในฟิลด์ a, b, c, d ตามลำดับ โดยให้ตัดตัวอักษร ก. ข. ค. ง. ด้านหน้าออก เอาแค่เนื้อหา
-3. ฟิลด์ a, b, c, d ต้องไม่เป็นค่าว่าง หากในข้อความต้นฉบับมีตัวเลือกให้เห็น
-4. หากพบ "[IMAGE:IMG_X]" ในโจทย์ ให้เก็บรหัส "IMG_X" ไว้ในฟิลด์ "image"
-5. สมการ ฟิสิกส์ คณิตศาสตร์ หรือเวกเตอร์ ให้แปลงเป็น LaTeX แล้วครอบด้วย \\( และ \\)
+  // ── เลือก mode: PDF Vision หรือ Text ──
+  const isPdfVision = state.pdfImages.length > 0;
 
-รูปแบบ JSON ที่คุณต้องตอบกลับ (ห้ามตอบข้อความอื่นนอกจาก JSON):
-{
-  "metadata": {
-    "school": "ชื่อโรงเรียน",
-    "type": "ประเภทการสอบ",
-    "year": "ปีการศึกษา",
-    "grade": "ระดับชั้น",
-    "subject": "ชื่อวิชา",
-    "time": "เวลาสอบ"
-  },
-  "questions": [
-    { 
-      "no": 1, 
-      "question": "เนื้อหาโจทย์เท่านั้น", 
-      "image": "รหัสภาพ หรือเว้นว่าง", 
-      "a": "เนื้อหาตัวเลือก ก", 
-      "b": "เนื้อหาตัวเลือก ข", 
-      "c": "เนื้อหาตัวเลือก ค", 
-      "d": "เนื้อหาตัวเลือก ง", 
-      "answer": "" 
-    }
-  ]
-}
-
-ข้อความข้อสอบที่ต้องวิเคราะห์:
-${state.rawText}`;
+  const jsonSchema = `{"questions":[{"no":1,"question":"คำถาม","image":"","math":"","a":"ตัวเลือก","b":"ตัวเลือก","c":"ตัวเลือก","d":"ตัวเลือก","answer":"ก","labels":["ก","ข","ค","ง"]}]}`;
+  const rules = `กฎสำคัญ:
+- ดึงข้อสอบทุกข้อจากรูปภาพทุกหน้า
+- answer="" ถ้าไม่มีเฉลย
+- ตัวเลือกใน a b c d ไม่ต้องมีตัวอักษร/ตัวเลขนำหน้า (เนื้อหาล้วนๆ)
+- labels: ดูจากต้นฉบับว่าใช้รูปแบบใด ["ก","ข","ค","ง"] หรือ ["1","2","3","4"] หรือ ["a","b","c","d"] หรือ ["A","B","C","D"]
+- image: ถ้าในข้อความใกล้โจทย์ข้อนั้นมี [IMAGE:IMG_n] ให้ใส่ key นั้น เช่น "image":"IMG_3" ถ้าไม่มีให้ใส่ ""
+- math: ถ้าโจทย์มีสูตรคณิตศาสตร์ ให้เขียน LaTeX ลงใน field math เช่น "\\frac{1}{2}mv^2"
+- ข้อสอบแบบอัตนัย/เขียนตอบ ไม่ต้องดึงมา ดึงเฉพาะปรนัย (มีตัวเลือก)
+- ตอบกลับเป็น JSON อย่างเดียว ห้ามมี markdown ห้ามมีข้อความอื่น`;
 
   try {
     let requestBody;
-    // ใช้ฟีเจอร์ responseMimeType เพื่อบังคับ Gemini ให้ตอบเป็น JSON โครงสร้างเป๊ะๆ
-    const genConfig = { 
-      temperature: 0.1, 
-      responseMimeType: "application/json" 
-    };
 
-    if (state.pdfImages && state.pdfImages.length > 0) {
-      const imageParts = state.pdfImages.map(b64 => ({ inline_data: { mime_type: 'image/jpeg', data: b64 } }));
-      requestBody = { contents: [{ parts: [...imageParts, { text: prompt }] }], generationConfig: genConfig };
+    if (isPdfVision) {
+      btn.innerHTML = '<div class="spinner"></div> AI กำลังอ่านรูปภาพข้อสอบ...';
+      // สร้าง parts สำหรับทุกหน้า PDF
+      const imageParts = state.pdfImages.map(b64 => ({
+        inline_data: { mime_type: 'image/jpeg', data: b64 }
+      }));
+      const textPart = {
+        text: `คุณคือระบบแปลงข้อสอบ อ่านข้อสอบจากรูปภาพทุกหน้าแล้วตอบกลับเป็น JSON อย่างเดียว
+รูปแบบ: ${jsonSchema}
+${rules}`
+      };
+      requestBody = {
+        contents: [{ parts: [...imageParts, textPart] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 65536 }
+      };
     } else {
-      requestBody = { contents: [{ parts: [{ text: prompt }] }], generationConfig: genConfig };
+      btn.innerHTML = '<div class="spinner"></div> AI กำลังวิเคราะห์ข้อสอบ...';
+      const prompt = `คุณคือระบบแปลงข้อสอบ ให้ดึงข้อสอบจากข้อความด้านล่างและตอบกลับเป็น JSON อย่างเดียว
+รูปแบบ: ${jsonSchema}
+${rules.replace('จากรูปภาพทุกหน้า','จากข้อความ')}
+
+ข้อสอบ:
+${state.rawText}`;
+      requestBody = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 65536 }
+      };
     }
 
-    const res = await fetch(`${state.apiUrl}?key=${state.apiKey}`, {
-      method: 'POST',
+    const res = await fetch(state.apiUrl + '?key=' + state.apiKey, {
+      method: 'POST', signal: state.abortCtrl.signal,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody)
     });
-    
+    if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.error?.message || `HTTP ${res.status}`); }
     const data = await res.json();
-    if(data.error) throw new Error(data.error.message);
-
-    // เนื่องจากเราตั้ง responseMimeType แล้ว ข้อความที่ได้จะเป็น JSON ทันที ไม่ต้องมี ```json ครอบ
-    const raw = data.candidates[0].content.parts[0].text.trim();
-    const parsed = JSON.parse(raw);
-    
-    // Auto-Fill Form 
-    if(parsed.metadata) {
-      const meta = parsed.metadata;
-      if(meta.school && document.getElementById('f_school')) document.getElementById('f_school').value = meta.school;
-      if(meta.type && document.getElementById('f_type')) document.getElementById('f_type').value = meta.type;
-      if(meta.year && document.getElementById('f_year')) document.getElementById('f_year').value = meta.year;
-      if(meta.grade && document.getElementById('f_grade')) document.getElementById('f_grade').value = meta.grade;
-      if(meta.subject && document.getElementById('f_subject')) document.getElementById('f_subject').value = meta.subject;
-      if(meta.time && document.getElementById('f_time')) document.getElementById('f_time').value = meta.time;
+    if (data.error) throw new Error(data.error.message);
+    if (!data.candidates || !data.candidates[0]) throw new Error('AI ไม่ส่ง response กลับมา กรุณาลองใหม่');
+    const candidate = data.candidates[0];
+    if (candidate.finishReason && candidate.finishReason !== 'STOP') {
+      if (candidate.finishReason === 'MAX_TOKENS')
+        showErr('⚠️ ไฟล์ใหญ่เกินไป AI อาจตัด response — ระบบจะพยายามกู้ข้อสอบที่ได้มา');
     }
-
+    let raw = candidate.content?.parts?.[0]?.text || '';
+    if (!raw) throw new Error('AI ส่ง response ว่างเปล่า กรุณาลองใหม่');
+    raw = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    const s = raw.indexOf('{');
+    if (s === -1) throw new Error('AI ไม่ส่ง JSON กลับมา กรุณาลองใหม่');
+    const jsonStr = repairJSON(raw.slice(s));
+    const parsed = JSON.parse(jsonStr);
     state.questions = parsed.questions || [];
-    
-    document.getElementById('qBadge').textContent = state.questions.length;
+    if (!state.questions.length) throw new Error('ไม่พบข้อสอบในไฟล์');
+    const badge = document.getElementById('qBadge');
+    badge.textContent = state.questions.length; badge.style.display = 'inline';
+    document.getElementById('emptyState').style.display = 'none';
     document.getElementById('previewLayout').style.display = 'grid';
-    
-    renderEditor();
-    renderPaper();
+    renderAll();
     switchTab('preview', document.getElementById('tabPreview'));
+    document.getElementById('btnPrintTop').style.display = 'flex';
+    document.getElementById('btnDocxTop').style.display = 'flex';
   } catch (e) {
-    alert("การแปลงผิดพลาด: " + e.message);
+    showErr(e.name === 'AbortError' ? 'ยกเลิกการแปลงแล้ว' : 'แปลงไม่ได้: ' + e.message);
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = '✨ แปลงข้อสอบด้วย AI';
+    btn.disabled = false; btn.innerHTML = '✨ แปลงข้อสอบด้วย AI';
+    document.getElementById('btnCancel').style.display = 'none'; state.abortCtrl = null;
   }
 }
+
 let _renderTimer = null;
 function renderAll() { renderEditor(); schedulePaperRender(); }
 function schedulePaperRender() {
