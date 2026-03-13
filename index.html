@@ -10,6 +10,7 @@
 <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/utif2@4.1.0/UTIF.js"></script>
 <script>
 // MathJax config — ต้องตั้งค่าก่อน load
 window.MathJax = {
@@ -658,8 +659,11 @@ function readFile(file) {
                          : ext === 'png' ? 'image/png' : ext === 'gif' ? 'image/gif' : 'image/jpeg';
               const key = 'IMG_' + (++imgCounter);
               if (mime === 'image/tiff') {
-                try { state.docxImages[key] = await convertTiffToJpeg('data:' + mime + ';base64,' + b64); }
-                catch(e) { state.docxImages[key] = 'data:' + mime + ';base64,' + b64; }
+                try {
+                  // ส่ง ArrayBuffer ให้ UTIF.js โดยตรง
+                  const rawArrayBuf = await fileEntry.async('arraybuffer');
+                  state.docxImages[key] = await convertTiffToJpeg(rawArrayBuf);
+                } catch(e) { state.docxImages[key] = 'data:' + mime + ';base64,' + b64; }
               } else {
                 state.docxImages[key] = 'data:' + mime + ';base64,' + b64;
               }
@@ -1489,21 +1493,51 @@ function renderMath() {
   }
 }
 
-// ── แปลง TIFF → JPEG ด้วย canvas ──
-function convertTiffToJpeg(dataUrl) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
+// ── แปลง TIFF → JPEG ด้วย UTIF.js (รองรับ TIFF ใน browser) ──
+async function convertTiffToJpeg(tiffBase64OrArrayBuffer) {
+  try {
+    let arrayBuf;
+    if (typeof tiffBase64OrArrayBuffer === 'string') {
+      // base64 data URL → ArrayBuffer
+      const b64 = tiffBase64OrArrayBuffer.split(',')[1] || tiffBase64OrArrayBuffer;
+      const bin = atob(b64);
+      arrayBuf = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) arrayBuf[i] = bin.charCodeAt(i);
+      arrayBuf = arrayBuf.buffer;
+    } else {
+      arrayBuf = tiffBase64OrArrayBuffer;
+    }
+
+    if (typeof UTIF !== 'undefined') {
+      // ใช้ UTIF.js decode TIFF → RGBA
+      const ifds = UTIF.decode(arrayBuf);
+      UTIF.decodeImage(arrayBuf, ifds[0]);
+      const rgba = UTIF.toRGBA8(ifds[0]);
+      const w = ifds[0].width, h = ifds[0].height;
       const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth || img.width;
-      canvas.height = img.naturalHeight || img.height;
+      canvas.width = w; canvas.height = h;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      resolve(canvas.toDataURL('image/jpeg', 0.92));
-    };
-    img.onerror = () => reject(new Error('แปลง TIFF ไม่ได้'));
-    img.src = dataUrl;
-  });
+      const imgData = ctx.createImageData(w, h);
+      imgData.data.set(rgba);
+      ctx.putImageData(imgData, 0, 0);
+      return canvas.toDataURL('image/jpeg', 0.92);
+    } else {
+      throw new Error('UTIF not loaded');
+    }
+  } catch(e) {
+    // fallback: Image() (อาจไม่ work สำหรับ TIFF แต่ลองดู)
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth; c.height = img.naturalHeight;
+        c.getContext('2d').drawImage(img, 0, 0);
+        resolve(c.toDataURL('image/jpeg', 0.92));
+      };
+      img.onerror = () => reject(new Error('แปลง TIFF ไม่ได้'));
+      img.src = typeof tiffBase64OrArrayBuffer === 'string' ? tiffBase64OrArrayBuffer : '';
+    });
+  }
 }
 
 function cancelConvert() { if (state.abortCtrl) state.abortCtrl.abort(); }
