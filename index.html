@@ -42,8 +42,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .topbar-title{font-size:15px;font-weight:700}
 .topbar-sub{font-size:12px;color:var(--text2);margin-top:1px}
 .topbar-gem{margin-left:auto;background:rgba(232,184,75,.12);border:1px solid rgba(232,184,75,.3);color:var(--accent);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:5px;white-space:nowrap}
-.topbar-gem::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 #btnPrintTop{display:none;margin-left:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--navy);border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sarabun',sans-serif;box-shadow:0 4px 12px rgba(232,184,75,.3);transition:all .2s}
 #btnPrintTop:hover{transform:translateY(-1px)}
 
@@ -77,18 +75,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .file-status-meta{font-size:11px;color:var(--text2)}
 
 .text-toggle{display:none;background:none;border:none;color:var(--text2);font-size:12px;cursor:pointer;font-family:'Sarabun',sans-serif;padding:4px 0;align-items:center;gap:5px;margin-bottom:6px}
-.text-toggle:hover{color:var(--text)}
 .text-box{display:none;max-height:110px;overflow-y:auto;background:rgba(0,0,0,.3);border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.7;color:var(--text2);white-space:pre-wrap;margin-bottom:12px}
-
-.spell-result-box { display: none; background: rgba(0,0,0,.2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; font-size: 13px; color: var(--text); }
-.spell-change-item { display: flex; gap: 8px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.05); }
-.spell-change-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-.spell-orig { color: var(--red); text-decoration: line-through; flex-shrink: 0; }
-
-.spell-edit-input { flex:1; background: rgba(10,22,40,.4); border: 1px solid rgba(74,222,128,.3); color: var(--green); border-radius: 6px; padding: 6px 10px; font-family: 'Sarabun', sans-serif; font-size: 14px; font-weight: bold; outline: none; transition: all 0.2s; }
-.spell-edit-input:focus { border-color: var(--green); background: rgba(74,222,128,.1); }
-.btn-revert { background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.3); color: var(--red); border-radius: 6px; cursor: pointer; font-size: 12px; padding: 6px 12px; font-family: 'Sarabun', sans-serif; transition: all 0.2s; white-space: nowrap; }
-.btn-revert:hover { background: rgba(248,113,113,.25); border-color: var(--red); }
 
 .btn-row{display:flex;flex-direction:column;gap:10px}
 .btn-group-row{display:flex;gap:10px;width:100%}
@@ -118,7 +105,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .editor-panel{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;max-height:calc(100vh - 180px);display:flex;flex-direction:column}
 .editor-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
 .editor-head h4{font-size:13px;color:var(--text2);font-weight:600}
-.btn-add-q{background:rgba(232,184,75,.14);border:1px solid rgba(232,184,75,.3);color:var(--accent);border-radius:7px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sarabun',sans-serif}
+.btn-add-q{background:rgba(232,184,75,.14);border:1px solid rgba(232,184,75,.3);color:var(--accent);border-radius:7px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sarabun',sans-serif;border:none;}
 .q-list{overflow-y:auto;flex:1;padding:10px}
 .q-item{margin-bottom:6px;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:rgba(0,0,0,.2)}
 .q-head{padding:9px 12px;display:flex;align-items:center;cursor:pointer;gap:6px}
@@ -131,8 +118,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .q-body.open{display:block}
 .q-field{margin-bottom:7px}
 .q-field label{display:block;font-size:10px;color:var(--text2);font-weight:700;text-transform:uppercase;margin-bottom:3px}
-.q-field input{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-size:12px;font-family:'Sarabun',sans-serif;outline:none}
-.q-field input:focus{border-color:var(--accent)}
+.q-field input, .q-field textarea{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-size:12px;font-family:'Sarabun',sans-serif;outline:none}
+.q-field input:focus, .q-field textarea:focus{border-color:var(--accent)}
 .empty-state{text-align:center;padding:80px 20px;color:var(--text2)}
 .empty-icon{font-size:52px;margin-bottom:14px;opacity:.4}
 
@@ -206,16 +193,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   .w-line { border-bottom: 1px solid #999 !important; }
 }
 
-.w-name-row{display:flex;gap:24px;align-items:center;margin-bottom:14px;font-size:16px}
-.w-blank{display:inline-block;border-bottom:1.5px solid #000;vertical-align:bottom}
-.w-part-head{font-size:16px;font-weight:bold;margin-bottom:4px}
-.w-pts{font-weight:normal;font-size:14px}
-.w-directions{font-size:16px;margin-bottom:10px}
-.w-topics-box{margin-bottom:14px;padding:10px 14px;border:1px solid #bbb;border-radius:4px}
-.w-topic{font-size:16px;margin-bottom:4px;line-height:1.5}
-.w-lines-box{display:flex;flex-direction:column;gap:0}
-.w-line{border-bottom:1px solid #999;height:32px;width:100%}
-
 .col-toggle-wrap{margin-top:4px}
 .col-toggle-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:block}
 .col-toggle-group{display:flex;gap:10px}
@@ -245,7 +222,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
   </div>
   <div class="topbar-gem">Gemini AI</div>
   <button id="btnPrintTop" onclick="window.print()">🖨 พิมพ์ / PDF</button>
-  <button id="btnDocxTop" onclick="exportDocx()" style="display:none;margin-left:6px;background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sarabun',sans-serif;box-shadow:0 4px 12px rgba(37,99,235,.3);transition:all .2s">💾 บันทึก .docx</button>
 </div>
 
 <div class="tabs">
@@ -290,8 +266,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
         </button>
         <div class="text-box" id="textBox"></div>
 
-        <div id="spellResult" class="spell-result-box"></div>
-
         <div class="api-key-row" style="margin-bottom:12px">
           <label style="font-size:12px;color:var(--text2);margin-bottom:5px;display:block">🔑 Gemini API Key</label>
           <div style="display:flex;gap:6px;align-items:center">
@@ -302,14 +276,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
             <a href="https://aistudio.google.com/app/apikey" target="_blank"
               style="font-size:11px;color:var(--accent);white-space:nowrap;text-decoration:none">สร้าง key</a>
           </div>
-          <div style="font-size:11px;color:var(--text2);margin-top:4px;opacity:.7">🔒 Key ถูกบันทึกไว้ในเครื่องของคุณ — ไม่มีในไฟล์ HTML</div>
         </div>
 
         <div class="btn-row">
-          <button id="btnSpellCheck" style="display:none; padding:12px; background:rgba(74,222,128,.15); color:var(--green); border:1px solid rgba(74,222,128,.3); border-radius:10px; font-family:'Sarabun',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all .2s;" onclick="checkSpelling()">
-            🔍 ให้ AI ตรวจและแก้คำผิดก่อนแปลง
-          </button>
-          
           <div class="btn-group-row">
             <button class="btn-convert" id="btnConvert" disabled onclick="convertExam()">
               ✨ แปลงข้อสอบด้วย AI
@@ -402,48 +371,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
             </label>
           </div>
         </div>
-        <div class="col-toggle-wrap" style="margin-top:14px">
-          <div class="col-toggle-label">หน้าเขียนตอบ (Part II)</div>
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px">
-            <input type="checkbox" id="chkWriting" onchange="onWritingToggle(this)"
-              style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
-            <span style="font-size:13px;color:var(--text1)">เพิ่มหน้าเขียนตอบท้ายข้อสอบ</span>
-          </label>
-          <div id="writingOpts" style="display:none">
-            <div class="field-row" style="margin-bottom:8px">
-              <div class="field">
-                <label class="field-label">คะแนน</label>
-                <input type="number" id="f_wpoints" value="10" min="1"
-                  oninput="state.writingPoints=+this.value;schedulePaperRender()" style="width:100%">
-              </div>
-              <div class="field">
-                <label class="field-label">จำนวนคำ</label>
-                <input type="number" id="f_wwords" value="150" min="50"
-                  oninput="state.writingWords=+this.value;schedulePaperRender()" style="width:100%">
-              </div>
-              <div class="field">
-                <label class="field-label">บรรทัดเขียน</label>
-                <input type="number" id="f_wlines" value="12" min="5" max="30"
-                  oninput="state.writingLines=+this.value;schedulePaperRender()" style="width:100%">
-              </div>
-            </div>
-            <div class="field">
-              <label class="field-label">หัวข้อให้เลือก (แต่ละบรรทัด = 1 หัวข้อ)</label>
-              <textarea id="f_wtopics" rows="6"
-                style="width:100%;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--text1);font-family:Sarabun,sans-serif;font-size:13px;padding:8px;resize:vertical;box-sizing:border-box"
-                oninput="state.writingTopics=this.value.split('\n').filter(t=>t.trim());schedulePaperRender()"
-                placeholder="Do individual actions really help solve environmental problems?&#10;Describe a restaurant experience...&#10;Do inventions always improve life?"></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="steps">
-          <div class="step"><div class="step-num">1</div>กดปุ่ม "คลิกที่นี่เพื่อเลือกไฟล์"</div>
-          <div class="step"><div class="step-num">2</div>ตรวจสอบและแก้ไขข้อมูลหัวกระดาษ</div>
-          <div class="step"><div class="step-num">3</div>กด "แปลงข้อสอบด้วย AI"</div>
-          <div class="step"><div class="step-num">4</div>แก้ไขข้อสอบ แล้วกดพิมพ์ได้เลย</div>
-        </div>
       </div>
-
     </div>
   </div>
 
@@ -470,9 +398,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
               oninput="state.bottomMargin=+this.value;document.getElementById('lblBottom').textContent=this.value+'px';schedulePaperRender()">
             <span id="lblBottom" style="font-size:13px;font-weight:700;color:var(--accent);width:44px;text-align:right">20px</span>
           </div>
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text2);margin-top:3px">
-            <span>เต็มหน้า</span><span>เหลือเยอะ</span>
-          </div>
         </div>
       </div>
       <div id="paperWrap" class="paper-wrap"></div>
@@ -482,43 +407,35 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 </div>
 
 <script>
-// State Management
+// 🌟 เปลี่ยนมาใช้ gemini-2.5-flash โมเดลล่าสุดของ Google ที่เสถียรและเก่งกว่ารุ่น lite
 const state = {
   apiKey: localStorage.getItem('gemini_key') || '',
-  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent', // เปลี่ยนเป็น Flash รุ่นปกติที่เก่งกว่า Lite
+  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
   rawText: '',
   questions: [],
-  currentChanges: [],
   openIdx: null,
   textOpen: false,
   twoCol: true,
   twoColChoice: false,
   abortCtrl: null,
-  showWriting: false,
-  writingTopics: [],
-  writingLines: 12,
-  writingPoints: 10,
-  writingWords: 150,
   bottomMargin: 20,
   docxImages: {},
   mathStore: {},
   pdfImages: []
 };
 
-// Tabs
+// ── Tabs ──
 function switchTab(name, el) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   el.classList.add('active');
-  
   const hasQ = state.questions.length > 0;
   document.getElementById('btnPrintTop').style.display = (name === 'preview' && hasQ) ? 'flex' : 'none';
-  document.getElementById('btnDocxTop').style.display = (name === 'preview' && hasQ) ? 'flex' : 'none';
   if (name === 'preview') requestAnimationFrame(scalePaper);
 }
 
-// File Drag & Drop
+// ── File Upload & Read ──
 function onDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('over'); }
 function onDragLeave() { document.getElementById('uploadZone').classList.remove('over'); }
 function onDrop(e) {
@@ -529,22 +446,15 @@ function onDrop(e) {
 }
 function onFileChange(inp) { if (inp.files[0]) { readFile(inp.files[0]); inp.value = ''; } }
 
-// ── File Parsing ──
 function readFile(file) {
   showStatus(file.name, 'กำลังอ่านไฟล์...'); showErr('');
   const reader = new FileReader();
   const name = file.name.toLowerCase();
   
-  state.currentChanges = [];
   state.docxImages = {};
   state.pdfImages = [];
-  document.getElementById('spellResult').style.display = 'none';
 
-  if (name.endsWith('.txt')) {
-    reader.onload = e => { state.rawText = e.target.result; onReady(file); };
-    reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
-    reader.readAsText(file, 'utf-8');
-  } else if (name.endsWith('.pdf')) {
+  if (name.endsWith('.pdf')) {
     reader.onload = async e => {
       try {
         if (typeof pdfjsLib === 'undefined') throw new Error('โหลด PDF.js ไม่ได้');
@@ -556,7 +466,6 @@ function readFile(file) {
         showStatus(file.name, `กำลังแปลง PDF ${totalPages} หน้าเป็นรูปภาพ...`);
         state.pdfImages = [];
         state.rawText = '';
-
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
 
@@ -564,13 +473,10 @@ function readFile(file) {
           showStatus(file.name, `กำลังแปลงหน้า ${i}/${totalPages}...`);
           const page = await pdf.getPage(i);
           const viewport = page.getViewport({ scale: 2.0 });
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
+          canvas.width = viewport.width; canvas.height = viewport.height;
           await page.render({ canvasContext: ctx, viewport }).promise;
-          const base64 = canvas.toDataURL('image/jpeg', 0.92).split(',')[1];
-          state.pdfImages.push(base64);
+          state.pdfImages.push(canvas.toDataURL('image/jpeg', 0.92).split(',')[1]);
         }
-
         showStatus(file.name, `PDF ${totalPages} หน้า → แปลงเรียบร้อย ✓`);
         state.rawText = `[PDF:${totalPages} หน้า]`;
         onReady(file);
@@ -578,31 +484,13 @@ function readFile(file) {
     };
     reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
     reader.readAsArrayBuffer(file);
-  } else {
-    // DOCX Reader
+  } else if (name.endsWith('.docx')) {
     reader.onload = async e => {
       if (typeof mammoth === 'undefined') return showErr('โหลด mammoth.js ไม่ได้');
       state.docxImages = {};
       state.mathStore = {};
       let imgCounter = 0;
-      let mathCounter = 0;
       const arrayBuf = e.target.result;
-
-      // 1. ดึงสมการ OMML ด้วย JSZip
-      try {
-        if (typeof JSZip !== 'undefined') {
-          const zip = await JSZip.loadAsync(arrayBuf);
-          const docXml = await zip.file('word/document.xml').async('string');
-          const mathRegex = /<m:oMath[\s\S]*?<\/m:oMath>/g;
-          let m;
-          while ((m = mathRegex.exec(docXml)) !== null) {
-            const key = 'MATH_' + (++mathCounter);
-            state.mathStore[key] = ommlToLatex(m[0]);
-          }
-        }
-      } catch(zipErr) { console.warn('JSZip math extract error:', zipErr); }
-
-      // 2. mammoth แปลง HTML
       const options = {
         convertImage: mammoth.images.imgElement(img => {
           return img.read('base64').then(b64mm => {
@@ -612,32 +500,20 @@ function readFile(file) {
           });
         })
       };
-
       try {
         const res = await mammoth.convertToHtml({ arrayBuffer: arrayBuf }, options);
         const tmp = document.createElement('div');
         tmp.innerHTML = res.value;
-
-        // แปลง IMG → Tag
         tmp.querySelectorAll('img').forEach(imgEl => {
           const k = imgEl.getAttribute('src');
           if (k && k.startsWith('IMG_')) imgEl.replaceWith(document.createTextNode(' [IMAGE:' + k + '] '));
         });
-
-        // 🌟 หัวใจสำคัญ: ถนอม sup และ sub เพื่อให้ AI อ่านตัวยก/ตัวห้อยออก!
         tmp.querySelectorAll('sup').forEach(el => el.replaceWith(document.createTextNode('^(' + el.textContent + ')')));
         tmp.querySelectorAll('sub').forEach(el => el.replaceWith(document.createTextNode('_(' + el.textContent + ')')));
-
-        let text = tmp.innerText || tmp.textContent || '';
-        if (mathCounter > 0) text += '\n\n[MATH_DATA:' + JSON.stringify(state.mathStore) + ']';
-        
-        state.rawText = text;
-        const imgCount = Object.keys(state.docxImages).length;
-        showStatus(file.name, `${(file.size/1024).toFixed(1)} KB · รูป ${imgCount} · สูตร ${mathCounter} ✓`);
+        state.rawText = tmp.innerText || tmp.textContent || '';
+        showStatus(file.name, `${(file.size/1024).toFixed(1)} KB · รูป ${imgCounter} ✓`);
         onReady(file);
-      } catch (err) {
-        showErr('อ่าน .docx ไม่ได้: ' + err.message);
-      }
+      } catch (err) { showErr('อ่าน .docx ไม่ได้: ' + err.message); }
     };
     reader.onerror = () => showErr('อ่านไฟล์ไม่ได้');
     reader.readAsArrayBuffer(file);
@@ -646,99 +522,17 @@ function readFile(file) {
 
 function onReady(file) {
   if (!state.rawText || !state.rawText.trim()) return showErr('ไม่พบข้อความในไฟล์');
-
-  const isPdfVision = state.pdfImages.length > 0;
-  if (isPdfVision) {
+  if (state.pdfImages.length === 0) {
+    document.getElementById('textBox').textContent = state.rawText.slice(0, 800) + '...';
+    document.getElementById('textToggle').style.display = 'flex';
+  } else {
     document.getElementById('textToggle').style.display = 'none';
     document.getElementById('textBox').style.display = 'none';
-    document.getElementById('btnSpellCheck').style.display = 'none';
-  } else {
-    document.getElementById('textBox').textContent = state.rawText.slice(0, 800) + (state.rawText.length > 800 ? '…' : '');
-    document.getElementById('textToggle').style.display = 'flex';
-    document.getElementById('btnSpellCheck').style.display = 'block';
   }
-
   document.getElementById('btnConvert').disabled = false;
-  autoFillMeta(); // สั่งให้ AI กรอกหัวกระดาษอัตโนมัติ
+  autoFillMeta();
 }
 
-// ── OMML to LaTeX Parser (Clean & Robust) ──
-function ommlToLatex(omml) {
-  try {
-    const parser = new DOMParser();
-    // ลบ namespace เพื่อป้องกันข้อผิดพลาดการดึงข้อมูลบนเบราว์เซอร์
-    const cleanXml = omml.replace(/m:/g, '').replace(/xmlns:m="[^"]+"/g, ''); 
-    const doc = parser.parseFromString(cleanXml, 'text/xml');
-    return nodeToLatex(doc.documentElement);
-  } catch(e) { return '?'; }
-}
-
-function nodeToLatex(node) {
-  if (node.nodeType === 3) return node.textContent; // Text node
-  
-  const tag = node.localName || '';
-  const getTag = (name) => Array.from(node.childNodes).find(n => n.localName === name);
-  const ch = () => Array.from(node.childNodes).map(nodeToLatex).join('');
-
-  switch(tag) {
-    case 'oMath':      return '\\(' + ch() + '\\)';
-    case 'r':          return ch();
-    case 't':          return node.textContent;
-    case 'f': {
-      const num = getTag('num'), den = getTag('den');
-      return '\\frac{' + (num ? nodeToLatex(num) : '') + '}{' + (den ? nodeToLatex(den) : '') + '}';
-    }
-    case 'rad': {
-      const deg = getTag('deg'), e2 = getTag('e');
-      const d = deg ? nodeToLatex(deg).trim() : '';
-      return (d ? '\\sqrt[' + d + ']{' : '\\sqrt{') + (e2 ? nodeToLatex(e2) : '') + '}';
-    }
-    case 'sSup': {
-      const b = getTag('e'), s = getTag('sup');
-      return '{' + (b ? nodeToLatex(b) : '') + '}^{' + (s ? nodeToLatex(s) : '') + '}';
-    }
-    case 'sSub': {
-      const b = getTag('e'), s = getTag('sub');
-      return '{' + (b ? nodeToLatex(b) : '') + '}_{' + (s ? nodeToLatex(s) : '') + '}';
-    }
-    case 'sSubSup': {
-      const b = getTag('e'), s1 = getTag('sub'), s2 = getTag('sup');
-      return '{' + (b ? nodeToLatex(b) : '') + '}_{' + (s1 ? nodeToLatex(s1) : '') + '}^{' + (s2 ? nodeToLatex(s2) : '') + '}';
-    }
-    case 'nary': {
-      const subH = getTag('sub'), supH = getTag('sup'), eH = getTag('e');
-      let sym = '\\int';
-      const rawText = node.innerHTML || '';
-      if (rawText.includes('∑') || rawText.includes('&#8721;')) sym = '\\sum';
-      else if (rawText.includes('∏') || rawText.includes('&#8719;')) sym = '\\prod';
-      
-      const lo = subH ? '_{' + nodeToLatex(subH) + '}' : '';
-      const hi = supH ? '^{' + nodeToLatex(supH) + '}' : '';
-      return sym + lo + hi + ' ' + (eH ? nodeToLatex(eH) : '');
-    }
-    case 'd':          return '\\left(' + ch() + '\\right)';
-    case 'm': {
-      const rows = Array.from(node.childNodes).filter(n => n.localName === 'mr').map(row =>
-        Array.from(row.childNodes).filter(n => n.localName === 'e').map(el => nodeToLatex(el)).join(' & ')
-      ).join(' \\\\ ');
-      return '\\begin{pmatrix}' + rows + '\\end{pmatrix}';
-    }
-    case 'func': {
-      const fname = getTag('fName'), farg = getTag('e');
-      const fn = fname ? nodeToLatex(fname) : '';
-      const cleanFn = fn.replace(/\\/g,'').trim();
-      const knownFn = ['sin','cos','tan','log','ln','lim','max','min','exp'];
-      return (knownFn.includes(cleanFn) ? '\\' + cleanFn : fn) + '{' + (farg ? nodeToLatex(farg) : '') + '}';
-    }
-    case 'acc': {
-      const eNode = getTag('e');
-      return '\\vec{' + (eNode ? nodeToLatex(eNode) : '') + '}';
-    }
-    default: return ch();
-  }
-}
-
-// ── UI Actions ──
 function toggleText() {
   state.textOpen = !state.textOpen;
   document.getElementById('textBox').style.display = state.textOpen ? 'block' : 'none';
@@ -749,40 +543,34 @@ function showErr(msg) {
   el.style.display = msg ? 'block' : 'none';
   el.textContent = msg ? '⚠️ ' + msg : '';
 }
+function showStatus(name, meta) {
+  document.getElementById('fileStatus').style.display = 'flex';
+  document.getElementById('fileName').textContent = name;
+  document.getElementById('fileMeta').textContent = meta;
+}
 
-// ── AI Convert & Auto-fill ──
+// ── AI Convert ──
 async function autoFillMeta() {
   if (!state.apiKey) return;
   const prompt = `ดึงข้อมูลหัวกระดาษข้อสอบ ตอบ JSON ห้ามมีข้อความอื่น:
 {"school": "ชื่อโรงเรียน", "subject": "ชื่อวิชา", "grade": "ระดับชั้น", "year": "ปีการศึกษา", "time": "เวลา (เฉพาะตัวเลข)", "type": "ประเภท"}`;
-
   const parts = state.pdfImages.length > 0
     ? [{ inline_data: { mime_type: 'image/jpeg', data: state.pdfImages[0] } }, { text: prompt }]
     : [{ text: `วิเคราะห์ข้อความ:\n${state.rawText.slice(0, 600)}\n\n${prompt}` }];
-
   try {
     const res = await fetch(`${state.apiUrl}?key=${state.apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts }],
-        generationConfig: { temperature: 0, responseMimeType: "application/json" }
-      })
+      body: JSON.stringify({ contents: [{ parts }], generationConfig: { temperature: 0, responseMimeType: "application/json" } })
     });
     const data = await res.json();
     const meta = JSON.parse(data.candidates[0].content.parts[0].text);
-
-    const setField = (id, val) => {
-      if (!val) return;
-      const el = document.getElementById(id);
-      if (el) { el.value = val; el.dispatchEvent(new Event('input')); }
-    };
+    const setField = (id, val) => { const el = document.getElementById(id); if (el && val) { el.value = val; el.dispatchEvent(new Event('input')); } };
     setField('f_school', meta.school); setField('f_subject', meta.subject);
-    setField('f_grade', meta.grade);   setField('f_year', meta.year);
-    setField('f_time', meta.time);     setField('f_type', meta.type);
-
-    const badge = document.getElementById('metaFillBadge');
-    if (badge) { badge.style.display = 'inline-flex'; setTimeout(() => badge.style.display = 'none', 4000); }
+    setField('f_grade', meta.grade); setField('f_year', meta.year);
+    setField('f_time', meta.time); setField('f_type', meta.type);
+    document.getElementById('metaFillBadge').style.display = 'inline-flex';
+    setTimeout(() => document.getElementById('metaFillBadge').style.display = 'none', 4000);
   } catch(e) {}
 }
 
@@ -793,26 +581,21 @@ async function convertExam() {
   btn.disabled = true; cancelBtn.style.display = 'flex';
   state.abortCtrl = new AbortController(); showErr('');
 
-  const jsonSchema = `{"questions":[{"no":1,"question":"โจทย์","image":"","math":"","a":"ตัวเลือก","b":"","c":"","d":"","answer":"","labels":["ก","ข","ค","ง"]}]}`;
+  const jsonSchema = `{"questions":[{"no":1,"question":"โจทย์ (ใช้ \\n ขึ้นบรรทัดใหม่ได้)","image":"","math":"","a":"ตัวเลือก","b":"","c":"","d":"","answer":"","labels":["ก","ข","ค","ง"]}]}`;
   
-  // 🌟 พรอมต์บังคับสูตรคณิตศาสตร์
-  const rules = `กฎสำคัญ:
-- ดึงข้อสอบปรนัยทั้งหมด
-- answer="" ถ้าไม่มีเฉลย
-- ตัวเลือก a b c d ให้ตัดอักษร ก ข ค ง ออก
-- image: ให้เว้นว่าง "" เสมอ
-- หากเจอข้อความที่เกิดจาก sup/sub เช่น v^(2) หรือ 1/2 mv^(2) ให้แปลงเป็น LaTeX ให้ถูกต้องคือ \\(v^2\\) หรือ \\(\\frac{1}{2}mv^2\\)
-- ห้ามเดาหรือสร้างเศษส่วนที่ไม่มีตัวส่วน เช่น \\frac{12}{} เด็ดขาด (ถ้าเจอ 12 mv2 ในบริบทพลังงาน ให้แก้เป็น \\(\\frac{1}{2}mv^2\\) ทันที)
-- ใส่สมการ LaTeX ในรูปแบบ inline \\( ... \\)`;
+  const rules = `กฎสำคัญขั้นเด็ดขาด:
+1. ดึงข้อสอบมา **ทุกข้อ** ทั้งแบบปรนัยและอัตนัย
+2. **ห้ามตัดเนื้อหาโจทย์ทิ้งเด็ดขาด!** ข้อความในโจทย์ ตาราง หรือคำถามย่อย (1., 2.) ต้องเก็บมาให้ครบทุกตัวอักษร นำไปรวมไว้ในฟิลด์ "question" (ใช้ \\n ในการขึ้นบรรทัดใหม่)
+3. หากเป็นข้อสอบอัตนัย ให้ปล่อย a, b, c, d เป็น "" (ค่าว่าง)
+4. image: ให้เว้นว่าง "" เสมอ
+5. สมการคณิตศาสตร์/ฟิสิกส์ ต้องครอบด้วย \\( ... \\) เสมอ เช่น \\(\\frac{1}{2}mv^2\\)`;
 
   try {
-    const isPdf = state.pdfImages.length > 0;
     const reqBody = {
-      system_instruction: { parts: [{ text: "คุณคือระบบแปลงข้อสอบเป็น JSON โครงสร้างเป๊ะๆ" }] },
+      system_instruction: { parts: [{ text: "คุณคือระบบแปลงข้อสอบเป็น JSON ห้ามตัดเนื้อหาทิ้ง" }] },
       generationConfig: { temperature: 0, responseMimeType: "application/json" }
     };
-
-    if (isPdf) {
+    if (state.pdfImages.length > 0) {
       btn.innerHTML = '<div class="spinner"></div> AI กำลังอ่านรูปภาพ...';
       const imageParts = state.pdfImages.map(b64 => ({ inline_data: { mime_type: 'image/jpeg', data: b64 } }));
       reqBody.contents = [{ parts: [...imageParts, { text: `โครงสร้าง: ${jsonSchema}\n${rules}` }] }];
@@ -832,72 +615,56 @@ async function convertExam() {
 
     const raw = data.candidates[0].content.parts[0].text;
     const parsed = JSON.parse(raw);
-    
     state.questions = (parsed.questions || []).map(normalizeQ);
-    
-    // ผูกรูปภาพในกรณี Word DOCX
+
     if (Object.keys(state.docxImages).length > 0 && state.rawText) {
       const imgMatches = [...state.rawText.matchAll(/\[IMAGE:(IMG_\d+)\]/g)];
-      imgMatches.forEach((m, idx) => {
-        if (state.questions[idx]) state.questions[idx].image = m[1];
-      });
+      imgMatches.forEach((m, idx) => { if (state.questions[idx]) state.questions[idx].image = m[1]; });
     }
-
     if (!state.questions.length) throw new Error('ไม่พบข้อสอบในไฟล์');
     
     document.getElementById('qBadge').textContent = state.questions.length;
     document.getElementById('qBadge').style.display = 'inline';
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('previewLayout').style.display = 'grid';
-    
     renderAll();
     switchTab('preview', document.getElementById('tabPreview'));
   } catch (e) {
-    showErr(e.name === 'AbortError' ? 'ยกเลิกการแปลงแล้ว' : 'แปลงไม่ได้: ' + e.message);
+    showErr(e.name === 'AbortError' ? 'ยกเลิกแล้ว' : 'แปลงไม่ได้: ' + e.message);
   } finally {
     btn.disabled = false; btn.innerHTML = '✨ แปลงข้อสอบด้วย AI';
     cancelBtn.style.display = 'none'; state.abortCtrl = null;
   }
 }
-
 function cancelConvert() { if (state.abortCtrl) state.abortCtrl.abort(); }
 
-// ── Normalization & Formatting ──
+// ── Render & Editor ──
 function normalizeQ(q) {
   ['question','a','b','c','d'].forEach(f => {
     if (!q[f]) return;
-    let s = String(q[f]);
-    // แก้ LaTeX ที่ลืมใส่ Slash
-    s = s.replace(/(^|[^\\])\b(vec|frac|sqrt|cdot|times|pm|alpha|beta|theta|Delta|sigma|omega|pi|mu|lambda|sum|int|infty)\b(?=\{|\s|$)/g, '$1\\$2');
-    
-    if (/\\(?:vec|frac|sqrt|cdot|times|pm|alpha)/.test(s) && !/\\[\(\[]/.test(s)) {
-      s = '\\(' + s + '\\)'; // ถ้ามีสมการแต่ลืมครอบ ให้ครอบให้
-    }
+    let s = String(q[f]).replace(/(^|[^\\])\b(vec|frac|sqrt|cdot|times|pm|alpha|beta|theta|Delta|sigma|omega|pi|mu|lambda|sum|int|infty)\b(?=\{|\s|$)/g, '$1\\$2');
+    if (/\\(?:vec|frac|sqrt|cdot|times|pm|alpha)/.test(s) && !/\\[\(\[]/.test(s)) s = '\\(' + s + '\\)';
     q[f] = s.replace(/\[IMAGE:[^\]]+\]/g, '').trim();
   });
   return q;
 }
 
 function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
 function escMathSafe(s) {
   if (!s) return '';
   const str = String(s);
-  if (!str.includes('\\(') && !str.includes('\\[')) return esc(str);
-  
   const result = [];
   const regex = /\\[\(\[][\s\S]*?\\[\)\]]/g;
   let last = 0, m;
   while ((m = regex.exec(str)) !== null) {
     result.push(esc(str.slice(last, m.index)));
-    result.push(m[0].replace(/</g, '&lt;').replace(/>/g, '&gt;')); // อนุญาต & ใน LaTeX สำหรับ Matrix
+    result.push(m[0].replace(/</g, '&lt;').replace(/>/g, '&gt;')); 
     last = m.index + m[0].length;
   }
   result.push(esc(str.slice(last)));
-  return result.join('');
+  return result.join('').replace(/\n/g, '<br>');
 }
 
-// ── Rendering Engine (DocumentFragment + Batching) ──
 let _renderTimer = null;
 function renderAll() { renderEditor(); schedulePaperRender(); }
 function schedulePaperRender() {
@@ -919,9 +686,13 @@ function renderEditor() {
         <button class="btn-del" onclick="event.stopPropagation();delQ(${i})">×</button>
       </div>
       <div class="q-body${state.openIdx === i ? ' open' : ''}">
-        ${['question','a','b','c','d','answer'].map(f => `
+        <div class="q-field">
+          <label>คำถาม</label>
+          <textarea rows="4" style="width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-size:12px;font-family:'Sarabun',sans-serif;outline:none;resize:vertical;" oninput="updateQ(${i},'question',this.value)">${esc(q.question || '')}</textarea>
+        </div>
+        ${['a','b','c','d','answer'].map(f => `
           <div class="q-field">
-            <label>${{question:'คำถาม',a:'ก',b:'ข',c:'ค',d:'ง',answer:'เฉลย'}[f]}</label>
+            <label>${{a:'ก',b:'ข',c:'ค',d:'ง',answer:'เฉลย'}[f]}</label>
             <input value="${esc(q[f] || '')}" oninput="updateQ(${i},'${f}',this.value)">
           </div>`).join('')}
       </div>`;
@@ -932,28 +703,18 @@ function renderEditor() {
 
 function renderPaper() {
   const v = id => document.getElementById(id).value;
-  const meta = { school: v('f_school'), type: v('f_type'), year: v('f_year'),
-    grade: v('f_grade'), subject: v('f_subject'), time: v('f_time'),
-    inst: v('f_inst'), total: state.questions.length };
-
-  const frag = document.createDocumentFragment();
+  const meta = { school: v('f_school'), type: v('f_type'), year: v('f_year'), grade: v('f_grade'), subject: v('f_subject'), time: v('f_time'), inst: v('f_inst'), total: state.questions.length };
   const wrap = document.getElementById('paperWrap');
   wrap.innerHTML = '';
-
+  
   const qHtmls = state.questions.map(q => {
     const labels = (q.labels && q.labels.length) ? q.labels : ['ก','ข','ค','ง'];
-    const choicesHtml = ['a','b','c','d'].filter(k => q[k]).map((k, i) => 
-      `<div class="q-choice"><span class="q-choice-lbl">${labels[i]}.&#8203;</span><span class="q-choice-body">${escMathSafe(q[k])}</span></div>`
-    ).join('');
-    
+    const choicesHtml = ['a','b','c','d'].filter(k => q[k]).map((k, i) => `<div class="q-choice"><span class="q-choice-lbl">${labels[i]}.&#8203;</span><span class="q-choice-body">${escMathSafe(q[k])}</span></div>`).join('');
     const imgHtml = (q.image && state.docxImages[q.image]) ? `<div class="q-img"><img src="${state.docxImages[q.image]}" style="max-width:100%;max-height:180px;margin:4px 0;border-radius:3px"></div>` : '';
-    const mathHtml = q.math ? `<div class="q-math" style="margin:4px 0">${state.mathStore[q.math] || q.math}</div>` : '';
-
-    return `<div class="q-block"><div class="q-text"><span class="q-num-lbl">${q.no}.</span><span class="q-text-body">${escMathSafe(q.question)}</span></div>${imgHtml}${mathHtml}<div class="q-choices ${state.twoColChoice ? 'q-choices-2col' : ''}">${choicesHtml}</div></div>`;
+    return `<div class="q-block"><div class="q-text"><span class="q-num-lbl">${q.no}.</span><span class="q-text-body">${escMathSafe(q.question)}</span></div>${imgHtml}<div class="q-choices ${state.twoColChoice ? 'q-choices-2col' : ''}">${choicesHtml}</div></div>`;
   }).join('');
 
   const contentWrap = state.twoCol ? `<div class="exam-cols"><div class="exam-col">${qHtmls}</div></div>` : `<div class="exam-single">${qHtmls}</div>`;
-
   const page = document.createElement('div');
   page.className = 'paper-scale-wrap';
   page.style.cssText = 'position:relative;overflow:hidden;margin-bottom:20px;';
@@ -965,9 +726,7 @@ function renderPaper() {
       <div class="p-inst">คำชี้แจง : ${esc(meta.inst)}</div>
       ${contentWrap}
     </div>`;
-  
-  frag.appendChild(page);
-  wrap.appendChild(frag);
+  wrap.appendChild(page);
   requestAnimationFrame(scalePaper);
 }
 
@@ -985,26 +744,19 @@ function scalePaper() {
   });
 }
 
-function renderMath() {
-  if (window.MathJax && MathJax.typesetPromise) {
-    MathJax.typesetPromise([document.getElementById('paperWrap')]).catch(e => console.warn(e));
-  }
-}
+function renderMath() { if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([document.getElementById('paperWrap')]).catch(e => console.warn(e)); }
 
-// Event Listeners
-window.addEventListener('resize', scalePaper);
+// ── CRUD ──
 function toggleQ(i) { state.openIdx = state.openIdx === i ? null : i; renderEditor(); }
 function delQ(i) { state.questions.splice(i, 1); state.questions.forEach((q, idx) => q.no = idx + 1); renderAll(); document.getElementById('qBadge').textContent = state.questions.length; }
-function addQ() { state.questions.push({ no: state.questions.length + 1, question: '', a: '', b: '', c: '', d: '', answer: '' }); state.openIdx = state.questions.length - 1; renderAll(); document.getElementById('qBadge').textContent = state.questions.length; }
+function addQ() { state.questions.push({ no: state.questions.length + 1, question: '', a: '', b: '', c: '', d: '', answer: '' }); state.openIdx = state.questions.length - 1; renderAll(); const badge = document.getElementById('qBadge'); badge.textContent = state.questions.length; badge.style.display = 'inline'; }
 function updateQ(i, f, v) { state.questions[i][f] = v; schedulePaperRender(); }
 function onLayoutChange(el) { state.twoCol = el.value === '2'; document.querySelectorAll('.col-opt[id^="opt1col"], .col-opt[id^="opt2col"]').forEach(n => n.classList.remove('active')); el.closest('.col-opt').classList.add('active'); schedulePaperRender(); }
 function onChoiceLayoutChange(el) { state.twoColChoice = el.value === '2'; document.querySelectorAll('.col-opt[id^="optChoice"]').forEach(n => n.classList.remove('active')); el.closest('.col-opt').classList.add('active'); schedulePaperRender(); }
 document.querySelectorAll('input[id^="f_"]').forEach(el => el.addEventListener('input', schedulePaperRender));
 
-(function() {
-  const k = localStorage.getItem('gemini_key');
-  if (k) { state.apiKey = k; document.getElementById('apiKeyInput').value = k; }
-})();
+(function() { const k = localStorage.getItem('gemini_key'); if (k) { state.apiKey = k; document.getElementById('apiKeyInput').value = k; } })();
+window.addEventListener('resize', scalePaper);
 </script>
 </body>
 </html>
