@@ -877,6 +877,12 @@ function normalizeQ(q) {
 
 function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ⬇️ วางฟังก์ชันใหม่ตรงนี้ได้เลย ⬇️
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ⬇️ วางฟังก์ชันใหม่ตรงนี้ได้เลย ⬇️
 function escMathSafe(s) {
   if (!s) return '';
   const str = String(s);
@@ -885,16 +891,21 @@ function escMathSafe(s) {
   const result = [];
   const regex = /\\[\(\[][\s\S]*?\\[\)\]]/g;
   let last = 0, m;
+  
+  // ตรวจหา LaTeX block แล้วแยกไว้ไม่ให้ถูกแปลง HTML tags
   while ((m = regex.exec(str)) !== null) {
     result.push(esc(str.slice(last, m.index)));
-    result.push(m[0].replace(/</g, '&lt;').replace(/>/g, '&gt;')); // อนุญาต & ใน LaTeX สำหรับ Matrix
+    result.push(m[0].replace(/</g, '&lt;').replace(/>/g, '&gt;')); 
     last = m.index + m[0].length;
   }
   result.push(esc(str.slice(last)));
-  return result.join('');
+  
+  // แปลง \n เป็น <br> เพื่อให้ขึ้นบรรทัดใหม่ในหน้ากระดาษได้
+  return result.join('').replace(/\n/g, '<br>');
 }
+// ⬆️ สิ้นสุดฟังก์ชันที่นำมาวาง ⬆️
 
-// ── Rendering Engine (DocumentFragment + Batching) ──
+// (โค้ดส่วนอื่นๆ ที่อยู่ด้านล่างต่อจากนี้ ปล่อยไว้เหมือนเดิมครับ)
 let _renderTimer = null;
 function renderAll() { renderEditor(); schedulePaperRender(); }
 function schedulePaperRender() {
@@ -916,9 +927,13 @@ function renderEditor() {
         <button class="btn-del" onclick="event.stopPropagation();delQ(${i})">×</button>
       </div>
       <div class="q-body${state.openIdx === i ? ' open' : ''}">
-        ${['question','a','b','c','d','answer'].map(f => `
+        <div class="q-field">
+          <label>คำถาม</label>
+          <textarea rows="4" style="width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-size:12px;font-family:'Sarabun',sans-serif;outline:none;resize:vertical;" oninput="updateQ(${i},'question',this.value)">${esc(q.question || '')}</textarea>
+        </div>
+        ${['a','b','c','d','answer'].map(f => `
           <div class="q-field">
-            <label>${{question:'คำถาม',a:'ก',b:'ข',c:'ค',d:'ง',answer:'เฉลย'}[f]}</label>
+            <label>${{a:'ก',b:'ข',c:'ค',d:'ง',answer:'เฉลย'}[f]}</label>
             <input value="${esc(q[f] || '')}" oninput="updateQ(${i},'${f}',this.value)">
           </div>`).join('')}
       </div>`;
