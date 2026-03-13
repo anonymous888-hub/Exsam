@@ -539,7 +539,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 <script>
 const state = {
   apiKey: localStorage.getItem('gemini_key') || '',
-  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent',
+  apiUrl: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent',
   rawText: '',
   questions: [],
   currentChanges: [],
@@ -1024,10 +1024,8 @@ async function convertExam() {
 
   // ── เลือก mode: PDF Vision หรือ Text ──
   const isPdfVision = state.pdfImages.length > 0;
-  // ใช้ gemini-2.0-flash สำหรับ PDF Vision (อ่านรูป+LaTeX ได้ดีกว่า)
-  const apiModel = isPdfVision
-    ? 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent'
-    : state.apiUrl;
+  // ใช้ gemini-2.5-flash-lite ทั้ง PDF Vision และ text mode
+  const apiModel = state.apiUrl;
 
   const jsonSchema = `{"questions":[{"no":1,"question":"คำถาม (ฝัง LaTeX ได้ เช่น \\(\\vec{A}+\\vec{B}=0\\))","image":"","math":"","a":"ตัวเลือก (ฝัง LaTeX ได้)","b":"","c":"","d":"","answer":"ก","labels":["ก","ข","ค","ง"]}]}`;
   const rules = `กฎสำคัญ:
@@ -1059,8 +1057,9 @@ async function convertExam() {
 ${rules}`
       };
       requestBody = {
+        system_instruction: { parts: [{ text: 'คุณคือระบบแปลงข้อสอบฟิสิกส์/คณิตศาสตร์ที่เชี่ยวชาญ LaTeX อย่างเคร่งครัด ตอบเป็น JSON เท่านั้น ห้ามมี markdown หรือข้อความอื่น' }] },
         contents: [{ parts: [...imageParts, textPart] }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 65536 }
+        generationConfig: { temperature: 0, maxOutputTokens: 65536 }
       };
     } else {
       btn.innerHTML = '<div class="spinner"></div> AI กำลังวิเคราะห์ข้อสอบ...';
@@ -1071,8 +1070,9 @@ ${rules.replace('จากรูปภาพทุกหน้า','จากข
 ข้อสอบ:
 ${state.rawText}`;
       requestBody = {
+        system_instruction: { parts: [{ text: 'คุณคือระบบแปลงข้อสอบฟิสิกส์/คณิตศาสตร์ที่เชี่ยวชาญ LaTeX อย่างเคร่งครัด ตอบเป็น JSON เท่านั้น ห้ามมี markdown หรือข้อความอื่น' }] },
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 65536 }
+        generationConfig: { temperature: 0, maxOutputTokens: 65536 }
       };
     }
 
