@@ -1097,7 +1097,7 @@ ${state.rawText}`;
     if (s === -1) throw new Error('AI ไม่ส่ง JSON กลับมา กรุณาลองใหม่');
     const jsonStr = repairJSON(raw.slice(s));
     const parsed = JSON.parse(jsonStr);
-    state.questions = parsed.questions || [];
+    state.questions = (parsed.questions || []).map(normalizeQ);
     if (!state.questions.length) throw new Error('ไม่พบข้อสอบในไฟล์');
     const badge = document.getElementById('qBadge');
     badge.textContent = state.questions.length; badge.style.display = 'inline';
@@ -1116,6 +1116,36 @@ ${state.rawText}`;
 }
 
 let _renderTimer = null;
+
+// ── normalizeQ: แก้ LaTeX ที่ AI ส่งมาผิดรูปแบบ ──
+function normalizeQ(q) {
+  const fields = ['question','a','b','c','d'];
+  fields.forEach(f => {
+    if (!q[f]) return;
+    let s = String(q[f]);
+
+    // Step 1: แปลง bare LaTeX commands (ไม่มี backslash) → ใส่ backslash
+    // เช่น vec{A} → \vec{A}, frac{1}{2} → \frac{1}{2}
+    s = s.replace(/(?<![\\])\b(vec|frac|sqrt|cdot|times|pm|alpha|beta|theta|Delta|sigma|omega|pi|mu|lambda|sum|int|infty)\b(?=\{|\s|$)/g, '\\$1');
+
+    // Step 2: ถ้า field มี LaTeX command แต่ไม่มี \( \) ครอบ → ห่อด้วย \( \)
+    const hasLatexCmd = /\\(?:vec|frac|sqrt|cdot|times|pm|alpha|beta|theta|Delta|sigma|omega|pi|mu|lambda)/.test(s);
+    const hasDelim = /\\[\(\[]/.test(s);
+
+    if (hasLatexCmd && !hasDelim) {
+      // ถ้าเป็น pure LaTeX expression ทั้ง field (เช่น choice "\(\vec{A}+\vec{B}\)")
+      s = '\\(' + s + '\\)';
+    }
+
+    q[f] = s;
+  });
+  // สำหรับ PDF Vision: ล้าง image field เพราะไม่มีรูปจริงใน state.docxImages
+  // (AI อาจใส่ image key ผิด เช่น IMG_2 ที่ไม่มีอยู่จริง)
+  if (q.image && q.image.startsWith('IMG_')) {
+    if (!state.docxImages[q.image]) q.image = '';
+  }
+  return q;
+}
 function renderAll() { renderEditor(); schedulePaperRender(); }
 function schedulePaperRender() {
   if (_renderTimer) cancelAnimationFrame(_renderTimer);
