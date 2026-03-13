@@ -1026,7 +1026,7 @@ async function convertExam() {
   const isPdfVision = state.pdfImages.length > 0;
   // ใช้ gemini-2.0-flash สำหรับ PDF Vision (อ่านรูป+LaTeX ได้ดีกว่า)
   const apiModel = isPdfVision
-    ? 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+    ? 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent'
     : state.apiUrl;
 
   const jsonSchema = `{"questions":[{"no":1,"question":"คำถาม (ฝัง LaTeX ได้ เช่น \\(\\vec{A}+\\vec{B}=0\\))","image":"","math":"","a":"ตัวเลือก (ฝัง LaTeX ได้)","b":"","c":"","d":"","answer":"ก","labels":["ก","ข","ค","ง"]}]}`;
